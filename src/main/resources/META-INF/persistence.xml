@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.2">
+    <persistence-unit name="JapaneseLearningAppPU" transaction-type="RESOURCE_LOCAL">
+
+        <!-- Specify provider -->
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <!-- List entity classes explicitly if not using classpath scanning -->
+        <class>at.primetshofer.model.entities.Kanji</class>
+        <class>at.primetshofer.model.entities.Sentence</class>
+        <class>at.primetshofer.model.entities.Word</class>
+        <class>at.primetshofer.model.entities.WordProgress</class>
+        <!-- Repeat for each entity class -->
+
+        <!-- JPA properties -->
+        <properties>
+
+            <!-- JDBC connection properties -->
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver" />
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:./data;DB_CLOSE_DELAY=-1" />
+            <property name="javax.persistence.jdbc.appUser" value="sa" />
+
+            <!-- Hibernate properties -->
+            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
+            <property name="hibernate.hbm2ddl.auto" value="update" />
+            <property name="hibernate.show_sql" value="false" />
+            <property name="hibernate.format_sql" value="true" />
+
+            <!-- Pooling (optional) -->
+            <property name="hibernate.c3p0.min_size" value="5" />
+            <property name="hibernate.c3p0.max_size" value="20" />
+            <property name="hibernate.c3p0.timeout" value="300" />
+            <property name="hibernate.c3p0.max_statements" value="50" />
+            <property name="hibernate.c3p0.idle_test_period" value="3000" />
+
+        </properties>
+    </persistence-unit>
+</persistence>

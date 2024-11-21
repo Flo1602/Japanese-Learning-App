@@ -1,0 +1,105 @@
+.headline{
+    -fx-font-size: 48pt;
+    -fx-font-weight: bold;
+}
+
+.menuButton{
+    -fx-font-size: 28pt;
+    -fx-font-weight: bold;
+    -fx-padding: 0.4em 0.8em 0.4em 0.8em;
+}
+
+.menuVBox{
+    -fx-spacing: 3em;
+    -fx-alignment: center;
+}
+
+.settingsButton{
+    -fx-background-insets: 1px;
+    -fx-padding: 0.8em 0.9em 0.8em 0.9em;
+}
+
+.container{
+    -fx-padding: 2em 2em -3em 2em;
+}
+
+.container2{
+    -fx-padding: -5em 2em 2em 2em;
+}
+
+.container3{
+    -fx-padding: -2.7em 2em 2em 2em;
+}
+
+.progressBar{
+    -fx-scale-x: 2.5;
+    -fx-scale-y: 2.5;
+    -fx-padding: 2em 0em 2em 0em;
+}
+
+.normalText{
+    -fx-font-size: 24pt;
+}
+
+.smallText{
+    -fx-font-size: 18pt;
+}
+
+.settingsHB{
+    -fx-spacing: 3em;
+    -fx-alignment: center;
+}
+
+.wordListButton{
+    -fx-font-size: 20pt;
+}
+
+.normalButton{
+    -fx-font-size: 22pt;
+    -fx-font-weight: bold;
+    -fx-padding: 0.2em 0.4em 0.2em 0.4em;
+}
+
+.smallButton{
+    -fx-font-size: 14pt;
+    -fx-padding: 0.15em 0.3em 0.15em 0.3em;
+}
+
+.wrongAnswerButton{
+    -fx-background-color: rgba(255, 0, 0, 0.48);
+}
+
+.correctAnswerButton{
+    -fx-background-color: rgba(1, 255, 63, 0.56);
+}
+
+.matchButton{
+    -fx-font-size: 20pt;
+    -fx-font-weight: bold;
+    -fx-padding: 0.4em 0.6em 0.4em 0.6em;
+    -fx-pref-width: 315px;
+}
+
+.answerButton{
+    -fx-font-size: 18pt;
+    -fx-font-weight: bold;
+    -fx-padding: 0.4em 0.6em 0.4em 0.6em;
+    -fx-pref-width: 500px;
+}
+
+.correctText{
+    -fx-font-size: 32pt;
+    -fx-text-fill: #39FF14;
+    -fx-font-weight: bold;
+}
+
+.wrongText{
+    -fx-font-size: 32pt;
+    -fx-text-fill: #ff3f14;
+    -fx-font-weight: bold;
+}
+
+.sessionCompleteText{
+    -fx-font-size: 36pt;
+    -fx-font-weight: bold;
+}
