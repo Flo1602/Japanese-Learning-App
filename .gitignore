@@ -39,6 +39,5 @@ build/
 /audio/
 /kanjivg-20240807-all/
 /vosk-model-ja-0.22/
-/src/main/resources/audio.png
-/src/main/resources/back.png
-/src/main/resources/edit.png
+/data.mv.db
+/data.trace.db
