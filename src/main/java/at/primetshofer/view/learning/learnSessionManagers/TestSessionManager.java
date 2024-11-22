@@ -1,10 +1,15 @@
 package at.primetshofer.view.learning.learnSessionManagers;
 
+import at.primetshofer.logic.tracing.ITraceLogic;
+import at.primetshofer.logic.tracing.TraceLineLogic;
+import at.primetshofer.logic.tracing.TraceLineOptions;
 import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.HibernateUtil;
+import at.primetshofer.view.learning.learnViews.KanjiTracerLearnView;
 import at.primetshofer.view.learning.learnViews.sentenceLearnViews.WordBuilderView;
 import jakarta.persistence.EntityManager;
 import javafx.scene.Scene;
+import javafx.scene.paint.Color;
 
 import java.util.List;
 
@@ -16,19 +21,21 @@ public class TestSessionManager extends LearnSessionManager{
 
     @Override
     protected void startLearning() {
-        EntityManager entityManager = HibernateUtil.getEntityManager();
-        String sql = "SELECT * FROM WORD ORDER BY RAND() LIMIT 1";
-        List<Word> resultList = entityManager.createNativeQuery(sql, Word.class).getResultList();
+        TraceLineOptions options = new TraceLineOptions(
+                Color.GRAY,
+                500.0D,
+                500.0D,
+                20.0D,
+                5,
+                100.0D
+        );
 
-        WordBuilderView wordBuilderView;
-
-        wordBuilderView = new WordBuilderView(this, resultList.getFirst());
-        currentLearnView = wordBuilderView;
+        ITraceLogic traceLogic = new TraceLineLogic(options);
+        super.currentLearnView = new KanjiTracerLearnView(this, traceLogic);
 
         setProgress(100);
 
-        bp.setCenter(wordBuilderView.initView());
-        wordBuilderView.playSentenceTTS();
+        super.bp.setCenter(super.currentLearnView.initView());
     }
 
     @Override
