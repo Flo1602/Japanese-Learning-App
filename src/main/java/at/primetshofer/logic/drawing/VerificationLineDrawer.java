@@ -25,7 +25,8 @@ public class VerificationLineDrawer extends ContextPreservingLineDrawer {
         double currentTransitionLineWidth = this.maxTransitionLineWidth;
 
         for (double currTransitionLine = 0; currTransitionLine <= this.transitionLines; currTransitionLine++) {
-            double saturation = currTransitionLine / (this.maxTransitionLineWidth - 1);
+            double saturation = (currTransitionLine + 1) / (this.transitionLines + 1);
+            System.out.println(saturation);
             gc.setLineWidth(currentTransitionLineWidth);
             this.drawTransitionLine(gc, polygon, saturation);
             currentTransitionLineWidth -= transitionLineStepSize;

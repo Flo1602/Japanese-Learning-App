@@ -3,6 +3,7 @@ package at.primetshofer.logic.drawing;
 import at.primetshofer.model.Point;
 import at.primetshofer.model.Polygon;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.paint.Color;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class SmoothLineDrawer extends ContextPreservingLineDrawer {
         List<Point> vertices = polygon.getVertices();
         gc.moveTo(vertices.get(0).getX(), vertices.get(0).getY());
         gc.setStroke(this.strokeColor);
+        gc.setGlobalBlendMode(BlendMode.SRC_OVER);
         gc.setLineWidth(super.lineWidth);
         gc.beginPath();
 

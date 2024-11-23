@@ -2,7 +2,7 @@ package at.primetshofer.logic.provider.polygon;
 
 import at.primetshofer.model.Point;
 import at.primetshofer.model.Polygon;
-import at.primetshofer.logic.parser.ISVGParser;
+import at.primetshofer.logic.parser.ISVGPathParser;
 import at.primetshofer.logic.provider.file.IFileProvider;
 
 import java.io.File;
@@ -13,24 +13,32 @@ import java.util.regex.Pattern;
 
 public class SVGPolygonProvider implements IPolygonProvider {
 
-
     private final IFileProvider fileProvider;
-    private final ISVGParser svgParser;
+    private final ISVGPathParser svgParser;
+    private final SVGPolyProviderOptions SVGPolyProviderOptions;
 
-    public SVGPolygonProvider(IFileProvider fileProvider, ISVGParser svgParser, Options options) {
+    public SVGPolygonProvider(IFileProvider fileProvider, ISVGPathParser svgParser, SVGPolyProviderOptions SVGPolyProviderOptions) {
         this.fileProvider = fileProvider;
         this.svgParser = svgParser;
+        this.SVGPolyProviderOptions = SVGPolyProviderOptions;
     }
 
     @Override
     public List<Polygon> getAllPolygons() {
         File svgFile = this.fileProvider.provideFile();
-        return null;
+        List<String> svgPathStrings = this.svgParser.parse(svgFile);
+        List<Polygon> allPolygons = new ArrayList<>();
+
+        for (String svgPathString : svgPathStrings) {
+            allPolygons.addAll(this.svgPathToPolygons(svgPathString));
+        }
+
+        return allPolygons;
     }
 
-    public List<Polygon> svgPathToPolygons(String svgPathString, Options opts) {
+    private List<Polygon> svgPathToPolygons(String svgPathString) {
         List<Polygon> polys = new ArrayList<>();
-        double tolerance2 = opts.tolerance * opts.tolerance;
+        double tolerance2 = this.SVGPolyProviderOptions.tolerance * this.SVGPolyProviderOptions.tolerance;
         Polygon poly = null;
         Command prev = null;
 
@@ -45,11 +53,11 @@ public class SVGPolygonProvider implements IPolygonProvider {
                 case "H":
                 case "V":
                 case "Z":
-                    add(poly, cmd.x, cmd.y, opts);
+                    add(poly, cmd.x, cmd.y);
                     break;
                 case "C":
-                    sampleCubicBezier(cmd.x0, cmd.y0, cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x, cmd.y, poly, tolerance2, opts);
-                    add(poly, cmd.x, cmd.y, opts);
+                    sampleCubicBezier(cmd.x0, cmd.y0, cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x, cmd.y, poly, tolerance2);
+                    add(poly, cmd.x, cmd.y);
                     break;
                 case "S":
                     double x1 = 0, y1 = 0;
@@ -62,8 +70,8 @@ public class SVGPolygonProvider implements IPolygonProvider {
                             y1 = prev.y;
                         }
                     }
-                    sampleCubicBezier(cmd.x0, cmd.y0, x1, y1, cmd.x2, cmd.y2, cmd.x, cmd.y, poly, tolerance2, opts);
-                    add(poly, cmd.x, cmd.y, opts);
+                    sampleCubicBezier(cmd.x0, cmd.y0, x1, y1, cmd.x2, cmd.y2, cmd.x, cmd.y, poly, tolerance2);
+                    add(poly, cmd.x, cmd.y);
                     break;
                 default:
                     System.err.println("Our deepest apologies, but " + cmd.command + " commands (" + cmd.code + ") are not yet supported.");
@@ -75,7 +83,7 @@ public class SVGPolygonProvider implements IPolygonProvider {
     }
 
     // Function to approximate a cubic Bézier curve recursively
-    private void sampleCubicBezier(double x0, double y0, double x1, double y1, double x2, double y2, double x3, double y3, Polygon poly, double tolerance2, Options opts) {
+    private void sampleCubicBezier(double x0, double y0, double x1, double y1, double x2, double y2, double x3, double y3, Polygon poly, double tolerance2) {
         // Calculate all the mid-points of the line segments
         double x01 = (x0 + x1) / 2.0;
         double y01 = (y0 + y1) / 2.0;
@@ -98,22 +106,22 @@ public class SVGPolygonProvider implements IPolygonProvider {
         double d2 = Math.abs(((x2 - x3) * dy - (y2 - y3) * dx));
 
         if (((d1 + d2) * (d1 + d2)) < (tolerance2 * (dx * dx + dy * dy))) {
-            add(poly, x0123, y0123, opts);
+            add(poly, x0123, y0123);
         } else {
             // Continue subdivision
-            sampleCubicBezier(x0, y0, x01, y01, x012, y012, x0123, y0123, poly, tolerance2, opts);
-            sampleCubicBezier(x0123, y0123, x123, y123, x23, y23, x3, y3, poly, tolerance2, opts);
+            sampleCubicBezier(x0, y0, x01, y01, x012, y012, x0123, y0123, poly, tolerance2);
+            sampleCubicBezier(x0123, y0123, x123, y123, x23, y23, x3, y3, poly, tolerance2);
         }
     }
 
     // Function to add a point to the current polygon
-    private void add(Polygon poly, double x, double y, Options opts) {
-        if (opts.decimals != null && opts.decimals >= 0) {
-            x = roundToDecimals(x, opts.decimals);
-            y = roundToDecimals(y, opts.decimals);
+    private void add(Polygon poly, double x, double y) {
+        if (this.SVGPolyProviderOptions.decimals != null && this.SVGPolyProviderOptions.decimals >= 0) {
+            x = roundToDecimals(x, this.SVGPolyProviderOptions.decimals);
+            y = roundToDecimals(y, this.SVGPolyProviderOptions.decimals);
         }
 
-        poly.getVertices().add(new Point((int) x, (int) y));
+        poly.getVertices().add(new Point(x, y));
     }
 
     // Helper function to round a value to a specified number of decimals
@@ -211,20 +219,13 @@ public class SVGPolygonProvider implements IPolygonProvider {
 
     // Helper method to get the number of parameters for each command
     private int getParamCount(String command) {
-        switch (command.toUpperCase()) {
-            case "M":
-            case "L":
-                return 2;
-            case "H":
-            case "V":
-                return 1;
-            case "C":
-                return 6;
-            case "S":
-                return 4;
-            default:
-                return 0;
-        }
+        return switch (command.toUpperCase()) {
+            case "M", "L" -> 2;
+            case "H", "V" -> 1;
+            case "C" -> 6;
+            case "S" -> 4;
+            default -> 0;
+        };
     }
 
     // Implementation for makeAbsolute function
@@ -310,16 +311,14 @@ public class SVGPolygonProvider implements IPolygonProvider {
         return commands;
     }
 
-    public static class Options {
+    public static class SVGPolyProviderOptions {
 
         private final double tolerance;
         private final Integer decimals;
-        private final File svgFile;
 
-        public Options(double tolerance, Integer decimals, File svgFile) {
+        public SVGPolyProviderOptions(double tolerance, Integer decimals) {
             this.tolerance = tolerance;
             this.decimals = decimals;
-            this.svgFile = svgFile;
         }
     }
 

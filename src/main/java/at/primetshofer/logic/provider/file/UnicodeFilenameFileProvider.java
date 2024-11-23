@@ -5,17 +5,20 @@ import java.io.File;
 public class UnicodeFilenameFileProvider implements IFileProvider {
 
     private final String parentAbsolutePath;
-    private final char charForFilename;
     private final char prefix;
     private final int expectedFilenameLength;
     private final String extension;
+    private char charForFilename;
 
-    public UnicodeFilenameFileProvider(String parentAbsolutePath, char charForFilename, char prefix, int expectedFilenameLength, String extension) {
+    public UnicodeFilenameFileProvider(String parentAbsolutePath, char prefix, int expectedFilenameLength, String extension) {
         this.parentAbsolutePath = parentAbsolutePath;
-        this.charForFilename = charForFilename;
         this.prefix = prefix;
         this.expectedFilenameLength = expectedFilenameLength;
         this.extension = extension;
+    }
+
+    public void setCharForFilename(char charForFilename) {
+        this.charForFilename = charForFilename;
     }
 
     @Override
@@ -29,8 +32,6 @@ public class UnicodeFilenameFileProvider implements IFileProvider {
 
         fileNameBuilder.append(this.extension);
 
-        File file = new File(this.parentAbsolutePath, fileNameBuilder.toString());
-        System.out.println(file.getAbsoluteFile());
-        return file;
+        return new File(this.parentAbsolutePath, fileNameBuilder.toString());
     }
 }
