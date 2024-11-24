@@ -5,21 +5,16 @@ import at.primetshofer.model.Polygon;
 
 import java.util.List;
 
-public class PolygonScaler extends ChainedPolygonConverter {
+public class PolygonScaler implements IPolygonConverter {
 
     private final double scaleFactor;
 
-    public PolygonScaler(IPolygonConverter parent, double scaleFactor) {
-        super(parent);
+    public PolygonScaler(double scaleFactor) {
         this.scaleFactor = scaleFactor;
     }
 
-    public PolygonScaler(double scaleFactor) {
-        this(null, scaleFactor);
-    }
-
     @Override
-    protected void doConvert(List<Polygon> toConvert) {
+    public void convert(List<Polygon> toConvert) {
         for (Polygon polygon : toConvert) {
             this.scalePolygon(polygon);
         }

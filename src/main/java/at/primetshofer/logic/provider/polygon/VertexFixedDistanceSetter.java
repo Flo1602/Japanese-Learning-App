@@ -8,21 +8,16 @@ import at.primetshofer.model.util.PolygonUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VertexFixedDistanceSetter extends ChainedPolygonConverter {
+public class VertexFixedDistanceSetter implements IPolygonConverter {
 
     private final double fixedDistance;
 
-    public VertexFixedDistanceSetter(IPolygonConverter parent, double fixedDistance) {
-        super(parent);
+    public VertexFixedDistanceSetter(double fixedDistance) {
         this.fixedDistance = fixedDistance;
     }
 
-    public VertexFixedDistanceSetter(double fixedDistance) {
-        this(null, fixedDistance);
-    }
-
     @Override
-    protected void doConvert(List<Polygon> toConvert) {
+    public void convert(List<Polygon> toConvert) {
         for (Polygon polygon : toConvert) {
             this.setFixedDistanceBetweenPoints(polygon);
         }
@@ -31,6 +26,9 @@ public class VertexFixedDistanceSetter extends ChainedPolygonConverter {
     public void setFixedDistanceBetweenPoints(Polygon polygon) {
         double totalDistance = PolygonUtil.calculatePolylineLength(polygon);
         int expectedPointAmount = (int) Math.round(totalDistance / this.fixedDistance);
+
+        if (polygon.getVerticesCount() <= 1)
+            return;
 
         if (polygon.getVerticesCount() == expectedPointAmount) {
             this.evenlySpacePoints(polygon);
@@ -41,7 +39,7 @@ public class VertexFixedDistanceSetter extends ChainedPolygonConverter {
         int initialSize = polygon.getVerticesCount();
         if (initialSize > expectedPointAmount) {
             for (int i = 0; i < (initialSize - (expectedPointAmount - 1)); i++) {
-                CollectionUtil.deleteRandomElement(vertices);
+                CollectionUtil.deleteMiddleElement(vertices);
                 this.evenlySpacePoints(polygon);
             }
         } else {
@@ -100,7 +98,7 @@ public class VertexFixedDistanceSetter extends ChainedPolygonConverter {
         List<Double> segmentLengths = new ArrayList<>();
 
         for (int i = 1; i < polygon.getVerticesCount(); i++) {
-            double length = PolygonUtil.calculateDistanceBetweenPoints(vertices.get(i - 1), vertices.get(i));
+            double length = PolygonUtil.calcDistanceBetweenPoints(vertices.get(i - 1), vertices.get(i));
             segmentLengths.add(length);
         }
         return segmentLengths;

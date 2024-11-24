@@ -1,24 +1,27 @@
 package at.primetshofer.logic.drawing;
 
+import at.primetshofer.model.ColoredPolygon;
 import at.primetshofer.model.Point;
 import at.primetshofer.model.Polygon;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.paint.Color;
+import javafx.util.Pair;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class SmoothLineDrawer extends ContextPreservingLineDrawer {
+public class SmoothPolygonDrawer extends ContextPreservingPolygonDrawer {
 
     private final Color strokeColor;
 
-    public SmoothLineDrawer(double lineWidth, Color strokeColor) {
+    public SmoothPolygonDrawer(double lineWidth, Color strokeColor) {
         super(lineWidth);
         this.strokeColor = strokeColor;
     }
 
     @Override
-    protected void doDrawPolygon(GraphicsContext gc, Polygon polygon) {
+    protected ColoredPolygon doDrawPolygon(GraphicsContext gc, Polygon polygon) {
         List<Point> vertices = polygon.getVertices();
         gc.moveTo(vertices.get(0).getX(), vertices.get(0).getY());
         gc.setStroke(this.strokeColor);
@@ -45,5 +48,12 @@ public class SmoothLineDrawer extends ContextPreservingLineDrawer {
                 lastVertex.getX(), lastVertex.getY());
 
         gc.stroke();
+
+        List<Color> colors = new ArrayList<>(polygon.getVerticesCount());
+        for (int i = 0; i < polygon.getVerticesCount(); i++) {
+            colors.add(this.strokeColor);
+        }
+
+        return new ColoredPolygon(polygon.getVertices(), colors);
     }
 }

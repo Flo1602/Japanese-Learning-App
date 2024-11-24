@@ -3,8 +3,6 @@ package at.primetshofer.model.util;
 import at.primetshofer.model.Point;
 import at.primetshofer.model.Polygon;
 
-import java.util.List;
-
 public class PolygonUtil {
 
     private PolygonUtil() { }
@@ -15,7 +13,7 @@ public class PolygonUtil {
 
         double distanceSum = 0.0D;
         for (int i = 1; i < polygon.getVerticesCount(); i++) {
-            distanceSum += calculateDistanceBetweenPoints(
+            distanceSum += calcDistanceBetweenPoints(
                     polygon.getVertices().get(i - 1),
                     polygon.getVertices().get(i));
         }
@@ -23,34 +21,22 @@ public class PolygonUtil {
         return distanceSum;
     }
 
-    public static double calculateDistanceBetweenPoints(Point a, Point b) {
+    public static double calcDistanceBetweenPoints(Point a, Point b) {
         return Math.sqrt(Math.pow(a.getX() - b.getX(), 2) + Math.pow(a.getY() - b.getY(), 2));
     }
 
-    public static double getQuadraticBoundingBoxSize(List<Polygon> polygons) {
-        double minX = Double.MAX_VALUE;
-        double minY = Double.MAX_VALUE;
-        double maxX = Double.MIN_VALUE;
-        double maxY = Double.MIN_VALUE;
+    public static int getVertexIndexOfClosestVertex(Point vertexToCompare, Polygon polygonToSearchIn) {
+        int closestVertexIndex = 0;
+        double minDistance = Double.MAX_VALUE;
 
-        for (Polygon polygon : polygons) {
-            for (Point vertex : polygon.getVertices()) {
-                if (vertex.getX() < minX)
-                    minX = vertex.getX();
-
-                if (vertex.getY() < minY)
-                    minY = vertex.getY();
-
-                if (vertex.getX() > maxX)
-                    maxX = vertex.getX();
-
-                if (vertex.getY() > maxY)
-                    maxY = vertex.getY();
+        for (int i = 0; i < polygonToSearchIn.getVerticesCount(); i++) {
+            double distance = calcDistanceBetweenPoints(vertexToCompare, polygonToSearchIn.getVertices().get(i));
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestVertexIndex = i;
             }
         }
 
-        double width = maxX - minX;
-        double height = maxY - minY;
-        return Math.max(width, height);
+        return closestVertexIndex;
     }
 }
