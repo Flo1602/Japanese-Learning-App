@@ -128,12 +128,12 @@ public abstract class SentenceLearnView extends LearnView {
                     }
                 }
                 textBox.getChildren().add(textLabels);
+                textLabels.setSpacing(2);
             } else {
                 Label textLabel = new Label(toTranslate);
                 textLabel.setWrapText(true);
                 textLabel.setStyle("-fx-font-size: 20pt");
                 textBox.getChildren().add(textLabel);
-                textBox.setSpacing(2);
             }
         }
 
