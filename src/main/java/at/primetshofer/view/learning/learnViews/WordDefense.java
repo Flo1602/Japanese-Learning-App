@@ -95,7 +95,6 @@ public class WordDefense extends LearnView{
                         }
 
                         for (Label attacker : attackers) {
-
                             String attackerKana = "";
 
                             for (Word word : allWords) {
@@ -202,6 +201,11 @@ public class WordDefense extends LearnView{
                 if(word.isVisible()){
                     lives.set(lives.get()-1);
                     animateDespawn(word);
+                }
+
+                if(attackers.isEmpty() && allSpawned){
+                    disableButton.set(true);
+                    Platform.runLater(() -> finished(true));
                 }
             });
 
