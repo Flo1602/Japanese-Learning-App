@@ -1,0 +1,59 @@
+package at.primetshofer.logic.drawing;
+
+import at.primetshofer.model.ColoredPolygon;
+import at.primetshofer.model.Point;
+import at.primetshofer.model.Polygon;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.BlendMode;
+import javafx.scene.paint.Color;
+import javafx.util.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class SmoothPolygonDrawer extends ContextPreservingPolygonDrawer {
+
+    private final Color strokeColor;
+
+    public SmoothPolygonDrawer(double lineWidth, Color strokeColor) {
+        super(lineWidth);
+        this.strokeColor = strokeColor;
+    }
+
+    @Override
+    protected ColoredPolygon doDrawPolygon(GraphicsContext gc, Polygon polygon) {
+        List<Point> vertices = polygon.getVertices();
+        gc.moveTo(vertices.get(0).getX(), vertices.get(0).getY());
+        gc.setStroke(this.strokeColor);
+        gc.setGlobalBlendMode(BlendMode.SRC_OVER);
+        gc.setLineWidth(super.lineWidth);
+        gc.beginPath();
+
+        for (int i = 1; i < polygon.getVerticesCount() - 2; i++) {
+            Point currentVertex = vertices.get(i);
+            Point nextVertex = vertices.get(i + 1);
+
+            double intermediateX = (currentVertex.getX() + nextVertex.getX()) / 2.0;
+            double intermediateY = (currentVertex.getY() + nextVertex.getY()) / 2.0;
+            gc.quadraticCurveTo(
+                    currentVertex.getX(), currentVertex.getY(),
+                    intermediateX, intermediateY);
+        }
+
+        // Draw the last segment
+        Point lastVertex = vertices.get(polygon.getVerticesCount() - 1);
+        Point secondToLastVertex = vertices.get(polygon.getVerticesCount() - 2);
+        gc.quadraticCurveTo(
+                secondToLastVertex.getX(), secondToLastVertex.getY(),
+                lastVertex.getX(), lastVertex.getY());
+
+        gc.stroke();
+
+        List<Color> colors = new ArrayList<>(polygon.getVerticesCount());
+        for (int i = 0; i < polygon.getVerticesCount(); i++) {
+            colors.add(this.strokeColor);
+        }
+
+        return new ColoredPolygon(polygon.getVertices(), colors);
+    }
+}
