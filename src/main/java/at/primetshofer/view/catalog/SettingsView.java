@@ -61,7 +61,7 @@ public class SettingsView extends View {
                 try {
                     int id = TTS.getSpeakerId();
                     TTS.setSpeakerId(Integer.parseInt(voiceIdInput.getText()));
-                    File file = TTS.getTts().synthesizeAudio("これはテストです", "audio/test.wav");
+                    File file = TTS.getTts().synthesizeAudio("これはテストです", "audio/system/test.wav");
                     TTS.setSpeakerId(id);
                     Media media = new Media(file.toURI().toString());
                     MediaPlayer mediaPlayer = new MediaPlayer(media);

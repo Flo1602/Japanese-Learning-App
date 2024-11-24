@@ -2,7 +2,7 @@ package at.primetshofer.view.learning.learnSessionManagers;
 
 import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.HibernateUtil;
-import at.primetshofer.view.learning.learnViews.WordKanjiSelectLearnView;
+import at.primetshofer.view.learning.learnViews.WordDefense;
 import jakarta.persistence.EntityManager;
 import javafx.scene.Scene;
 
@@ -17,18 +17,17 @@ public class TestSessionManager extends LearnSessionManager{
     @Override
     protected void startLearning() {
         EntityManager entityManager = HibernateUtil.getEntityManager();
-        String sql = "SELECT * FROM WORD ORDER BY RAND() LIMIT 1";
+        String sql = "SELECT * FROM WORD ORDER BY RAND() LIMIT 5";
         List<Word> resultList = entityManager.createNativeQuery(sql, Word.class).getResultList();
 
-        WordKanjiSelectLearnView wordKanjiSelectLearnView;
+        WordDefense wordDefense;
 
-        wordKanjiSelectLearnView = new WordKanjiSelectLearnView(this, resultList.getFirst());
-        currentLearnView = wordKanjiSelectLearnView;
+        wordDefense = new WordDefense(this, resultList);
+        currentLearnView = wordDefense;
 
         setProgress(100);
 
-        bp.setCenter(wordKanjiSelectLearnView.initView());
-        wordKanjiSelectLearnView.playWordTTS();
+        bp.setCenter(wordDefense.initView());
     }
 
     @Override

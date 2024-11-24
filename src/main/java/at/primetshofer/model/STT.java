@@ -38,10 +38,7 @@ public class STT {
             File audioFile = new File(audioPath); // Pfad zur WAV-Datei
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
 
-            AudioFormat format = new AudioFormat(AudioRecorder.SAMPLE_RATE, AudioRecorder.SAMPLE_SIZE_IN_BITS, 1, true, false);
-            DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
-
-            Recognizer recognizer = new Recognizer(model, 8000.0f);
+            Recognizer recognizer = new Recognizer(model, AudioRecorder.SAMPLE_RATE);
 
             byte[] buffer = new byte[4096];
             int bytesRead;

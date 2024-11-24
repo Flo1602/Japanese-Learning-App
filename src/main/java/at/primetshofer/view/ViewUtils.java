@@ -5,6 +5,8 @@ import at.primetshofer.model.Controller;
 import at.primetshofer.model.util.Stylesheet;
 import at.primetshofer.view.catalog.View;
 import atlantafx.base.theme.*;
+import com.atilika.kuromoji.ipadic.Token;
+import com.atilika.kuromoji.ipadic.Tokenizer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Application;
@@ -173,5 +175,27 @@ public class ViewUtils {
         } catch (JsonProcessingException e) {
             return false; // If parsing fails, it's invalid
         }
+    }
+
+    public static String convertKanjiToKatakana(String text) {
+        Tokenizer tokenizer = new Tokenizer();
+        StringBuilder hiraganaResult = new StringBuilder();
+
+        for (Token token : tokenizer.tokenize(text)) {
+            String reading = token.getReading();
+            if (reading != null) {
+                // Convert Katakana reading to Hiragana
+                StringBuilder katakana = new StringBuilder();
+                for (char c : reading.toCharArray()) {
+                    katakana.append(c);
+                }
+                hiraganaResult.append(katakana);
+            } else {
+                // If no reading is available, use the surface form
+                hiraganaResult.append(token.getSurface());
+            }
+        }
+
+        return hiraganaResult.toString();
     }
 }
