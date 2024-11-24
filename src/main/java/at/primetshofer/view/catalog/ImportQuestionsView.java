@@ -157,7 +157,7 @@ public class ImportQuestionsView extends View{
         ObjectMapper objectMapper = new ObjectMapper();
         Question[] questions;
         try {
-            questions = objectMapper.readValue(jsonInput.getText(), Question[].class);
+            questions = objectMapper.readValue(ViewUtils.fixJson(jsonInput.getText()), Question[].class);
         } catch (JsonProcessingException ex) {
             ex.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR);

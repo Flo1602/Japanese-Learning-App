@@ -5,6 +5,8 @@ import at.primetshofer.model.Controller;
 import at.primetshofer.model.util.Stylesheet;
 import at.primetshofer.view.catalog.View;
 import atlantafx.base.theme.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Application;
 import javafx.beans.property.ObjectProperty;
 import javafx.geometry.Pos;
@@ -15,6 +17,7 @@ import javafx.scene.layout.HBox;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class ViewUtils {
 
@@ -97,5 +100,78 @@ public class ViewUtils {
                 .replaceAll("[,./:;!?]+.*", "") // Remove text after punctuation
                 .replaceAll("[,./:;!?]", "")   // Remove standalone punctuation
                 .trim(); // Trim leading/trailing spaces
+    }
+
+    public static String fixJson(String json) throws IllegalArgumentException {
+        try {
+            // Step 1: Try parsing the JSON directly
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.readTree(json); // Validate JSON
+            return json; // If valid, return as-is
+        } catch (JsonProcessingException e) {
+            // Step 2: If the JSON array is malformed, try to repair it
+            List<String> validObjects = extractValidObjects(json);
+            if (validObjects.isEmpty()) {
+                throw new IllegalArgumentException("No valid objects found in JSON.");
+            }
+
+            // Step 3: Reassemble the JSON array with valid objects
+            StringBuilder fixedJson = new StringBuilder("[");
+            for (int i = 0; i < validObjects.size(); i++) {
+                fixedJson.append(validObjects.get(i));
+                if (i < validObjects.size() - 1) {
+                    fixedJson.append(",");
+                }
+            }
+            fixedJson.append("]");
+
+            return fixedJson.toString();
+        }
+    }
+
+    private static List<String> extractValidObjects(String json) {
+        List<String> validObjects = new ArrayList<>();
+        StringBuilder currentObject = new StringBuilder();
+        boolean insideObject = false;
+        int openBraces = 0;
+
+        for (int i = 0; i < json.length(); i++) {
+            char c = json.charAt(i);
+
+            if (c == '{') {
+                insideObject = true;
+                openBraces++;
+            }
+
+            if (insideObject) {
+                currentObject.append(c);
+            }
+
+            if (c == '}') {
+                openBraces--;
+                if (openBraces == 0) {
+                    insideObject = false;
+
+                    // Try parsing the current object
+                    String objectString = currentObject.toString();
+                    if (isValidJsonObject(objectString)) {
+                        validObjects.add(objectString);
+                    }
+                    currentObject.setLength(0); // Clear the StringBuilder for the next object
+                }
+            }
+        }
+
+        return validObjects;
+    }
+
+    private static boolean isValidJsonObject(String json) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.readTree(json); // Parse the JSON
+            return true; // If parsing succeeds, it's valid
+        } catch (JsonProcessingException e) {
+            return false; // If parsing fails, it's invalid
+        }
     }
 }

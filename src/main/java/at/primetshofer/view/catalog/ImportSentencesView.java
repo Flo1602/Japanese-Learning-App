@@ -157,7 +157,7 @@ public class ImportSentencesView extends View{
         ObjectMapper objectMapper = new ObjectMapper();
         Sentence[] sentences;
         try {
-            sentences = objectMapper.readValue(jsonInput.getText(), Sentence[].class);
+            sentences = objectMapper.readValue(ViewUtils.fixJson(jsonInput.getText()), Sentence[].class);
         } catch (JsonProcessingException ex) {
             ex.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -173,6 +173,10 @@ public class ImportSentencesView extends View{
         word = em.find(Word.class, word.getId());
 
         for (Sentence sentence : sentences) {
+            if(sentence.getJapanese() == null || sentence.getJapanese().isBlank() || sentence.getEnglish() == null || sentence.getEnglish().isBlank() ||sentence.getSentenceWords().isEmpty()) {
+                continue;
+            }
+
             for (int i = 0; i < sentence.getSentenceWords().size(); i++) {
                 sentence.getSentenceWords().get(i).setWordPos(i);
                 sentence.getSentenceWords().get(i).setSentence(sentence);
