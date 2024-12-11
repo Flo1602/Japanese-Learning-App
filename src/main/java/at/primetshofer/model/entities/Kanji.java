@@ -23,6 +23,8 @@ public class Kanji {
             inverseJoinColumns = @JoinColumn(name = "word_id")
     )
     private List<Word> words = new ArrayList<Word>();
+    @OneToMany(mappedBy = "kanji", cascade = CascadeType.ALL)
+    private List<KanjiProgress> progresses = new ArrayList<>();
 
     public int getId() {
         return id;
@@ -46,6 +48,14 @@ public class Kanji {
 
     public void setWords(List<Word> words) {
         this.words = words;
+    }
+
+    public List<KanjiProgress> getProgresses() {
+        return progresses;
+    }
+
+    public void setProgresses(List<KanjiProgress> progresses) {
+        this.progresses = progresses;
     }
 
     @Override

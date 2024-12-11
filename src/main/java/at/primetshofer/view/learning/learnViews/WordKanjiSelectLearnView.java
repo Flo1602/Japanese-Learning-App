@@ -88,6 +88,8 @@ public class WordKanjiSelectLearnView extends LearnView{
 
         vbox.getChildren().addAll(buttonBox1, buttonBox2);
 
+        playWordTTS();
+
         return vbox;
     }
 

@@ -11,27 +11,38 @@ import at.primetshofer.logic.tracing.*;
 import at.primetshofer.logic.tracing.verification.GradientVerificationLogic;
 import at.primetshofer.logic.tracing.verification.ITraceVerificationLogic;
 import at.primetshofer.logic.tracing.verification.VerificationOptions;
+import at.primetshofer.model.Controller;
 import at.primetshofer.model.Polygon;
 import at.primetshofer.model.entities.Kanji;
+import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.HibernateUtil;
 import at.primetshofer.view.learning.learnViews.KanjiTracerLearnView;
+import at.primetshofer.view.learning.learnViews.WordKanjiSelectLearnView;
+import at.primetshofer.view.learning.learnViews.matchLearnViews.JapaneseToKanaMatch;
+import at.primetshofer.view.learning.learnViews.sentenceLearnViews.WordBuilderView;
 import jakarta.persistence.EntityManager;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-public class TestSessionManager extends LearnSessionManager {
+public class KanjiSessionManager extends LearnSessionManager {
 
-    private static final int MAX_COUNTER = 5;
+    private static final int MAX_COUNTER = 9;
 
     private ITraceLogic<Character> traceLogic;
-    int currentCounter = 0;
+    private int currentCounter = 0;
+    private Kanji kanji;
+    private KanjiTracerLearnView kanjiTracerLearnView;
+    private boolean wordBuilder = false;
 
-    public TestSessionManager(Scene scene) {
+    public KanjiSessionManager(Scene scene) {
         super(scene);
+        this.kanji = Controller.getInstance().getNextLearningKanji();
         this.initLogic();
-        this.traceLogic.changeTarget(this.getRandomKanji());
+        this.traceLogic.changeTarget(kanji.getSymbol().charAt(0));
     }
 
     private void initLogic() {
@@ -58,26 +69,19 @@ public class TestSessionManager extends LearnSessionManager {
         this.traceLogic = buildLogic(traceOptions, verificationOptions);
         IPolygonDrawer hintLineDrawer = new SmoothPolygonDrawer(traceOptions.lineWidth(), traceOptions.hintColor());
         IPolygonDrawer correctingLineDrawer = new SmoothPolygonDrawer(traceOptions.lineWidth(), traceOptions.drawingColor());
-        super.currentLearnView = new KanjiTracerLearnView(
+        kanjiTracerLearnView = new KanjiTracerLearnView(
                 this,
                 traceLogic,
                 hintLineDrawer,
-                correctingLineDrawer
+                correctingLineDrawer,
+                kanji
         );
     }
 
     @Override
     protected void startLearning() {
-        super.bp.setCenter(super.currentLearnView.initView());
-        this.traceLogic.startTracing(TraceMode.ALL_HINTS);
-        setProgress(0);
-    }
-
-    private Character getRandomKanji() {
-        EntityManager entityManager = HibernateUtil.getEntityManager();
-        String sql = "SELECT * FROM KANJI ORDER BY RAND() LIMIT 1";
-        return ((Kanji) entityManager.createNativeQuery(sql, Kanji.class).getResultList().getFirst())
-                .getSymbol().charAt(0);
+        kanjiTracerLearnView.initView();
+        nextLearningView();
     }
 
     private static ITraceLogic<Character> buildLogic(TraceLineOptions traceOptions, VerificationOptions verificationOptions) {
@@ -118,15 +122,56 @@ public class TestSessionManager extends LearnSessionManager {
 
     @Override
     protected void nextLearningView() {
-        if (this.currentCounter >= MAX_COUNTER) {
-            super.learnSessionFinished();
-        } else if (this.currentCounter >= 3) {
+        Random random = new Random();
+
+        if(currentCounter == 0){
+            Word word = kanji.getWords().get(random.nextInt(kanji.getWords().size()));
+            currentLearnView = new WordKanjiSelectLearnView(this, word);
+            bp.setCenter(currentLearnView.initView());
+        } else if(currentCounter <= 2){
+            this.traceLogic.startTracing(TraceMode.ALL_HINTS);
+            currentLearnView = kanjiTracerLearnView;
+            bp.setCenter(kanjiTracerLearnView.getPane());
+        } else if(currentCounter <= 6){
+            int rand = random.nextInt(6);
+            if(rand == 0 && wordBuilder){
+                rand++;
+            }
+            switch (rand){
+                case 0 -> {
+                    Word word = kanji.getWords().get(random.nextInt(kanji.getWords().size()));
+                    currentLearnView = new WordBuilderView(this, word);
+                    bp.setCenter(currentLearnView.initView());
+                    wordBuilder = true;
+                }
+                case 1,2,3 -> {
+                    this.traceLogic.startTracing(TraceMode.NEXT_HINT);
+                    currentLearnView = kanjiTracerLearnView;
+                    bp.setCenter(kanjiTracerLearnView.getPane());
+                }
+                case 4,5 -> {
+                    List<Word> words = new ArrayList<>(5);
+                    words.add(kanji.getWords().get(random.nextInt(kanji.getWords().size())));
+                    words.addAll(getRandomWords());
+                    currentLearnView = new JapaneseToKanaMatch(this, words);
+                    bp.setCenter(currentLearnView.initView());
+                }
+            }
+        } else if(currentCounter <= 8){
             this.traceLogic.startTracing(TraceMode.NO_HINTS);
+            currentLearnView = kanjiTracerLearnView;
+            bp.setCenter(kanjiTracerLearnView.getPane());
         } else {
-            this.traceLogic.startTracing(TraceMode.NEXT_HINT);
+            learnSessionFinished();
         }
 
         this.currentCounter++;
         setProgress((double) this.currentCounter / MAX_COUNTER);
+    }
+
+    private List<Word> getRandomWords() {
+        EntityManager entityManager = HibernateUtil.getEntityManager();
+        String jpql = "SELECT w FROM Word w WHERE SIZE(w.kanjis) >= 1 ORDER BY FUNCTION('RAND')";
+        return entityManager.createQuery(jpql, Word.class).setMaxResults(4).getResultList();
     }
 }

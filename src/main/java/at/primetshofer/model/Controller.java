@@ -1,5 +1,6 @@
 package at.primetshofer.model;
 
+import at.primetshofer.model.entities.Kanji;
 import at.primetshofer.model.entities.Settings;
 import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.HibernateUtil;
@@ -166,5 +167,11 @@ public class Controller {
         if(mediaPlayer != null){
             mediaPlayer.stop();
         }
+    }
+
+    public Kanji getNextLearningKanji(){
+        EntityManager entityManager = HibernateUtil.getEntityManager();
+        String jpql = "SELECT k FROM Kanji k WHERE SIZE(k.words) >= 1 ORDER BY FUNCTION('RAND')";
+        return entityManager.createQuery(jpql, Kanji.class).setMaxResults(1).getResultList().getFirst();
     }
 }

@@ -62,9 +62,9 @@ public class LearningMenuView extends View {
         Button testButton = new Button("Test");
         testButton.getStyleClass().add("menuButton");
         testButton.setOnAction(e -> {
-            TestSessionManager testSessionManager = new TestSessionManager(scene);
-            testSessionManager.initView();
-            testSessionManager.display(this);
+            KanjiSessionManager kanjiSessionManager = new KanjiSessionManager(scene);
+            kanjiSessionManager.initView();
+            kanjiSessionManager.display(this);
         });
 
         VBox vb = new VBox();

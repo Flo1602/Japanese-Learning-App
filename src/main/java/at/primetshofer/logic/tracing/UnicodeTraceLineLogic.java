@@ -33,7 +33,7 @@ public class UnicodeTraceLineLogic implements ITraceLogic<Character> {
     }
 
     private void loadPolygons() {
-        this.iterateListeners(ITraceLineListener::onResetProgress);
+        //this.iterateListeners(ITraceLineListener::onResetProgress);
         this.loadedPolygons.clear();
         this.loadedPolygons.addAll(this.polygonProvider.getAllPolygons());
         this.nextPolygonToDraw = this.loadedPolygons.isEmpty() ? -1 : 0;

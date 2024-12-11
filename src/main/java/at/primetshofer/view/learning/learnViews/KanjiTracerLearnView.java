@@ -2,20 +2,29 @@ package at.primetshofer.view.learning.learnViews;
 
 import at.primetshofer.logic.drawing.IPolygonDrawer;
 import at.primetshofer.logic.tracing.ITraceLogic;
+import at.primetshofer.model.Controller;
 import at.primetshofer.model.Point;
 import at.primetshofer.model.Polygon;
-import at.primetshofer.model.util.PolygonUtil;
+import at.primetshofer.model.entities.Kanji;
+import at.primetshofer.model.entities.Word;
 import at.primetshofer.view.learning.learnSessionManagers.LearnSessionManager;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class KanjiTracerLearnView extends LearnView implements ITraceLogic.ITraceLineListener {
 
@@ -32,7 +41,12 @@ public class KanjiTracerLearnView extends LearnView implements ITraceLogic.ITrac
     private Point lastPoint;
     private Image hintArrowImage;
 
-    public KanjiTracerLearnView(LearnSessionManager learnSessionManager, ITraceLogic<?> logic, IPolygonDrawer hintLineDrawer, IPolygonDrawer correctingLineDrawer) {
+    private Kanji kanji;
+    private Word wordWithKanji;
+    private Label topText;
+    private HBox top;
+
+    public KanjiTracerLearnView(LearnSessionManager learnSessionManager, ITraceLogic<?> logic, IPolygonDrawer hintLineDrawer, IPolygonDrawer correctingLineDrawer, Kanji kanji) {
         super(learnSessionManager, false);
         this.logic = logic;
         this.rootView = new BorderPane();
@@ -43,6 +57,7 @@ public class KanjiTracerLearnView extends LearnView implements ITraceLogic.ITrac
         this.correctingLineDrawer = correctingLineDrawer;
         this.drawnPoints = new ArrayList<>();
         this.logic.addTraceLineListener(this);
+        this.kanji = kanji;
         initGraphicsContext();
     }
 
@@ -66,6 +81,30 @@ public class KanjiTracerLearnView extends LearnView implements ITraceLogic.ITrac
         canvasStack.getChildren().add(this.userCanvas);
         this.hintArrowImage = new Image("hint_arrow.png");
         this.rootView.setCenter(canvasStack);
+
+        top = new HBox();
+        top.setAlignment(Pos.CENTER);
+        top.setSpacing(10);
+        top.setPadding(new Insets(10, 0, 0, 0));
+
+        Image audioImage = new Image("audio.png");
+
+        ImageView audioImageView = new ImageView(audioImage);
+        audioImageView.setFitHeight(30);
+        audioImageView.setFitWidth(30);
+
+        Button audioButton = new Button();
+        audioButton.setStyle("-fx-background-radius: 18; -fx-font-size: 14pt; -fx-background-color: transparent;");
+        audioButton.setGraphic(audioImageView);
+        audioButton.setOnAction(e -> playWordWithKanjiTTS());
+
+        topText = new Label();
+        topText.setStyle("-fx-font-size: 18pt");
+
+        top.getChildren().addAll(audioButton, topText);
+
+        rootView.setTop(top);
+
         return this.rootView;
     }
 
@@ -155,6 +194,7 @@ public class KanjiTracerLearnView extends LearnView implements ITraceLogic.ITrac
 
     @Override
     public void onResetProgress() {
+        updateWordWithKanji();
         this.clearCanvas(this.userCanvas);
         this.clearCanvas(this.hintArrowCanvas);
         this.clearCanvas(this.hintCanvas);
@@ -172,5 +212,32 @@ public class KanjiTracerLearnView extends LearnView implements ITraceLogic.ITrac
     @Override
     public void onFinished(boolean correct) {
         super.finished(correct);
+    }
+
+    private void updateWordWithKanji(){
+        if(kanji.getWords().isEmpty()){
+            top.setVisible(false);
+            return;
+        }
+
+        Random random = new Random();
+        wordWithKanji = kanji.getWords().get(random.nextInt(kanji.getWords().size()));
+
+        String text = wordWithKanji.getJapanese() + " (" + wordWithKanji.getKana() + ")";
+        text = text.replace(kanji.getSymbol(), "_");
+
+        topText.setText(text);
+
+        top.setVisible(true);
+
+        playWordWithKanjiTTS();
+    }
+
+    public void playWordWithKanjiTTS(){
+        Controller.getInstance().playAudio(wordWithKanji.getTtsPath());
+    }
+
+    public Pane getPane(){
+        return this.rootView;
     }
 }

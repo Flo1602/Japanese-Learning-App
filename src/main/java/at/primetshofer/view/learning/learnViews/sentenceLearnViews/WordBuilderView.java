@@ -43,5 +43,7 @@ public class WordBuilderView extends SentenceLearnView {
         }
 
         super.setWords(symbols);
+
+        super.playSentenceTTS();
     }
 }
