@@ -23,6 +23,7 @@ public class QuestionLearnView extends LearnView {
     private boolean ttsEnabled;
     private boolean textEnabled;
     private BooleanProperty disableButton;
+    private VBox vbox;
 
     private ToggleButton selectedButton;
 
@@ -41,7 +42,7 @@ public class QuestionLearnView extends LearnView {
 
     @Override
     public Pane initView() {
-        VBox vbox = new VBox();
+        vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);
         vbox.setSpacing(20);
 
@@ -112,6 +113,16 @@ public class QuestionLearnView extends LearnView {
         } else {
             super.finished(false);
         }
+    }
+
+    @Override
+    public Pane resetView() {
+        disableButton.set(false);
+        selectedButton.setSelected(false);
+        selectedButton = null;
+        super.setCheckButtonVisible(true);
+        playQuestionTTS();
+        return vbox;
     }
 
     public void playQuestionTTS(){

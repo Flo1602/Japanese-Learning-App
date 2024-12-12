@@ -31,6 +31,7 @@ public class WordKanjiSelectLearnView extends LearnView{
     private List<Kanji> correctKanjis;
     private List<Kanji> wrongKanjis;
     private int correctButtonNumber;
+    private VBox vbox;
 
     private ToggleButton selectedButton;
 
@@ -49,7 +50,7 @@ public class WordKanjiSelectLearnView extends LearnView{
 
     @Override
     public Pane initView() {
-        VBox vbox = new VBox();
+        vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);
         vbox.setSpacing(50);
 
@@ -103,6 +104,17 @@ public class WordKanjiSelectLearnView extends LearnView{
         } else {
             super.finished(false, word.getEnglish());
         }
+    }
+
+    @Override
+    public Pane resetView() {
+        disableButton.set(false);
+        selectedButton.setSelected(false);
+        selectedButton = null;
+        super.setCheckButtonVisible(true);
+        super.setDisableOverwrite(true);
+        playWordTTS();
+        return vbox;
     }
 
     public void playWordTTS(){

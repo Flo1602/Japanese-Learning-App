@@ -114,6 +114,11 @@ public class KanjiTracerLearnView extends LearnView implements ITraceLogic.ITrac
     }
 
     @Override
+    public Pane resetView() {
+        throw new UnsupportedOperationException("ResetView should not be called on KanjiTracerLearnView!");
+    }
+
+    @Override
     public void onShowHint(Polygon polygonToShowHintFor) {
         this.hintLineDrawer.drawPolygon(this.hintCanvas.getGraphicsContext2D(), polygonToShowHintFor);
     }

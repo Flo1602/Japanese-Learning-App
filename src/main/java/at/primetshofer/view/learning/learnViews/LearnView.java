@@ -37,4 +37,12 @@ public abstract class LearnView {
     public void correctnessOverwritten(){
 
     }
+
+    public abstract Pane resetView();
+
+    protected void setCheckButtonVisible(boolean visible) {
+        if (visible) {
+            learnSessionManager.changeContinueToCheck();
+        }
+    }
 }

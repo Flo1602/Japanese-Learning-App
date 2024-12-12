@@ -19,6 +19,7 @@ public class WordSessionManager extends LearnSessionManager {
 
     public WordSessionManager(Scene scene) {
         super(scene);
+        setMaxViews(5);
     }
 
     @Override
@@ -28,7 +29,6 @@ public class WordSessionManager extends LearnSessionManager {
 
     @Override
     protected void nextLearningView() {
-        setProgress((1.0/5)*(count+1));
         count++;
 
         if(count <= 5){

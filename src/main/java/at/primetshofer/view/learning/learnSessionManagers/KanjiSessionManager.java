@@ -24,9 +24,7 @@ import jakarta.persistence.EntityManager;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class KanjiSessionManager extends LearnSessionManager {
 
@@ -40,6 +38,7 @@ public class KanjiSessionManager extends LearnSessionManager {
 
     public KanjiSessionManager(Scene scene) {
         super(scene);
+        super.setMaxViews(MAX_COUNTER);
         this.kanji = Controller.getInstance().getNextLearningKanji();
         this.initLogic();
         this.traceLogic.changeTarget(kanji.getSymbol().charAt(0));
@@ -150,9 +149,18 @@ public class KanjiSessionManager extends LearnSessionManager {
                     bp.setCenter(kanjiTracerLearnView.getPane());
                 }
                 case 4,5 -> {
+                    Stack<Word> allWords = new Stack<>();
+                    allWords.addAll(kanji.getWords());
+                    Collections.shuffle(allWords);
                     List<Word> words = new ArrayList<>(5);
-                    words.add(kanji.getWords().get(random.nextInt(kanji.getWords().size())));
-                    words.addAll(getRandomWords());
+
+                    int cntr = 0;
+                    int rnd = random.nextInt(5);
+                    for ( ; cntr<rnd && cntr<kanji.getWords().size(); cntr++){
+                        words.add(allWords.pop());
+                    }
+
+                    words.addAll(getRandomWords(6-cntr));
                     currentLearnView = new JapaneseToKanaMatch(this, words);
                     bp.setCenter(currentLearnView.initView());
                 }
@@ -166,10 +174,9 @@ public class KanjiSessionManager extends LearnSessionManager {
         }
 
         this.currentCounter++;
-        setProgress((double) this.currentCounter / MAX_COUNTER);
     }
 
-    private List<Word> getRandomWords() {
+    private List<Word> getRandomWords(int count) {
         EntityManager entityManager = HibernateUtil.getEntityManager();
         String jpql = "SELECT w FROM Word w WHERE SIZE(w.kanjis) >= 1 ORDER BY FUNCTION('RAND')";
         return entityManager.createQuery(jpql, Word.class).setMaxResults(4).getResultList();

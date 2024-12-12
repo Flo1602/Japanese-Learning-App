@@ -160,6 +160,11 @@ public class WordDefense extends LearnView{
         throw new IllegalStateException("checkComplete should never be called");
     }
 
+    @Override
+    public Pane resetView() {
+        throw new UnsupportedOperationException("ResetView should not be called on WordDefense!");
+    }
+
     private Pane getBattlefield(){
         Pane battlefield = new Pane();
         battlefield.setPrefHeight(500);

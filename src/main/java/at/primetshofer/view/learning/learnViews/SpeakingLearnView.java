@@ -39,6 +39,7 @@ public class SpeakingLearnView extends LearnView {
     private int tries;
     private ChangeListener<Boolean> listener;
     private Map<String, SentenceWord> japaneseParts;
+    private BorderPane bp;
 
     public SpeakingLearnView(LearnSessionManager learnSessionManager, Sentence sentence) {
         super(learnSessionManager, false);
@@ -69,7 +70,7 @@ public class SpeakingLearnView extends LearnView {
 
     @Override
     public Pane initView() {
-        BorderPane bp = new BorderPane();
+        bp = new BorderPane();
 
         HBox textBox = new HBox();
         textBox.setSpacing(10);
@@ -197,6 +198,15 @@ public class SpeakingLearnView extends LearnView {
                 finished(true, sentence.getEnglish());
             }
         });
+    }
+
+    @Override
+    public Pane resetView() {
+        recordButton.setDisable(false);
+        super.setDisableOverwrite(true);
+        tries = 0;
+        playSentenceTTS();
+        return bp;
     }
 
     public void playSentenceTTS() {

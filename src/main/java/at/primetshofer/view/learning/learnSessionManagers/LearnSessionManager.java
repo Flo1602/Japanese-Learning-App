@@ -5,7 +5,9 @@ import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.catalog.View;
 import at.primetshofer.view.ViewUtils;
 import at.primetshofer.view.learning.SessionCompletedView;
+import at.primetshofer.view.learning.learnViews.KanjiTracerLearnView;
 import at.primetshofer.view.learning.learnViews.LearnView;
+import at.primetshofer.view.learning.learnViews.WordDefense;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -24,8 +26,10 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 import java.time.LocalTime;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class LearnSessionManager {
@@ -52,6 +56,10 @@ public abstract class LearnSessionManager {
 
     private LocalTime startTIme;
     private List<Boolean> successList;
+    private Queue<LearnView> wrongList;
+    private int maxViews;
+    private int correctCounter;
+    private boolean correctMistakesMode;
 
     public LearnSessionManager(Scene scene) {
         this.scene = scene;
@@ -60,6 +68,8 @@ public abstract class LearnSessionManager {
         successList = new ArrayList<>();
         checkButton = false;
         disableOverwrite = false;
+        correctMistakesMode = false;
+        wrongList = new ArrayDeque<>();
     }
 
     protected abstract void startLearning();
@@ -137,8 +147,9 @@ public abstract class LearnSessionManager {
         overwriteCorrectness.getStyleClass().add("smallButton");
         overwriteCorrectness.setOnAction(event -> {
             overwriteCorrectness.setDisable(true);
-            successList.remove(successList.getLast());
-            successList.add(true);
+            if(!correctMistakesMode){
+                successList.remove(successList.getLast());
+            }
             learnViewFinished(true);
             currentLearnView.correctnessOverwritten();
         });
@@ -157,7 +168,9 @@ public abstract class LearnSessionManager {
     }
 
     public void learnViewFinished(boolean success, String message) {
-        successList.add(success);
+        if(!correctMistakesMode){
+            successList.add(success);
+        }
         continueButton.setDisable(false);
         infoLabel.setVisible(true);
         infoLabel.getStyleClass().clear();
@@ -186,10 +199,18 @@ public abstract class LearnSessionManager {
         backgroundColorAnimation.setCycleCount(cycles);
 
         if (success) {
+            correctCounter++;
+            setProgress((double) correctCounter / maxViews);
             controller.playAudio(SUCCESS_AUDIO);
             infoLabel.getStyleClass().add("correctText");
             infoLabel.setText(LangController.getText("CorrectText"));
         } else {
+            if(currentLearnView instanceof KanjiTracerLearnView || currentLearnView instanceof WordDefense){
+                correctCounter++;
+                setProgress((double) correctCounter / maxViews);
+            } else {
+                wrongList.add(currentLearnView);
+            }
             controller.playAudio(FAIL_AUDIO);
             infoLabel.getStyleClass().add("wrongText");
             infoLabel.setText(LangController.getText("WrongText"));
@@ -218,6 +239,13 @@ public abstract class LearnSessionManager {
     }
 
     protected void learnSessionFinished(){
+        if(!wrongList.isEmpty()){
+            correctMistakesMode = true;
+            currentLearnView = wrongList.poll();
+            bp.setCenter(currentLearnView.resetView());
+            return;
+        }
+
         java.time.Duration duration = java.time.Duration.between(startTIme, LocalTime.now());
 
         double percent = 0;
@@ -273,5 +301,9 @@ public abstract class LearnSessionManager {
 
     public void setDisableOverwrite(boolean disableOverwrite) {
         this.disableOverwrite = disableOverwrite;
+    }
+
+    public void setMaxViews(int maxViews) {
+        this.maxViews = maxViews;
     }
 }

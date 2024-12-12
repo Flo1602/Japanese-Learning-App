@@ -493,4 +493,16 @@ public abstract class SentenceLearnView extends LearnView {
 
         HibernateUtil.commitTransaction();
     }
+
+    @Override
+    public Pane resetView() {
+        disableButtons.set(false);
+        super.setCheckButtonVisible(true);
+        super.activateCheckButton(true);
+        reshuffleAllowed = new AtomicBoolean(true);
+        disableButtons = new SimpleBooleanProperty(false);
+        Pane pane = initView();
+        playSentenceTTS();
+        return pane;
+    }
 }

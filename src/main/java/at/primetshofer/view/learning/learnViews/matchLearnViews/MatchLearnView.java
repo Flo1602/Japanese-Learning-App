@@ -20,12 +20,14 @@ import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 public abstract class MatchLearnView extends LearnView {
 
     private static final int MAX_ERRORS = 5;
 
+    private Map<String, String> matchPairBackup;
     private Map<String, String> matchPairs;
     private Map<String, String> ttsPaths;
     private boolean ttsOnly;
@@ -191,10 +193,19 @@ public abstract class MatchLearnView extends LearnView {
 
     public void setMatchPairs(Map<String, String> matchPairs) {
         this.matchPairs = matchPairs;
+        this.matchPairBackup = new HashMap<>(matchPairs);
     }
 
     public void setTtsPaths(Map<String, String> ttsPaths, boolean ttsOnly) {
         this.ttsPaths = ttsPaths;
         this.ttsOnly = ttsOnly;
+    }
+
+    @Override
+    public Pane resetView() {
+        this.matchPairs = new HashMap<>(matchPairBackup);
+        disableButton.set(false);
+        errors = 0;
+        return initView();
     }
 }
