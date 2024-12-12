@@ -59,9 +59,9 @@ public class LearningMenuView extends View {
             speakingSessionManager.display(this);
         });
 
-        Button testButton = new Button("Test");
-        testButton.getStyleClass().add("menuButton");
-        testButton.setOnAction(e -> {
+        Button DailyKanjiButton = new Button(LangController.getText("DailyKanjiButton"));
+        DailyKanjiButton.getStyleClass().add("menuButton");
+        DailyKanjiButton.setOnAction(e -> {
             KanjiSessionManager kanjiSessionManager = new KanjiSessionManager(scene);
             kanjiSessionManager.initView();
             kanjiSessionManager.display(this);
@@ -69,7 +69,7 @@ public class LearningMenuView extends View {
 
         VBox vb = new VBox();
         vb.getStyleClass().add("menuVBox");
-        vb.getChildren().addAll(wordsButton, questionButton, sentenceButton, speakingButton, testButton);
+        vb.getChildren().addAll(wordsButton, questionButton, sentenceButton, speakingButton, DailyKanjiButton);
         BorderPane.setAlignment(vb, Pos.CENTER);
 
         HBox hb = ViewUtils.getBackButtonBox(origin);

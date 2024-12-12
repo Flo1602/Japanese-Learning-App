@@ -16,12 +16,14 @@ import at.primetshofer.model.Polygon;
 import at.primetshofer.model.entities.Kanji;
 import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.HibernateUtil;
+import at.primetshofer.view.ViewUtils;
 import at.primetshofer.view.learning.learnViews.KanjiTracerLearnView;
 import at.primetshofer.view.learning.learnViews.WordKanjiSelectLearnView;
 import at.primetshofer.view.learning.learnViews.matchLearnViews.JapaneseToKanaMatch;
 import at.primetshofer.view.learning.learnViews.sentenceLearnViews.WordBuilderView;
 import jakarta.persistence.EntityManager;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.paint.Color;
 
 import java.util.*;
@@ -124,9 +126,13 @@ public class KanjiSessionManager extends LearnSessionManager {
         Random random = new Random();
 
         if(currentCounter == 0){
-            Word word = kanji.getWords().get(random.nextInt(kanji.getWords().size()));
-            currentLearnView = new WordKanjiSelectLearnView(this, word);
-            bp.setCenter(currentLearnView.initView());
+            try{
+                Word word = kanji.getWords().get(random.nextInt(kanji.getWords().size()));
+                currentLearnView = new WordKanjiSelectLearnView(this, word);
+                bp.setCenter(currentLearnView.initView());
+            } catch (IllegalArgumentException e){
+                ViewUtils.showAlert(Alert.AlertType.ERROR, "No words for current Kanji found!", "No words for: " + kanji.getSymbol());
+            }
         } else if(currentCounter <= 2){
             this.traceLogic.startTracing(TraceMode.ALL_HINTS);
             currentLearnView = kanjiTracerLearnView;
@@ -174,6 +180,11 @@ public class KanjiSessionManager extends LearnSessionManager {
         }
 
         this.currentCounter++;
+    }
+
+    @Override
+    protected void updateProgresses(int percent) {
+        Controller.getInstance().addKanjiProgress(kanji, percent);
     }
 
     private List<Word> getRandomWords(int count) {

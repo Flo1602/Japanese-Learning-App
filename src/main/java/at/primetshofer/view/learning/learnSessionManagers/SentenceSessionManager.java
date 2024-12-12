@@ -46,4 +46,9 @@ public class SentenceSessionManager extends LearnSessionManager{
     protected void nextLearningView() {
         super.learnSessionFinished();
     }
+
+    @Override
+    protected void updateProgresses(int percent) {
+
+    }
 }

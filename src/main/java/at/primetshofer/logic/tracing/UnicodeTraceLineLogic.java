@@ -33,7 +33,6 @@ public class UnicodeTraceLineLogic implements ITraceLogic<Character> {
     }
 
     private void loadPolygons() {
-        //this.iterateListeners(ITraceLineListener::onResetProgress);
         this.loadedPolygons.clear();
         this.loadedPolygons.addAll(this.polygonProvider.getAllPolygons());
         this.nextPolygonToDraw = this.loadedPolygons.isEmpty() ? -1 : 0;
@@ -80,6 +79,10 @@ public class UnicodeTraceLineLogic implements ITraceLogic<Character> {
         VerifyResult verifyResult = this.verificationLogic.verify(source, tracedPolygon);
 
         if (verifyResult == VerifyResult.NO_MORE_TRIES) {
+            this.iterateListeners(ITraceLineListener::onResetProgress);
+            for (Polygon loadedPolygon : this.loadedPolygons) {
+                this.iterateListeners(l -> l.onShowHint(loadedPolygon));
+            }
             this.iterateListeners(l -> l.onFinished(false));
             return;
         }

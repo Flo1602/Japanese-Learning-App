@@ -10,8 +10,10 @@ import com.atilika.kuromoji.ipadic.Tokenizer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -197,5 +199,14 @@ public class ViewUtils {
         }
 
         return hiraganaResult.toString();
+    }
+
+    public static void showAlert(Alert.AlertType alertType, String message, String title) {
+        Platform.runLater(() ->{
+            Alert alert = new Alert(alertType);
+            alert.setTitle(title);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
     }
 }

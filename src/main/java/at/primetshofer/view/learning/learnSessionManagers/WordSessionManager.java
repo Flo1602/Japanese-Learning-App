@@ -58,4 +58,9 @@ public class WordSessionManager extends LearnSessionManager {
         }
 
     }
+
+    @Override
+    protected void updateProgresses(int percent) {
+
+    }
 }

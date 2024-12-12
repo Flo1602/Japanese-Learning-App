@@ -1,5 +1,6 @@
 package at.primetshofer.model;
 
+import at.primetshofer.model.Trainer.KanjiTrainer;
 import at.primetshofer.model.entities.Kanji;
 import at.primetshofer.model.entities.Settings;
 import at.primetshofer.model.entities.Word;
@@ -33,9 +34,11 @@ public class Controller {
     private Settings settings;
     private EntityManager em;
     private MediaPlayer mediaPlayer;
+    private KanjiTrainer kanjiTrainer;
 
     private Controller() {
         em = HibernateUtil.getEntityManager();
+        kanjiTrainer = KanjiTrainer.getInstance();
     }
 
     public static Controller getInstance() {
@@ -170,8 +173,13 @@ public class Controller {
     }
 
     public Kanji getNextLearningKanji(){
-        EntityManager entityManager = HibernateUtil.getEntityManager();
-        String jpql = "SELECT k FROM Kanji k WHERE SIZE(k.words) >= 1 ORDER BY FUNCTION('RAND')";
-        return entityManager.createQuery(jpql, Kanji.class).setMaxResults(1).getResultList().getFirst();
+        return kanjiTrainer.getNextLearningKanji();
+    }
+
+    public void addKanjiProgress(Kanji kanji, int percent) {
+        Kanji kanji1 = kanjiTrainer.addKanjiProgress(kanji, percent);
+        HibernateUtil.startTransaction();
+        em.merge(kanji1);
+        HibernateUtil.commitTransaction();
     }
 }

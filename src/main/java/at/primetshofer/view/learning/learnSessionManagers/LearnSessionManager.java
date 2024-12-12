@@ -261,10 +261,14 @@ public abstract class LearnSessionManager {
             percent = 1;
         }
 
+        updateProgresses((int)percent);
+
         SessionCompletedView sessionCompletedView = new SessionCompletedView(scene, duration, (int)percent);
         sessionCompletedView.display(origin.get());
         controller.playAudio(FINISHED_AUDIO);
     }
+
+    protected abstract void updateProgresses(int percent);
 
     public void display(View origin){
         if(origin != null){
