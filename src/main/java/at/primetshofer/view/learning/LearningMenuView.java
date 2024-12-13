@@ -1,19 +1,27 @@
 package at.primetshofer.view.learning;
 
+import at.primetshofer.model.Controller;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.catalog.View;
 import at.primetshofer.view.ViewUtils;
 import at.primetshofer.view.learning.learnSessionManagers.*;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 public class LearningMenuView extends View {
+
+    private ProgressBar kanjiProgress;
 
     public LearningMenuView(Scene scene) {
         super(scene);
@@ -28,7 +36,7 @@ public class LearningMenuView extends View {
         BorderPane.setAlignment(headline, Pos.CENTER);
 
         Button wordsButton = new Button(LangController.getText("WordsButton"));
-        wordsButton.getStyleClass().add("menuButton");
+        wordsButton.getStyleClass().add("smallMenuButton");
         wordsButton.setOnAction(e -> {
             WordSessionManager wordSessionManager = new WordSessionManager(scene);
             wordSessionManager.initView();
@@ -36,7 +44,7 @@ public class LearningMenuView extends View {
         });
 
         Button questionButton = new Button("Questions");
-        questionButton.getStyleClass().add("menuButton");
+        questionButton.getStyleClass().add("smallMenuButton");
         questionButton.setOnAction(e -> {
             QuestionSessionManager questionSessionManager = new QuestionSessionManager(scene);
             questionSessionManager.initView();
@@ -44,7 +52,7 @@ public class LearningMenuView extends View {
         });
 
         Button sentenceButton = new Button("Sentences");
-        sentenceButton.getStyleClass().add("menuButton");
+        sentenceButton.getStyleClass().add("smallMenuButton");
         sentenceButton.setOnAction(e -> {
             SentenceSessionManager sentenceSessionManager = new SentenceSessionManager(scene);
             sentenceSessionManager.initView();
@@ -52,7 +60,7 @@ public class LearningMenuView extends View {
         });
 
         Button speakingButton = new Button("Speaking");
-        speakingButton.getStyleClass().add("menuButton");
+        speakingButton.getStyleClass().add("smallMenuButton");
         speakingButton.setOnAction(e -> {
             SpeakingSessionManager speakingSessionManager = new SpeakingSessionManager(scene);
             speakingSessionManager.initView();
@@ -60,7 +68,7 @@ public class LearningMenuView extends View {
         });
 
         Button DailyKanjiButton = new Button(LangController.getText("DailyKanjiButton"));
-        DailyKanjiButton.getStyleClass().add("menuButton");
+        DailyKanjiButton.getStyleClass().add("smallMenuButton");
         DailyKanjiButton.setOnAction(e -> {
             KanjiSessionManager kanjiSessionManager = new KanjiSessionManager(scene);
             kanjiSessionManager.initView();
@@ -74,14 +82,50 @@ public class LearningMenuView extends View {
 
         HBox hb = ViewUtils.getBackButtonBox(origin);
 
+        HBox bottom = new HBox();
+        bottom.setSpacing(20);
+        bottom.setAlignment(Pos.CENTER);
+
+        Label kanjiProgressLabel = new Label(LangController.getText("KanjiProgressLabel"));
+        kanjiProgressLabel.getStyleClass().add("normalText");
+
+        kanjiProgress = new ProgressBar();
+        kanjiProgress.setProgress(0);
+        kanjiProgress.setPrefSize(150, 25);
+
+        bottom.getChildren().addAll(kanjiProgressLabel, kanjiProgress);
+
         bp.setTop(headline);
         bp.setLeft(hb);
         bp.setCenter(vb);
+        bp.setBottom(bottom);
 
         Region spacer = new Region();
 
         hb.widthProperty().addListener((observableValue, oldValue, newValue) -> spacer.setPrefWidth(newValue.doubleValue()));
 
         bp.setRight(spacer);
+    }
+
+    @Override
+    public void display(View origin) {
+        super.display(origin);
+
+        setProgress(Controller.getInstance().getKanjiProgress());
+    }
+
+    public void setProgress(double progress){
+        Timeline timeline = new Timeline(
+                new KeyFrame(
+                        Duration.ZERO, // Start at 0 seconds
+                        new KeyValue(kanjiProgress.progressProperty(), kanjiProgress.getProgress())
+                ),
+                new KeyFrame(
+                        Duration.seconds(0.5), // Animate over 2 seconds
+                        new KeyValue(kanjiProgress.progressProperty(), progress)
+                )
+        );
+
+        timeline.play();
     }
 }

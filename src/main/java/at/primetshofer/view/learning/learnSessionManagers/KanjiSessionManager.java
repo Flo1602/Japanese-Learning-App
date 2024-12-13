@@ -57,10 +57,10 @@ public class KanjiSessionManager extends LearnSessionManager {
 
         VerificationOptions verificationOptions = new VerificationOptions(
                 10,
-                traceOptions.lineWidth() * 2.0D,
-                traceOptions.lineWidth() * 10.0D,
+                traceOptions.lineWidth() * 1.5D,
+                traceOptions.lineWidth() * 5.0D,
                 traceOptions.lineWidth(),
-                0.2D,
+                0.5D,
                 0.5D,
                 3,
                 traceOptions.fieldWidth(),
@@ -166,7 +166,7 @@ public class KanjiSessionManager extends LearnSessionManager {
                         words.add(allWords.pop());
                     }
 
-                    words.addAll(getRandomWords(6-cntr));
+                    words.addAll(getRandomWords(5-cntr));
                     currentLearnView = new JapaneseToKanaMatch(this, words);
                     bp.setCenter(currentLearnView.initView());
                 }
@@ -190,6 +190,6 @@ public class KanjiSessionManager extends LearnSessionManager {
     private List<Word> getRandomWords(int count) {
         EntityManager entityManager = HibernateUtil.getEntityManager();
         String jpql = "SELECT w FROM Word w WHERE SIZE(w.kanjis) >= 1 ORDER BY FUNCTION('RAND')";
-        return entityManager.createQuery(jpql, Word.class).setMaxResults(4).getResultList();
+        return entityManager.createQuery(jpql, Word.class).setMaxResults(count).getResultList();
     }
 }

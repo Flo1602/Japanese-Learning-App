@@ -2,6 +2,7 @@ package at.primetshofer.model;
 
 import at.primetshofer.model.Trainer.KanjiTrainer;
 import at.primetshofer.model.entities.Kanji;
+import at.primetshofer.model.entities.KanjiProgress;
 import at.primetshofer.model.entities.Settings;
 import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.HibernateUtil;
@@ -20,6 +21,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -179,7 +181,46 @@ public class Controller {
     public void addKanjiProgress(Kanji kanji, int percent) {
         Kanji kanji1 = kanjiTrainer.addKanjiProgress(kanji, percent);
         HibernateUtil.startTransaction();
-        em.merge(kanji1);
+        em.merge(compressKanjiProgress(kanji));
         HibernateUtil.commitTransaction();
+    }
+
+    public void updateLists(){
+        kanjiTrainer.updateKanjiList();
+    }
+
+    public double getKanjiProgress(){
+        int max = kanjiTrainer.getTodayDueMax();
+        if (max == 0) {
+            return 100;
+        }
+        return (double) (100 * (max-kanjiTrainer.getTodayDueCurrent())) / max / 100;
+    }
+
+    public static Kanji compressKanjiProgress(Kanji kanji) {
+        List<KanjiProgress> kanjiProgressList = kanji.getProgresses();
+        if (kanjiProgressList == null || kanjiProgressList.size() <= 3) {
+            return kanji; // No compression needed
+        }
+
+        List<KanjiProgress> compressedList = new ArrayList<>();
+
+        // Add the first entry
+        compressedList.add(kanjiProgressList.get(0));
+
+        // Compress middle entries
+        KanjiProgress middleCompressed = new KanjiProgress();
+        middleCompressed.setCompressedEntries(kanjiProgressList.size() - 2);
+        middleCompressed.setLearned(kanjiProgressList.get(kanjiProgressList.size() - 2).getLearned()); // Use the timestamp of the second last entry
+        middleCompressed.setPoints(kanjiProgressList.subList(1, kanjiProgressList.size() - 1)
+                .stream()
+                .mapToInt(KanjiProgress::getPoints)
+                .sum());
+        compressedList.add(middleCompressed);
+
+        // Add the last entry
+        compressedList.add(kanjiProgressList.get(kanjiProgressList.size() - 1));
+
+        return kanji;
     }
 }

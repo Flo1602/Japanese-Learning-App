@@ -42,6 +42,7 @@ public class MainMenuView extends View {
             if(learningMenuView == null){
                 learningMenuView = new LearningMenuView(scene);
             }
+            Controller.getInstance().updateLists();
             learningMenuView.display(this);
         });
 

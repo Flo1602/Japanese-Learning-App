@@ -15,6 +15,7 @@ public class KanjiProgress {
     private Kanji kanji;
     private LocalDateTime learned;
     private int points;
+    private int compressedEntries;
 
     public int getId() {
         return id;
@@ -46,5 +47,13 @@ public class KanjiProgress {
 
     public void setPoints(int points) {
         this.points = points;
+    }
+
+    public int getCompressedEntries() {
+        return compressedEntries;
+    }
+
+    public void setCompressedEntries(int compressedEntries) {
+        this.compressedEntries = compressedEntries;
     }
 }

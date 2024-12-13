@@ -14,12 +14,46 @@ public class KanjiTrainer {
 
     private static KanjiTrainer instance;
     private List<Kanji> kanjiList;
+    private int todayDueMax;
     // Cache for next review times: updated whenever we add progress
-    private Map<Kanji, LocalDateTime> nextReviewCache = new HashMap<>();
+    private Map<Kanji, LocalDateTime> nextReviewCache;
 
-    private KanjiTrainer() {
+    private KanjiTrainer() {}
+
+    public void updateKanjiList(){
         EntityManager entityManager = HibernateUtil.getEntityManager();
         kanjiList = entityManager.createQuery("SELECT k FROM Kanji k", Kanji.class).getResultList();
+
+        nextReviewCache = new HashMap<>();
+        LocalDateTime now = LocalDateTime.now();
+        todayDueMax = 0;
+
+        for (Kanji kanji : kanjiList) {
+            updateNextReviewTime(kanji);
+
+            LocalDateTime reviewTime = nextReviewCache.getOrDefault(kanji, now);
+            if (!reviewTime.isAfter(now)) {
+                todayDueMax++;
+            }
+        }
+    }
+
+    public int getTodayDueMax() {
+        return todayDueMax;
+    }
+
+    public int getTodayDueCurrent() {
+        LocalDateTime now = LocalDateTime.now();
+        int due = 0;
+
+        for (Kanji kanji : kanjiList) {
+            LocalDateTime reviewTime = nextReviewCache.getOrDefault(kanji, now);
+            if (!reviewTime.isAfter(now)) {
+                due++;
+            }
+        }
+
+        return due;
     }
 
     public static KanjiTrainer getInstance() {
@@ -30,7 +64,9 @@ public class KanjiTrainer {
     }
 
     private int getIntervalDays(int points) {
-        if (points <= 50) {
+        if (points <= 30) {
+            return 0;
+        } else if (points <= 60) {
             return 1;
         } else if (points <= 100) {
             return 2;
@@ -48,7 +84,10 @@ public class KanjiTrainer {
      */
     private int getDynamicMaxPoints(Kanji kanji) {
         List<KanjiProgress> progressList = kanji.getProgresses();
-        int reviewCount = progressList.size(); // how many times we recorded progress
+        int reviewCount = 0; // how many times we recorded progress
+        for (KanjiProgress kanjiProgress : progressList) {
+            reviewCount += kanjiProgress.getCompressedEntries();
+        }
 
         if (progressList.isEmpty()) {
             // If never learned, start with a small max
@@ -60,6 +99,7 @@ public class KanjiTrainer {
         if (daysSinceFirstLearned < 0) {
             daysSinceFirstLearned = 0;
         }
+        daysSinceFirstLearned /= 2;
 
         int dynamicMax = (int)Math.min((daysSinceFirstLearned + reviewCount) * 20, 300);
         if (dynamicMax < 50) {
@@ -196,6 +236,7 @@ public class KanjiTrainer {
         } else {
             // Create a new entry for today
             KanjiProgress newProgress = new KanjiProgress();
+            newProgress.setCompressedEntries(1);
             newProgress.setKanji(kanji);
             newProgress.setLearned(now);
             newProgress.setPoints(newPoints);
@@ -225,11 +266,11 @@ public class KanjiTrainer {
 
     private int calculatePointsIncrement(Kanji kanji, int percent) {
         int baseIncrement;
-        if (percent >= 90) {
-            baseIncrement = 30;
-        } else if (percent >= 70) {
+        if (percent >= 95) {
+            baseIncrement = 25;
+        } else if (percent >= 80) {
             baseIncrement = 20;
-        } else if (percent >= 50) {
+        } else if (percent >= 60) {
             baseIncrement = 10;
         } else {
             baseIncrement = 5;

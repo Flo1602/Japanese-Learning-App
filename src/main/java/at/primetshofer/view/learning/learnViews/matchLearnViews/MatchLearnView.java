@@ -25,7 +25,7 @@ import java.util.Map;
 
 public abstract class MatchLearnView extends LearnView {
 
-    private static final int MAX_ERRORS = 5;
+    private static final int MAX_ERRORS = 2;
 
     private Map<String, String> matchPairBackup;
     private Map<String, String> matchPairs;
@@ -185,7 +185,7 @@ public abstract class MatchLearnView extends LearnView {
         if (matchPairs.isEmpty()){
             super.finished(true);
         }
-        if(errors >= 5){
+        if(errors >= MAX_ERRORS){
             disableButton.set(true);
             super.finished(false);
         }

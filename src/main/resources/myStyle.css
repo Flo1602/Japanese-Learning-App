@@ -9,6 +9,12 @@
     -fx-padding: 0.4em 0.8em 0.4em 0.8em;
 }
 
+.smallMenuButton{
+    -fx-font-size: 24pt;
+    -fx-font-weight: bold;
+    -fx-padding: 0.3em 0.6em 0.3em 0.6em;
+}
+
 .menuVBox{
     -fx-spacing: 3em;
     -fx-alignment: center;
