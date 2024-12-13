@@ -32,7 +32,12 @@ public class KanjiTrainer {
             updateNextReviewTime(kanji);
 
             LocalDateTime reviewTime = nextReviewCache.getOrDefault(kanji, now);
-            if (!reviewTime.isAfter(now)) {
+            int daysGoal = getIntervalDays(getDynamicMaxPoints(kanji));
+            daysGoal--;
+            if(getTodayProgress(kanji, now.toLocalDate()) == null){
+                daysGoal = 0;
+            }
+            if (!reviewTime.toLocalDate().isAfter(now.toLocalDate().plusDays(daysGoal))) {
                 todayDueMax++;
             }
         }
@@ -48,7 +53,12 @@ public class KanjiTrainer {
 
         for (Kanji kanji : kanjiList) {
             LocalDateTime reviewTime = nextReviewCache.getOrDefault(kanji, now);
-            if (!reviewTime.isAfter(now)) {
+            int daysGoal = getIntervalDays(getDynamicMaxPoints(kanji));
+            daysGoal--;
+            if(getTodayProgress(kanji, now.toLocalDate()) == null){
+                daysGoal = 0;
+            }
+            if (!reviewTime.toLocalDate().isAfter(now.toLocalDate().plusDays(daysGoal))) {
                 due++;
             }
         }
@@ -105,6 +115,7 @@ public class KanjiTrainer {
         if (dynamicMax < 50) {
             dynamicMax = 50;
         }
+
         return dynamicMax;
     }
 
@@ -166,32 +177,40 @@ public class KanjiTrainer {
         List<Kanji> dueKanji = new ArrayList<>();
         for (Kanji k : kanjiList) {
             LocalDateTime reviewTime = nextReviewCache.getOrDefault(k, now);
-            if (!reviewTime.isAfter(now)) {
+            if (!reviewTime.toLocalDate().isAfter(now.toLocalDate())) {
                 dueKanji.add(k);
             }
         }
 
         if (!dueKanji.isEmpty()) {
             Collections.shuffle(dueKanji);
+            System.out.println("from due");
             return dueKanji.get(0);
         }
 
         // 2. No strictly due Kanji -> try never learned Kanji
         if (!neverLearned.isEmpty()) {
             Collections.shuffle(neverLearned);
+            System.out.println("from empty");
             return neverLearned.get(0);
         }
 
-        // 3. Kanji that will be due soon (within next day)
+        // 3. Kanji that will be due soon (within next days)
         List<Kanji> soonDueKanji = new ArrayList<>();
         for (Kanji k : learned) {
             LocalDateTime reviewTime = nextReviewCache.get(k);
-            if (reviewTime.isBefore(now.plusDays(1))) {
+            int daysGoal = getIntervalDays(getDynamicMaxPoints(k));
+            daysGoal--;
+            if(getTodayProgress(k, now.toLocalDate()) == null){
+                daysGoal = 0;
+            }
+            if (reviewTime.isBefore(now.plusDays(daysGoal))) {
                 soonDueKanji.add(k);
             }
         }
         if (!soonDueKanji.isEmpty()) {
             Collections.shuffle(soonDueKanji);
+            System.out.println("from soon");
             return soonDueKanji.get(0);
         }
 
@@ -199,6 +218,7 @@ public class KanjiTrainer {
         if (!kanjiList.isEmpty()) {
             List<Kanji> all = new ArrayList<>(kanjiList);
             Collections.shuffle(all);
+            System.out.println("random");
             return all.get(0);
         }
 
@@ -217,6 +237,19 @@ public class KanjiTrainer {
 
         // Check if there's already a progress entry for today
         KanjiProgress todayProgress = getTodayProgress(kanji, today);
+
+        //if kanji wasn't scheduled today it does not get any progress
+        LocalDateTime reviewTime = nextReviewCache.get(kanji);
+        int daysGoal = getIntervalDays(getDynamicMaxPoints(kanji));
+        daysGoal--;
+        if(getTodayProgress(kanji, now.toLocalDate()) == null){
+            daysGoal = 0;
+        }
+        if (!reviewTime.isBefore(now.plusDays(daysGoal))) {
+            System.out.println("no progress");
+            return kanji;
+        }
+        System.out.println("progress: " + percent);
 
         // Calculate increment and dynamic max points
         int increment = calculatePointsIncrement(kanji, percent);
