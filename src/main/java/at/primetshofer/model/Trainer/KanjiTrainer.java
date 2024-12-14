@@ -41,6 +41,7 @@ public class KanjiTrainer {
                 todayDueMax++;
             }
         }
+        System.out.println(todayDueMax);
     }
 
     public int getTodayDueMax() {
@@ -74,13 +75,13 @@ public class KanjiTrainer {
     }
 
     private int getIntervalDays(int points) {
-        if (points <= 30) {
+        if (points < 30) {
             return 0;
-        } else if (points <= 60) {
+        } else if (points < 60) {
             return 1;
-        } else if (points <= 100) {
+        } else if (points < 100) {
             return 2;
-        } else if (points <= 200) {
+        } else if (points < 200) {
             return 5;
         } else {
             return 10;
@@ -109,7 +110,7 @@ public class KanjiTrainer {
         if (daysSinceFirstLearned < 0) {
             daysSinceFirstLearned = 0;
         }
-        daysSinceFirstLearned /= 2;
+        daysSinceFirstLearned /= 4;
 
         int dynamicMax = (int)Math.min((daysSinceFirstLearned + reviewCount) * 20, 300);
         if (dynamicMax < 50) {
@@ -216,10 +217,9 @@ public class KanjiTrainer {
 
         // 4. Any Kanji at random if no other condition met
         if (!kanjiList.isEmpty()) {
-            List<Kanji> all = new ArrayList<>(kanjiList);
-            Collections.shuffle(all);
+            int rand = new Random().nextInt(kanjiList.size());
             System.out.println("random");
-            return all.get(0);
+            return kanjiList.get(rand);
         }
 
         // If no Kanji at all
@@ -239,28 +239,28 @@ public class KanjiTrainer {
         KanjiProgress todayProgress = getTodayProgress(kanji, today);
 
         //if kanji wasn't scheduled today it does not get any progress
-        LocalDateTime reviewTime = nextReviewCache.get(kanji);
+        LocalDateTime reviewTime = nextReviewCache.getOrDefault(kanji, now);
         int daysGoal = getIntervalDays(getDynamicMaxPoints(kanji));
         daysGoal--;
         if(getTodayProgress(kanji, now.toLocalDate()) == null){
             daysGoal = 0;
         }
-        if (!reviewTime.isBefore(now.plusDays(daysGoal))) {
+        if (reviewTime.toLocalDate().isAfter(now.toLocalDate()) && !reviewTime.isBefore(now.plusDays(daysGoal))) {
             System.out.println("no progress");
             return kanji;
         }
-        System.out.println("progress: " + percent);
 
         // Calculate increment and dynamic max points
         int increment = calculatePointsIncrement(kanji, percent);
-        int currentPoints = todayProgress != null ? todayProgress.getPoints()
-                : (!kanji.getProgresses().isEmpty() ? getLastProgress(kanji).getPoints() : 0);
+        int currentPoints = todayProgress != null ? todayProgress.getPoints() : 0;
         int dynamicMaxPoints = getDynamicMaxPoints(kanji);
 
         int newPoints = currentPoints + increment;
         if (newPoints > dynamicMaxPoints) {
             newPoints = dynamicMaxPoints;
         }
+
+        System.out.println("progress: " + newPoints);
 
         if (todayProgress != null) {
             // Update the existing today's progress entry
@@ -309,10 +309,17 @@ public class KanjiTrainer {
             baseIncrement = 5;
         }
 
-        int reviewCount = kanji.getProgresses().size(); // how many times recorded so far (before adding today's entry)
-        double incrementFactor = 1.0 + ((reviewCount-1) * 0.1);
+        int reviewCount = 0; // how many times recorded so far (before adding today's entry)
+        for (KanjiProgress kanjiProgress : kanji.getProgresses()) {
+            reviewCount += kanjiProgress.getCompressedEntries();
+        }
+
+        double incrementFactor = 1.0 + ((reviewCount) * 0.2);
         if(reviewCount == 0 || reviewCount == 1) {
             incrementFactor = 0.5;
+        }
+        if(incrementFactor > 10){
+            incrementFactor = 10;
         }
         return (int) Math.round(baseIncrement * incrementFactor);
     }

@@ -20,6 +20,7 @@ import at.primetshofer.view.ViewUtils;
 import at.primetshofer.view.learning.learnViews.KanjiTracerLearnView;
 import at.primetshofer.view.learning.learnViews.WordKanjiSelectLearnView;
 import at.primetshofer.view.learning.learnViews.matchLearnViews.JapaneseToKanaMatch;
+import at.primetshofer.view.learning.learnViews.matchLearnViews.VocabAudioToJapaneseMatch;
 import at.primetshofer.view.learning.learnViews.sentenceLearnViews.WordBuilderView;
 import jakarta.persistence.EntityManager;
 import javafx.scene.Scene;
@@ -58,7 +59,7 @@ public class KanjiSessionManager extends LearnSessionManager {
         VerificationOptions verificationOptions = new VerificationOptions(
                 10,
                 traceOptions.lineWidth() * 1.5D,
-                traceOptions.lineWidth() * 5.0D,
+                traceOptions.lineWidth() * 7.5D,
                 traceOptions.lineWidth(),
                 0.5D,
                 0.5D,
@@ -167,7 +168,16 @@ public class KanjiSessionManager extends LearnSessionManager {
                     }
 
                     words.addAll(getRandomWords(5-cntr));
-                    currentLearnView = new JapaneseToKanaMatch(this, words);
+                    if(random.nextInt(4) == 0){
+                        currentLearnView = new VocabAudioToJapaneseMatch(this, words);
+                    } else {
+                        JapaneseToKanaMatch matchLearnView = new JapaneseToKanaMatch(this, words);
+                        if(rand == 5){
+                            matchLearnView.setReverse(true);
+                        }
+                        currentLearnView = matchLearnView;
+                    }
+
                     bp.setCenter(currentLearnView.initView());
                 }
             }

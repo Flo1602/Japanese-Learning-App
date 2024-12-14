@@ -30,7 +30,7 @@ public class WordBuilderView extends SentenceLearnView {
         ArrayList<String> symbols = new ArrayList<>();
 
         EntityManager entityManager = HibernateUtil.getEntityManager();
-        String sql = "SELECT * FROM WORD ORDER BY RAND() LIMIT " + rand.nextInt(5);
+        String sql = "SELECT * FROM WORD ORDER BY RAND() LIMIT " + rand.nextInt(1, 5);
         List<Word> resultList = entityManager.createNativeQuery(sql, Word.class).getResultList();
 
         resultList.add(word);
