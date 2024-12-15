@@ -8,7 +8,7 @@ import at.primetshofer.logic.provider.file.UnicodeFilenameFileProvider;
 import at.primetshofer.logic.provider.polygon.*;
 import at.primetshofer.logic.provider.polygon.SVGPolygonProvider.SVGPolyProviderOptions;
 import at.primetshofer.logic.tracing.*;
-import at.primetshofer.logic.tracing.verification.GradientVerificationLogic;
+import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import at.primetshofer.logic.tracing.verification.ITraceVerificationLogic;
 import at.primetshofer.logic.tracing.verification.VerificationOptions;
 import at.primetshofer.model.Controller;
@@ -56,6 +56,8 @@ public class KanjiSessionManager extends LearnSessionManager {
                 15.0D
         );
 
+        boolean debug = false;
+
         VerificationOptions verificationOptions = new VerificationOptions(
                 10,
                 traceOptions.lineWidth() * 1.5D,
@@ -63,20 +65,28 @@ public class KanjiSessionManager extends LearnSessionManager {
                 traceOptions.lineWidth(),
                 0.5D,
                 0.5D,
+                180,
+                20,
                 3,
+                0.7,
+                0.6,
+                0.9,
                 traceOptions.fieldWidth(),
-                traceOptions.fieldHeight()
+                traceOptions.fieldHeight(),
+                debug
         );
 
-        this.traceLogic = buildLogic(traceOptions, verificationOptions);
+        this.traceLogic = buildLogic(verificationOptions);
         IPolygonDrawer hintLineDrawer = new SmoothPolygonDrawer(traceOptions.lineWidth(), traceOptions.hintColor());
         IPolygonDrawer correctingLineDrawer = new SmoothPolygonDrawer(traceOptions.lineWidth(), traceOptions.drawingColor());
         kanjiTracerLearnView = new KanjiTracerLearnView(
                 this,
+                traceOptions,
                 traceLogic,
                 hintLineDrawer,
                 correctingLineDrawer,
-                kanji
+                kanji,
+                debug
         );
     }
 
@@ -86,7 +96,7 @@ public class KanjiSessionManager extends LearnSessionManager {
         nextLearningView();
     }
 
-    private static ITraceLogic<Character> buildLogic(TraceLineOptions traceOptions, VerificationOptions verificationOptions) {
+    private static ITraceLogic<Character> buildLogic(VerificationOptions verificationOptions) {
         UnicodeFilenameFileProvider fileProvider = new UnicodeFilenameFileProvider(
                 "kanjivg-20240807-all",
                 '0',
@@ -113,13 +123,13 @@ public class KanjiSessionManager extends LearnSessionManager {
             return polygons;
         };
 
-        ITraceVerificationLogic verificationLogic = new GradientVerificationLogic(
+        ITraceVerificationLogic verificationLogic = new VerificationLogic(
                 verificationOptions,
                 fixedDistanceSetter
         );
 
         ITraceTargetChanger<Character> targetChanger = fileProvider::setCharForFilename;
-        return new UnicodeTraceLineLogic(traceOptions, verificationLogic, convertingPolygonProvider, targetChanger);
+        return new UnicodeTraceLineLogic(verificationLogic, convertingPolygonProvider, targetChanger);
     }
 
     @Override
