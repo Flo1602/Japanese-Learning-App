@@ -179,7 +179,7 @@ public class Controller {
     }
 
     public void addKanjiProgress(Kanji kanji, int percent) {
-        Kanji kanji1 = kanjiTrainer.addKanjiProgress(kanji, percent);
+        kanji = kanjiTrainer.addKanjiProgress(kanji, percent);
         HibernateUtil.startTransaction();
         em.merge(compressKanjiProgress(kanji));
         HibernateUtil.commitTransaction();

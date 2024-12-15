@@ -60,17 +60,17 @@ public class KanjiSessionManager extends LearnSessionManager {
 
         VerificationOptions verificationOptions = new VerificationOptions(
                 10,
-                traceOptions.lineWidth() * 1.5D,
-                traceOptions.lineWidth() * 7.5D,
+                traceOptions.lineWidth() * 2D,
+                traceOptions.lineWidth() * 7D,
                 traceOptions.lineWidth(),
-                0.5D,
+                0.6D,
                 0.5D,
                 180,
                 20,
                 3,
-                0.7,
                 0.6,
-                0.9,
+                0.4,
+                0.6,
                 traceOptions.fieldWidth(),
                 traceOptions.fieldHeight(),
                 debug

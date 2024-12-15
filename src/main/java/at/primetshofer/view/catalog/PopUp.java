@@ -2,6 +2,7 @@ package at.primetshofer.view.catalog;
 
 import at.primetshofer.Main;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -20,6 +21,7 @@ public abstract class PopUp {
 
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initOwner(Main.primaryStage);
+        stage.getIcons().add(new Image("icon.png"));
         stage.setScene(scene);
         stage.setWidth(500);
         stage.setHeight(500);
