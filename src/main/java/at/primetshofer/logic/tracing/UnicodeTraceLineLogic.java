@@ -14,7 +14,6 @@ import java.util.Set;
 public class UnicodeTraceLineLogic implements ITraceLogic<Character> {
 
     private final Set<ITraceLineListener> listeners;
-    private final TraceLineOptions options;
     private final ITraceVerificationLogic verificationLogic;
     private final IPolygonProvider polygonProvider;
     private final ITraceTargetChanger<Character> targetChanger;
@@ -23,9 +22,8 @@ public class UnicodeTraceLineLogic implements ITraceLogic<Character> {
     private int nextPolygonToDraw = 0;
     private TraceMode currentTraceMode;
 
-    public UnicodeTraceLineLogic(TraceLineOptions options, ITraceVerificationLogic verificationLogic, IPolygonProvider polygonProvider, ITraceTargetChanger<Character> targetChanger) {
+    public UnicodeTraceLineLogic(ITraceVerificationLogic verificationLogic, IPolygonProvider polygonProvider, ITraceTargetChanger<Character> targetChanger) {
         this.listeners = new HashSet<>();
-        this.options = options;
         this.verificationLogic = verificationLogic;
         this.polygonProvider = polygonProvider;
         this.targetChanger = targetChanger;
@@ -74,7 +72,7 @@ public class UnicodeTraceLineLogic implements ITraceLogic<Character> {
         this.iterateListeners(l -> l.onBeginTracing(this::onTraceFinished));
     }
 
-    private void onTraceFinished(Polygon tracedPolygon) {
+    private boolean onTraceFinished(Polygon tracedPolygon) {
         Polygon source = this.loadedPolygons.get(this.nextPolygonToDraw);
         VerifyResult verifyResult = this.verificationLogic.verify(source, tracedPolygon);
 
@@ -84,7 +82,7 @@ public class UnicodeTraceLineLogic implements ITraceLogic<Character> {
                 this.iterateListeners(l -> l.onShowHint(loadedPolygon));
             }
             this.iterateListeners(l -> l.onFinished(false));
-            return;
+            return false;
         }
 
         if (verifyResult != VerifyResult.INCORRECT)
@@ -96,6 +94,7 @@ public class UnicodeTraceLineLogic implements ITraceLogic<Character> {
         List<Polygon> correctedPolys = this.loadedPolygons.stream().limit(this.nextPolygonToDraw).toList();
         this.iterateListeners(l -> l.onDrawCorrectedLines(correctedPolys));
         this.traceNextPolygon();
+        return verifyResult == VerifyResult.CORRECT;
     }
 
     @Override
@@ -109,8 +108,8 @@ public class UnicodeTraceLineLogic implements ITraceLogic<Character> {
     }
 
     @Override
-    public TraceLineOptions getOptions() {
-        return this.options;
+    public ITraceVerificationLogic getVerificationLogic() {
+        return this.verificationLogic;
     }
 
     private void iterateListeners(Consumer<ITraceLineListener> consumer) {

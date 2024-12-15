@@ -1,6 +1,7 @@
 package at.primetshofer.logic.tracing;
 
 
+import at.primetshofer.logic.tracing.verification.ITraceVerificationLogic;
 import at.primetshofer.model.Point;
 import at.primetshofer.model.Polygon;
 
@@ -10,7 +11,7 @@ public interface ITraceLogic<T> extends ITraceTargetChanger<T> {
     void startTracing(TraceMode traceMode);
     void addTraceLineListener(ITraceLineListener listenerToAdd);
     void removeTraceLineListener(ITraceLineListener listenerToAdd);
-    TraceLineOptions getOptions();
+    ITraceVerificationLogic getVerificationLogic();
 
     interface ITraceLineListener {
         void onShowHint(Polygon polygonToShowHintFor);
@@ -22,6 +23,6 @@ public interface ITraceLogic<T> extends ITraceTargetChanger<T> {
     }
 
     interface ITraceFinishedCallback {
-        void onTraceFinished(Polygon tracedPolygon);
+        boolean onTraceFinished(Polygon tracedPolygon);
     }
 }
