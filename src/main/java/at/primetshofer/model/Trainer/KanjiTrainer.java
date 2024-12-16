@@ -81,10 +81,14 @@ public class KanjiTrainer {
             return 1;
         } else if (points < 100) {
             return 2;
-        } else if (points < 200) {
+        } else if (points < 175) {
             return 5;
-        } else {
+        } else if (points < 300) {
             return 10;
+        } else if (points < 500) {
+            return 20;
+        } else {
+            return 30;
         }
     }
 
@@ -105,14 +109,17 @@ public class KanjiTrainer {
             return 50;
         }
 
-        KanjiProgress firstProgress = progressList.get(0);
+        KanjiProgress firstProgress = progressList.getFirst();
         long daysSinceFirstLearned = ChronoUnit.DAYS.between(firstProgress.getLearned(), LocalDateTime.now());
         if (daysSinceFirstLearned < 0) {
             daysSinceFirstLearned = 0;
         }
         daysSinceFirstLearned /= 4;
 
-        int dynamicMax = (int)Math.min((daysSinceFirstLearned + reviewCount) * 20, 300);
+        int dynamicMax = (int)Math.min((daysSinceFirstLearned + reviewCount) * 20, 600);
+        if(dynamicMax < 0){
+            dynamicMax = 600;
+        }
         if (dynamicMax < 50) {
             dynamicMax = 50;
         }
@@ -302,7 +309,7 @@ public class KanjiTrainer {
         if (percent >= 95) {
             baseIncrement = 25;
         } else if (percent >= 80) {
-            baseIncrement = 20;
+            baseIncrement = 15;
         } else if (percent >= 60) {
             baseIncrement = 10;
         } else {
@@ -314,7 +321,14 @@ public class KanjiTrainer {
             reviewCount += kanjiProgress.getCompressedEntries();
         }
 
-        double incrementFactor = 1.0 + ((reviewCount) * 0.2);
+        KanjiProgress firstProgress = kanji.getProgresses().getFirst();
+        long daysSinceFirstLearned = ChronoUnit.DAYS.between(firstProgress.getLearned(), LocalDateTime.now());
+        if (daysSinceFirstLearned < 0) {
+            daysSinceFirstLearned = 0;
+        }
+        daysSinceFirstLearned /= 2;
+
+        double incrementFactor = 1.0 + ((reviewCount + daysSinceFirstLearned) * 0.3);
         if(reviewCount == 0 || reviewCount == 1) {
             incrementFactor = 0.5;
         }

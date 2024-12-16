@@ -181,7 +181,14 @@ public class Controller {
     public void addKanjiProgress(Kanji kanji, int percent) {
         kanji = kanjiTrainer.addKanjiProgress(kanji, percent);
         HibernateUtil.startTransaction();
-        em.merge(compressKanjiProgress(kanji));
+        List<KanjiProgress> oldProgresses = kanji.getProgresses();
+        kanji = compressKanjiProgress(kanji);
+        for (KanjiProgress progress : oldProgresses) {
+            if(!kanji.getProgresses().contains(progress)){
+                em.remove(progress);
+            }
+        }
+        em.merge(kanji);
         HibernateUtil.commitTransaction();
     }
 
@@ -198,6 +205,7 @@ public class Controller {
     }
 
     public static Kanji compressKanjiProgress(Kanji kanji) {
+        //Todo: Compression does not work
         List<KanjiProgress> kanjiProgressList = kanji.getProgresses();
         if (kanjiProgressList == null || kanjiProgressList.size() <= 3) {
             return kanji; // No compression needed
@@ -209,10 +217,10 @@ public class Controller {
         compressedList.add(kanjiProgressList.get(0));
 
         // Compress middle entries
-        KanjiProgress middleCompressed = new KanjiProgress();
+        KanjiProgress middleCompressed = kanjiProgressList.get(kanjiProgressList.size()-2);
         middleCompressed.setCompressedEntries(kanjiProgressList.size() - 2);
         middleCompressed.setLearned(kanjiProgressList.get(kanjiProgressList.size() - 2).getLearned()); // Use the timestamp of the second last entry
-        middleCompressed.setPoints(kanjiProgressList.subList(1, kanjiProgressList.size() - 1)
+        middleCompressed.setPoints(kanjiProgressList.subList(1, kanjiProgressList.size() - 2)
                 .stream()
                 .mapToInt(KanjiProgress::getPoints)
                 .sum());
@@ -220,6 +228,8 @@ public class Controller {
 
         // Add the last entry
         compressedList.add(kanjiProgressList.get(kanjiProgressList.size() - 1));
+
+        kanji.setProgresses(compressedList);
 
         return kanji;
     }

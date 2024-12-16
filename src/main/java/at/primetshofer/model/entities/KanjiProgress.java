@@ -3,6 +3,7 @@ package at.primetshofer.model.entities;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 public class KanjiProgress {
@@ -55,5 +56,18 @@ public class KanjiProgress {
 
     public void setCompressedEntries(int compressedEntries) {
         this.compressedEntries = compressedEntries;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        KanjiProgress that = (KanjiProgress) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }
