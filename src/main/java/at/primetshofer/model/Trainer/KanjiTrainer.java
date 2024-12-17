@@ -15,6 +15,7 @@ public class KanjiTrainer {
     private static KanjiTrainer instance;
     private List<Kanji> kanjiList;
     private int todayDueMax;
+    private int dueCurrent;
     // Cache for next review times: updated whenever we add progress
     private Map<Kanji, LocalDateTime> nextReviewCache;
 
@@ -27,6 +28,7 @@ public class KanjiTrainer {
         nextReviewCache = new HashMap<>();
         LocalDateTime now = LocalDateTime.now();
         todayDueMax = 0;
+        dueCurrent = 0;
 
         for (Kanji kanji : kanjiList) {
             updateNextReviewTime(kanji);
@@ -34,11 +36,13 @@ public class KanjiTrainer {
             LocalDateTime reviewTime = nextReviewCache.getOrDefault(kanji, now);
             int daysGoal = getIntervalDays(getDynamicMaxPoints(kanji));
             daysGoal--;
+
             if(getTodayProgress(kanji, now.toLocalDate()) == null){
                 daysGoal = 0;
             }
             if (!reviewTime.toLocalDate().isAfter(now.toLocalDate().plusDays(daysGoal))) {
                 todayDueMax++;
+                dueCurrent++;
             }
         }
         System.out.println(todayDueMax);
@@ -49,22 +53,22 @@ public class KanjiTrainer {
     }
 
     public int getTodayDueCurrent() {
+        return dueCurrent;
+    }
+
+    private void updateDueCurrent(Kanji kanji){
         LocalDateTime now = LocalDateTime.now();
-        int due = 0;
 
-        for (Kanji kanji : kanjiList) {
-            LocalDateTime reviewTime = nextReviewCache.getOrDefault(kanji, now);
-            int daysGoal = getIntervalDays(getDynamicMaxPoints(kanji));
-            daysGoal--;
-            if(getTodayProgress(kanji, now.toLocalDate()) == null){
-                daysGoal = 0;
-            }
-            if (!reviewTime.toLocalDate().isAfter(now.toLocalDate().plusDays(daysGoal))) {
-                due++;
-            }
+        LocalDateTime reviewTime = nextReviewCache.getOrDefault(kanji, now);
+        int daysGoal = getIntervalDays(getDynamicMaxPoints(kanji));
+
+        daysGoal--;
+        if(getTodayProgress(kanji, now.toLocalDate()) == null){
+            daysGoal = 0;
         }
-
-        return due;
+        if (reviewTime.toLocalDate().isAfter(now.toLocalDate().plusDays(daysGoal))) {
+            dueCurrent--;
+        }
     }
 
     public static KanjiTrainer getInstance() {
@@ -84,11 +88,11 @@ public class KanjiTrainer {
         } else if (points < 175) {
             return 5;
         } else if (points < 300) {
-            return 10;
+            return 11;
         } else if (points < 500) {
-            return 20;
+            return 21;
         } else {
-            return 30;
+            return 31;
         }
     }
 
@@ -110,7 +114,7 @@ public class KanjiTrainer {
         }
 
         KanjiProgress firstProgress = progressList.getFirst();
-        long daysSinceFirstLearned = ChronoUnit.DAYS.between(firstProgress.getLearned(), LocalDateTime.now());
+        long daysSinceFirstLearned = ChronoUnit.DAYS.between(firstProgress.getLearned().toLocalDate(), LocalDate.now());
         if (daysSinceFirstLearned < 0) {
             daysSinceFirstLearned = 0;
         }
@@ -283,8 +287,9 @@ public class KanjiTrainer {
             kanji.getProgresses().add(newProgress);
         }
 
-        // Update the cached next review time
+        // Update the cached next review time and dueCount
         updateNextReviewTime(kanji);
+        updateDueCurrent(kanji);
 
         return kanji;
     }
@@ -322,7 +327,7 @@ public class KanjiTrainer {
         }
 
         KanjiProgress firstProgress = kanji.getProgresses().getFirst();
-        long daysSinceFirstLearned = ChronoUnit.DAYS.between(firstProgress.getLearned(), LocalDateTime.now());
+        long daysSinceFirstLearned = ChronoUnit.DAYS.between(firstProgress.getLearned().toLocalDate(), LocalDate.now());
         if (daysSinceFirstLearned < 0) {
             daysSinceFirstLearned = 0;
         }

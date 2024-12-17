@@ -22,9 +22,12 @@ import javafx.util.Duration;
 public class LearningMenuView extends View {
 
     private ProgressBar kanjiProgress;
+    private Label kanjiProgressLabel;
+    private Controller controller;
 
     public LearningMenuView(Scene scene) {
         super(scene);
+        controller = Controller.getInstance();
     }
 
     @Override
@@ -86,7 +89,7 @@ public class LearningMenuView extends View {
         bottom.setSpacing(20);
         bottom.setAlignment(Pos.CENTER);
 
-        Label kanjiProgressLabel = new Label(LangController.getText("KanjiProgressLabel"));
+        kanjiProgressLabel = new Label(LangController.getText("KanjiProgressLabel"));
         kanjiProgressLabel.getStyleClass().add("normalText");
 
         kanjiProgress = new ProgressBar();
@@ -111,7 +114,9 @@ public class LearningMenuView extends View {
     public void display(View origin) {
         super.display(origin);
 
-        setProgress(Controller.getInstance().getKanjiProgress());
+        kanjiProgressLabel.setText(controller.getDueKanjiCount() + " " + LangController.getText("KanjiProgressLabel"));
+
+        setProgress(controller.getKanjiProgress());
     }
 
     public void setProgress(double progress){

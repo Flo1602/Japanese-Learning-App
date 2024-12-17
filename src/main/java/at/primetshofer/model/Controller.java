@@ -204,6 +204,10 @@ public class Controller {
         return (double) (100 * (max-kanjiTrainer.getTodayDueCurrent())) / max / 100;
     }
 
+    public int getDueKanjiCount(){
+        return kanjiTrainer.getTodayDueCurrent();
+    }
+
     public static Kanji compressKanjiProgress(Kanji kanji) {
         //Todo: Compression does not work
         List<KanjiProgress> kanjiProgressList = kanji.getProgresses();
