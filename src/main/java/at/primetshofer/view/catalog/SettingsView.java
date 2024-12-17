@@ -24,6 +24,7 @@ public class SettingsView extends View {
 
     private TextField voiceIdInput;
     private TextField newWordsInput;
+    private TextField maxDailyKanjiInput;
     private ComboBox<Stylesheet> styleSheetComboBox;
 
     public SettingsView(Scene scene) {
@@ -96,6 +97,22 @@ public class SettingsView extends View {
         HBox newWordsSetting = new HBox(newWordsLabel, newWordsInput);
         newWordsSetting.getStyleClass().add("settingsHB");
 
+        Label maxDailyKanjiLabel = new Label(LangController.getText("maxDailyKanjiLabel"));
+        maxDailyKanjiLabel.getStyleClass().add("normalText");
+
+        maxDailyKanjiInput = new TextField();
+
+        maxDailyKanjiInput.setTextFormatter(new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            if (newText.matches("\\d*")) {
+                return change;
+            }
+            return null;
+        }));
+
+        HBox maxDailyKanjiSetting = new HBox(maxDailyKanjiLabel, maxDailyKanjiInput);
+        maxDailyKanjiSetting.getStyleClass().add("settingsHB");
+
         Label styleSheetLabel = new Label(LangController.getText("styleSheetLabel"));
         styleSheetLabel.getStyleClass().add("normalText");
 
@@ -105,7 +122,7 @@ public class SettingsView extends View {
         HBox styleSheetSetting = new HBox(styleSheetLabel, styleSheetComboBox);
         styleSheetSetting.getStyleClass().add("settingsHB");
 
-        vb.getChildren().addAll(voiceIdSetting, newWordsSetting, styleSheetSetting);
+        vb.getChildren().addAll(voiceIdSetting, newWordsSetting, maxDailyKanjiSetting, styleSheetSetting);
         vb.setAlignment(Pos.CENTER);
         vb.getStyleClass().add("menuVBox");
 
@@ -119,6 +136,7 @@ public class SettingsView extends View {
                 settings.setVoiceId(Integer.parseInt(voiceIdInput.getText()));
                 settings.setNewWords(Integer.parseInt(newWordsInput.getText()));
                 settings.setStyleSheet(styleSheetComboBox.getValue());
+                settings.setMaxDailyKanji(Integer.parseInt(maxDailyKanjiInput.getText()));
 
                 controller.saveSettings();
 
@@ -159,6 +177,9 @@ public class SettingsView extends View {
         }
         if(styleSheetComboBox != null){
             styleSheetComboBox.setValue(settings.getStyleSheet());
+        }
+        if(maxDailyKanjiInput != null){
+            maxDailyKanjiInput.setText(settings.getMaxDailyKanji() + "");
         }
 
         super.display(origin);

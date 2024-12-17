@@ -60,6 +60,7 @@ public class Controller {
                 settings = new Settings();
                 settings.setId(SETTING_ID);
                 settings.setNewWords(20);
+                settings.setMaxDailyKanji(20);
                 settings.setStyleSheet(Stylesheet.CUPERTINO_DARK);
                 settings.setVoiceId(0);
 

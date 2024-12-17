@@ -10,6 +10,7 @@ public class Settings {
     private int id;
     private int voiceId;
     private int newWords;
+    private int maxDailyKanji;
     private Stylesheet styleSheet;
 
     public Stylesheet getStyleSheet() {
@@ -42,5 +43,13 @@ public class Settings {
 
     public void setNewWords(int newWords) {
         this.newWords = newWords;
+    }
+
+    public int getMaxDailyKanji() {
+        return maxDailyKanji;
+    }
+
+    public void setMaxDailyKanji(int newKanji) {
+        this.maxDailyKanji = newKanji;
     }
 }
