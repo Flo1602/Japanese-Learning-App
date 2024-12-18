@@ -20,9 +20,12 @@ public class KanjiTrainer {
     private int todayDueMax;
     private int dueCurrent;
     private int dueTotal;
+    private int tmpDueIncrease;
     private Map<Kanji, LocalDateTime> nextReviewCache;
 
-    private KanjiTrainer() {}
+    private KanjiTrainer() {
+        tmpDueIncrease = 0;
+    }
 
     public void updateKanjiList(){
         dueKanjiList = new ArrayList<>();
@@ -45,7 +48,7 @@ public class KanjiTrainer {
         dueCurrent = 0;
         dueTotal = 0;
 
-        int maxKanji = Controller.getInstance().getSettings().getMaxDailyKanji();
+        int maxKanji = Controller.getInstance().getSettings().getMaxDailyKanji() + tmpDueIncrease;
 
         for (Kanji kanji : allKanjiList) {
             updateNextReviewTime(kanji);
@@ -57,19 +60,26 @@ public class KanjiTrainer {
             if(getTodayProgress(kanji, now.toLocalDate()) == null){
                 daysGoal = 0;
             }
+
+            KanjiProgress lastProgress = getLastProgress(kanji);
+
             if (!reviewTime.toLocalDate().isAfter(now.toLocalDate().plusDays(daysGoal))) {
                 dueTotal++;
 
-                if(todayDueMax != maxKanji){
+                if(todayDueMax != maxKanji || (lastProgress != null && isToday(lastProgress.getLearned()))){
                     todayDueMax++;
                     dueCurrent++;
 
                     dueKanjiList.add(kanji);
                 }
-            } else if(getLastProgress(kanji).getLearned().toLocalDate().isEqual(now.toLocalDate())){
+            } else if(lastProgress != null && isToday(getLastProgress(kanji).getLearned())){
                 todayDueMax++;
             }
         }
+    }
+
+    public void tmpDueIncrease(int tmpDueIncrease) {
+        this.tmpDueIncrease += tmpDueIncrease;
     }
 
     public void sortKanjiList(List<Kanji> kanjiList) {

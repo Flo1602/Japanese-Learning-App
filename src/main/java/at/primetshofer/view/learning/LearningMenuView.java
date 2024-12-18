@@ -8,8 +8,10 @@ import at.primetshofer.view.learning.learnSessionManagers.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.concurrent.Task;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -24,6 +26,7 @@ public class LearningMenuView extends View {
     private ProgressBar kanjiProgress;
     private Label kanjiProgressLabel;
     private Controller controller;
+    private Button addKanjiToDue;
 
     public LearningMenuView(Scene scene) {
         super(scene);
@@ -89,6 +92,11 @@ public class LearningMenuView extends View {
         bottom.setSpacing(20);
         bottom.setAlignment(Pos.CENTER);
 
+        addKanjiToDue = new Button("+");
+        addKanjiToDue.getStyleClass().add("plusButton");
+
+        addKanjiToDue.setOnAction(e -> addKanjiToDueAction());
+
         kanjiProgressLabel = new Label(LangController.getText("KanjiProgressLabel"));
         kanjiProgressLabel.getStyleClass().add("smallText");
 
@@ -96,7 +104,7 @@ public class LearningMenuView extends View {
         kanjiProgress.setProgress(0);
         kanjiProgress.setPrefSize(150, 25);
 
-        bottom.getChildren().addAll(kanjiProgressLabel, kanjiProgress);
+        bottom.getChildren().addAll(addKanjiToDue, kanjiProgressLabel, kanjiProgress);
 
         bp.setTop(headline);
         bp.setLeft(hb);
@@ -110,13 +118,38 @@ public class LearningMenuView extends View {
         bp.setRight(spacer);
     }
 
+    private void addKanjiToDueAction() {
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() {
+                controller.increaseDueKanjiTmp(1);
+                controller.updateKanjiList();
+                return null;
+            }
+        };
+
+        task.setOnSucceeded(event -> updateProgress());
+        task.setOnFailed(event -> {
+           event.getSource().getException().printStackTrace();
+           ViewUtils.showAlert(Alert.AlertType.ERROR, "Error while updating Progresses!", "FATAL ERROR!");
+        });
+
+        new Thread(task).start();
+    }
+
     @Override
     public void display(View origin) {
         super.display(origin);
 
+        updateProgress();
+    }
+
+    private void updateProgress() {
         kanjiProgressLabel.setText(controller.getDueKanjiCount() + " " + LangController.getText("KanjiProgressLabel") + " (" + controller.getDueTotalKanjiCount() + " " + LangController.getText("TotalLabel") + "):");
 
         setProgress(controller.getKanjiProgress());
+
+        addKanjiToDue.setVisible(controller.getDueKanjiCount() != controller.getDueTotalKanjiCount());
     }
 
     public void setProgress(double progress){

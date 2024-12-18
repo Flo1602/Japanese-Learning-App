@@ -194,6 +194,10 @@ public class Controller {
     }
 
     public void updateLists(){
+        updateKanjiList();
+    }
+
+    public void updateKanjiList(){
         kanjiTrainer.updateKanjiList();
     }
 
@@ -209,12 +213,15 @@ public class Controller {
         return kanjiTrainer.getTodayDueCurrent();
     }
 
+    public void increaseDueKanjiTmp(int count){
+        kanjiTrainer.tmpDueIncrease(count);
+    }
+
     public int getDueTotalKanjiCount(){
         return kanjiTrainer.getDueTotal();
     }
 
     public static Kanji compressKanjiProgress(Kanji kanji) {
-        //Todo: Compression does not work
         List<KanjiProgress> kanjiProgressList = kanji.getProgresses();
         if (kanjiProgressList == null || kanjiProgressList.size() <= 3) {
             return kanji; // No compression needed
