@@ -3,10 +3,13 @@ package at.primetshofer.view;
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.LangController;
+import at.primetshofer.services.LoadLearningDataService;
 import at.primetshofer.view.catalog.*;
 import at.primetshofer.view.learning.LearningMenuView;
+import javafx.concurrent.Worker;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -24,9 +27,18 @@ public class MainMenuView extends View {
     private CatalogView catalogView;
     private LearningMenuView learningMenuView;
     private Button warning;
+    private LoadLearningDataService loadLearningDataService;
+    private boolean needLearningDataUpdate;
 
     public MainMenuView(Scene scene) {
         super(scene);
+        loadLearningDataService = new LoadLearningDataService();
+        needLearningDataUpdate = true;
+
+        loadLearningDataService.setOnFailed(event -> {
+            event.getSource().getException().printStackTrace();
+            ViewUtils.showAlert(Alert.AlertType.ERROR, "Error while loading Learning Data!", "FATAL ERROR");
+        });
     }
 
     protected void initView(){
@@ -38,20 +50,16 @@ public class MainMenuView extends View {
 
         Button learn = new Button(LangController.getText("LearnButton"));
         learn.getStyleClass().add("menuButton");
-        learn.setOnAction(e -> {
-            if(learningMenuView == null){
-                learningMenuView = new LearningMenuView(scene);
-            }
-            Controller.getInstance().updateLists();
-            learningMenuView.display(this);
-        });
+        learn.setOnAction(e -> startLearning());
 
         Button catalog = new Button(LangController.getText("CatalogButton"));
         catalog.getStyleClass().add("menuButton");
         catalog.setOnAction(e -> {
+            loadLearningDataService.cancel();
             if(catalogView == null){
                 catalogView = new CatalogView(scene);
             }
+            needLearningDataUpdate = true;
             catalogView.display(this);
         });
         Button exit = new Button(LangController.getText("ExitButton"));
@@ -78,6 +86,7 @@ public class MainMenuView extends View {
             if(settingsView == null){
                 settingsView = new SettingsView(scene);
             }
+            needLearningDataUpdate = true;
             settingsView.display(this);
         });
 
@@ -120,6 +129,34 @@ public class MainMenuView extends View {
         bp.setLeft(hbWarning);
     }
 
+    private void startLearning() {
+        if(learningMenuView == null){
+            learningMenuView = new LearningMenuView(scene);
+        }
+
+        if(loadLearningDataService.getState() == Worker.State.SUCCEEDED){
+            learningMenuView.display(this);
+        } else {
+            LoadingView loadingView = new LoadingView(scene);
+            loadingView.setProgress(-1);
+            loadingView.display(this);
+
+            if(loadLearningDataService.getState() == Worker.State.CANCELLED || loadLearningDataService.getState() == Worker.State.FAILED){
+                loadLearningDataService.reset();
+                loadLearningDataService.start();
+            }
+
+            if(loadLearningDataService.getState() == Worker.State.RUNNING){
+                loadLearningDataService.setOnSucceeded(event ->{
+                    learningMenuView.display(this);
+                    loadLearningDataService.setOnSucceeded(null);
+                });
+            } else {
+                learningMenuView.display(this);
+            }
+        }
+    }
+
     @Override
     public void display(View origin) {
         super.display(origin);
@@ -130,12 +167,14 @@ public class MainMenuView extends View {
 
         if(!wordsWithoutSentences.isEmpty()){
             warning.setOnAction(e -> {
+                needLearningDataUpdate = true;
                 ImportSentencesView importSentencesView = new ImportSentencesView(scene, wordsWithoutSentences);
                 importSentencesView.display(this);
             });
             warning.setVisible(true);
         } else if(!wordsWithoutQuestions.isEmpty()) {
             warning.setOnAction(e -> {
+                needLearningDataUpdate = true;
                 ImportQuestionsView importQuestionsView = new ImportQuestionsView(scene, wordsWithoutQuestions);
                 importQuestionsView.display(this);
             });
@@ -143,6 +182,15 @@ public class MainMenuView extends View {
         } else {
             warning.setOnAction(e -> {});
             warning.setVisible(false);
+        }
+
+        if (needLearningDataUpdate) {
+            needLearningDataUpdate = false;
+            if(loadLearningDataService.getState() == Worker.State.RUNNING){
+                loadLearningDataService.cancel();
+            }
+            loadLearningDataService.reset();
+            loadLearningDataService.start();
         }
     }
 }

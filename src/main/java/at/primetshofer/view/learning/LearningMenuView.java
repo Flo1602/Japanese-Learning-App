@@ -90,7 +90,7 @@ public class LearningMenuView extends View {
         bottom.setAlignment(Pos.CENTER);
 
         kanjiProgressLabel = new Label(LangController.getText("KanjiProgressLabel"));
-        kanjiProgressLabel.getStyleClass().add("normalText");
+        kanjiProgressLabel.getStyleClass().add("smallText");
 
         kanjiProgress = new ProgressBar();
         kanjiProgress.setProgress(0);
@@ -114,7 +114,7 @@ public class LearningMenuView extends View {
     public void display(View origin) {
         super.display(origin);
 
-        kanjiProgressLabel.setText(controller.getDueKanjiCount() + " " + LangController.getText("KanjiProgressLabel"));
+        kanjiProgressLabel.setText(controller.getDueKanjiCount() + " " + LangController.getText("KanjiProgressLabel") + " (" + controller.getDueTotalKanjiCount() + " " + LangController.getText("TotalLabel") + "):");
 
         setProgress(controller.getKanjiProgress());
     }

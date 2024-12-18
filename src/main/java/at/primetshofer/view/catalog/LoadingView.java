@@ -39,4 +39,8 @@ public class LoadingView extends View {
     public void bindProgress(DoubleProperty progressProperty) {
         this.progressProperty.bind(progressProperty);
     }
+
+    public void setProgress(double progressProperty) {
+        this.progressProperty.set(progressProperty);
+    }
 }

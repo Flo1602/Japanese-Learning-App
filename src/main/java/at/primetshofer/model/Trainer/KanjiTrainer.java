@@ -5,6 +5,7 @@ import at.primetshofer.model.entities.Kanji;
 import at.primetshofer.model.entities.KanjiProgress;
 import at.primetshofer.model.util.HibernateUtil;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,28 +19,35 @@ public class KanjiTrainer {
     private List<Kanji> allKanjiList;
     private int todayDueMax;
     private int dueCurrent;
+    private int dueTotal;
     private Map<Kanji, LocalDateTime> nextReviewCache;
 
     private KanjiTrainer() {}
 
     public void updateKanjiList(){
         dueKanjiList = new ArrayList<>();
+
         EntityManager entityManager = HibernateUtil.getEntityManager();
-        allKanjiList = entityManager.createQuery("SELECT k FROM Kanji k", Kanji.class).getResultList();
+
+        String jpql = "SELECT COUNT(k) FROM Kanji k";
+        Query query = entityManager.createQuery(jpql);
+        long kanjiCount = (long) query.getSingleResult();
+
+        if(allKanjiList == null || kanjiCount != allKanjiList.size()){
+            allKanjiList = entityManager.createQuery("SELECT k FROM Kanji k", Kanji.class).getResultList();
+
+            sortKanjiList(allKanjiList);
+        }
 
         nextReviewCache = new HashMap<>();
         LocalDateTime now = LocalDateTime.now();
         todayDueMax = 0;
         dueCurrent = 0;
-
-        sortKanjiList(allKanjiList);
+        dueTotal = 0;
 
         int maxKanji = Controller.getInstance().getSettings().getMaxDailyKanji();
 
         for (Kanji kanji : allKanjiList) {
-            if(todayDueMax == maxKanji){
-                break;
-            }
             updateNextReviewTime(kanji);
 
             LocalDateTime reviewTime = nextReviewCache.getOrDefault(kanji, now);
@@ -50,14 +58,18 @@ public class KanjiTrainer {
                 daysGoal = 0;
             }
             if (!reviewTime.toLocalDate().isAfter(now.toLocalDate().plusDays(daysGoal))) {
-                todayDueMax++;
-                dueCurrent++;
-                dueKanjiList.add(kanji);
+                dueTotal++;
+
+                if(todayDueMax != maxKanji){
+                    todayDueMax++;
+                    dueCurrent++;
+
+                    dueKanjiList.add(kanji);
+                }
             } else if(getLastProgress(kanji).getLearned().toLocalDate().isEqual(now.toLocalDate())){
                 todayDueMax++;
             }
         }
-        System.out.println(todayDueMax);
     }
 
     public void sortKanjiList(List<Kanji> kanjiList) {
@@ -93,6 +105,10 @@ public class KanjiTrainer {
         return dueCurrent;
     }
 
+    public int getDueTotal() {
+        return dueTotal;
+    }
+
     private void updateDueCurrent(Kanji kanji){
         LocalDateTime now = LocalDateTime.now();
 
@@ -105,6 +121,7 @@ public class KanjiTrainer {
         }
         if (reviewTime.toLocalDate().isAfter(now.toLocalDate().plusDays(daysGoal))) {
             dueCurrent--;
+            dueTotal--;
         }
     }
 

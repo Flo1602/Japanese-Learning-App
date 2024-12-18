@@ -97,7 +97,7 @@ public class SettingsView extends View {
         HBox newWordsSetting = new HBox(newWordsLabel, newWordsInput);
         newWordsSetting.getStyleClass().add("settingsHB");
 
-        Label maxDailyKanjiLabel = new Label(LangController.getText("maxDailyKanjiLabel"));
+        Label maxDailyKanjiLabel = new Label(LangController.getText("MaxDailyKanjiLabel"));
         maxDailyKanjiLabel.getStyleClass().add("normalText");
 
         maxDailyKanjiInput = new TextField();
