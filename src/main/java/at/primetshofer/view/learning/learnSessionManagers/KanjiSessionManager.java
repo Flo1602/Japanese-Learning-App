@@ -36,7 +36,7 @@ public class KanjiSessionManager extends LearnSessionManager {
     private final int MID_CAP = 6;
 
     private ITraceLogic<Character> traceLogic;
-    private int currentCounter = 0;
+    private int currentCounter;
     private Kanji kanji;
     private KanjiTracerLearnView kanjiTracerLearnView;
     private boolean wordBuilder = false;
@@ -45,11 +45,22 @@ public class KanjiSessionManager extends LearnSessionManager {
 
     public KanjiSessionManager(Scene scene) {
         super(scene);
+        random = new Random();
+    }
+
+    @Override
+    public void initSessionManager() {
+        super.initSessionManager();
+        currentCounter = 0;
         this.kanji = Controller.getInstance().getNextLearningKanji();
         calcDifficulty();
-        this.initLogic();
-        this.traceLogic.changeTarget(kanji.getSymbol().charAt(0));
-        random = new Random();
+
+        if(kanjiTracerLearnView == null) {
+            this.initLogic();
+        }
+
+        kanjiTracerLearnView.setKanji(kanji);
+        traceLogic.changeTarget(kanji.getSymbol().charAt(0));
     }
 
     private void calcDifficulty(){
@@ -89,7 +100,7 @@ public class KanjiSessionManager extends LearnSessionManager {
                 debug
         );
 
-        this.traceLogic = buildLogic(verificationOptions);
+        traceLogic = buildLogic(verificationOptions);
         IPolygonDrawer hintLineDrawer = new SmoothPolygonDrawer(traceOptions.lineWidth(), traceOptions.hintColor());
         IPolygonDrawer correctingLineDrawer = new SmoothPolygonDrawer(traceOptions.lineWidth(), traceOptions.drawingColor());
         kanjiTracerLearnView = new KanjiTracerLearnView(
@@ -98,7 +109,6 @@ public class KanjiSessionManager extends LearnSessionManager {
                 traceLogic,
                 hintLineDrawer,
                 correctingLineDrawer,
-                kanji,
                 debug
         );
     }
@@ -272,7 +282,7 @@ public class KanjiSessionManager extends LearnSessionManager {
     }
 
     private void tracingExercise(TraceMode allHints) {
-        this.traceLogic.startTracing(allHints);
+        traceLogic.startTracing(allHints);
         currentLearnView = kanjiTracerLearnView;
         bp.setCenter(kanjiTracerLearnView.getPane());
     }

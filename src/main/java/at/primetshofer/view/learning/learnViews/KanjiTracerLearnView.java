@@ -44,7 +44,6 @@ public class KanjiTracerLearnView extends LearnView implements ITraceLogic.ITrac
     private final List<Point> drawnPoints;
     private final List<Polygon> correctedPolygons = new ArrayList<>();
     private final List<Polygon> correctlyDrawnPolygons = new ArrayList<>();
-    private final Kanji kanji;
     private final boolean debug;
 
     private ITraceLogic.ITraceFinishedCallback callback;
@@ -52,10 +51,11 @@ public class KanjiTracerLearnView extends LearnView implements ITraceLogic.ITrac
     private Image hintArrowImage;
 
     private Word wordWithKanji;
+    private Kanji kanji;
     private Label topText;
     private HBox top;
 
-    public KanjiTracerLearnView(LearnSessionManager learnSessionManager, TraceLineOptions options, ITraceLogic<?> logic, IPolygonDrawer hintLineDrawer, IPolygonDrawer correctingLineDrawer, Kanji kanji, boolean debug) {
+    public KanjiTracerLearnView(LearnSessionManager learnSessionManager, TraceLineOptions options, ITraceLogic<?> logic, IPolygonDrawer hintLineDrawer, IPolygonDrawer correctingLineDrawer, boolean debug) {
         super(learnSessionManager, false);
         this.options = options;
         this.logic = logic;
@@ -67,7 +67,6 @@ public class KanjiTracerLearnView extends LearnView implements ITraceLogic.ITrac
         this.correctingLineDrawer = correctingLineDrawer;
         this.drawnPoints = new ArrayList<>();
         this.logic.addTraceLineListener(this);
-        this.kanji = kanji;
         this.debug = debug;
         initGraphicsContext();
     }
@@ -333,5 +332,13 @@ public class KanjiTracerLearnView extends LearnView implements ITraceLogic.ITrac
 
     public Pane getPane(){
         return this.rootView;
+    }
+
+    public Kanji getKanji() {
+        return kanji;
+    }
+
+    public void setKanji(Kanji kanji) {
+        this.kanji = kanji;
     }
 }

@@ -2,8 +2,8 @@ package at.primetshofer.view.learning;
 
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.util.LangController;
-import at.primetshofer.view.catalog.View;
 import at.primetshofer.view.ViewUtils;
+import at.primetshofer.view.catalog.View;
 import at.primetshofer.view.learning.learnSessionManagers.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -15,9 +15,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
@@ -27,6 +28,8 @@ public class LearningMenuView extends View {
     private Label kanjiProgressLabel;
     private Controller controller;
     private Button addKanjiToDue;
+    private NetworkLearningView networkLearningView;
+    private KanjiSessionManager kanjiSessionManager;
 
     public LearningMenuView(Scene scene) {
         super(scene);
@@ -76,7 +79,10 @@ public class LearningMenuView extends View {
         Button DailyKanjiButton = new Button(LangController.getText("DailyKanjiButton"));
         DailyKanjiButton.getStyleClass().add("smallMenuButton");
         DailyKanjiButton.setOnAction(e -> {
-            KanjiSessionManager kanjiSessionManager = new KanjiSessionManager(scene);
+            if(kanjiSessionManager == null) {
+                kanjiSessionManager = new KanjiSessionManager(scene);
+            }
+            kanjiSessionManager.initSessionManager();
             kanjiSessionManager.initView();
             kanjiSessionManager.display(this);
         });
@@ -102,20 +108,37 @@ public class LearningMenuView extends View {
 
         kanjiProgress = new ProgressBar();
         kanjiProgress.setProgress(0);
-        kanjiProgress.setPrefSize(150, 25);
+        kanjiProgress.setPrefSize(200, 25);
 
         bottom.getChildren().addAll(addKanjiToDue, kanjiProgressLabel, kanjiProgress);
 
+        Image mobileImage = new Image("tablet.png");
+
+        ImageView mobileImageView = new ImageView(mobileImage);
+        mobileImageView.setFitHeight(50);
+        mobileImageView.setFitWidth(50);
+
+        Button mobileLink = new Button();
+        mobileLink.getStyleClass().add("settingsButton");
+        mobileLink.setGraphic(mobileImageView);
+        mobileLink.setOnAction(e -> {
+            if(networkLearningView == null) {
+                networkLearningView = new NetworkLearningView(scene);
+            }
+            networkLearningView.display(this);
+        });
+
+        HBox mobileLinkBox = new HBox(mobileLink);
+        mobileLinkBox.getStyleClass().add("container2");
+        mobileLinkBox.setAlignment(Pos.TOP_LEFT);
+
         bp.setTop(headline);
         bp.setLeft(hb);
+        bp.setRight(mobileLinkBox);
         bp.setCenter(vb);
         bp.setBottom(bottom);
 
-        Region spacer = new Region();
-
-        hb.widthProperty().addListener((observableValue, oldValue, newValue) -> spacer.setPrefWidth(newValue.doubleValue()));
-
-        bp.setRight(spacer);
+        hb.widthProperty().addListener((observableValue, oldValue, newValue) -> mobileLinkBox.setPrefWidth(newValue.doubleValue()));
     }
 
     private void addKanjiToDueAction() {

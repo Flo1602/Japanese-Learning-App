@@ -34,9 +34,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class LearnSessionManager {
 
-    private final static String SUCCESS_AUDIO = "audio/system/success.mp3";
-    private final static String FAIL_AUDIO = "audio/system/fail.mp3";
-    private final static String FINISHED_AUDIO = "audio/system/finished.mp3";
+    private final static String SUCCESS_AUDIO = "audio\\system\\success.mp3";
+    private final static String FAIL_AUDIO = "audio\\system\\fail.mp3";
+    private final static String FINISHED_AUDIO = "audio\\system\\finished.mp3";
 
     protected Scene scene;
     protected BorderPane bp;
@@ -64,12 +64,16 @@ public abstract class LearnSessionManager {
     public LearnSessionManager(Scene scene) {
         this.scene = scene;
         this.controller = Controller.getInstance();
+    }
+
+    public void initSessionManager(){
         origin = new SimpleObjectProperty<>();
         successList = new ArrayList<>();
         checkButton = false;
         disableOverwrite = false;
         correctMistakesMode = false;
         wrongList = new ArrayDeque<>();
+        correctCounter = 0;
     }
 
     protected abstract void startLearning();

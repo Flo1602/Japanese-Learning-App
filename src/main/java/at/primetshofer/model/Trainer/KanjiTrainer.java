@@ -160,11 +160,6 @@ public class KanjiTrainer {
         }
     }
 
-    /**
-     * Determine the maximum allowed points for the Kanji given how long it has been learned and how many times it was reviewed.
-     * dynamicMaxPoints = min((daysSinceFirstLearned + reviewCount)*20, 300)
-     * Minimum of 20 to allow some initial progress.
-     */
     private int getDynamicMaxPoints(Kanji kanji) {
         List<KanjiProgress> progressList = kanji.getProgresses();
         int reviewCount = 0; // how many times we recorded progress
@@ -195,9 +190,6 @@ public class KanjiTrainer {
         return dynamicMax;
     }
 
-    /**
-     * Update the cached next review time for a Kanji.
-     */
     private void updateNextReviewTime(Kanji kanji) {
         if (kanji.getProgresses().isEmpty()) {
             // Never learned Kanji doesn't have a nextReviewTime, set to now
@@ -212,14 +204,6 @@ public class KanjiTrainer {
         nextReviewCache.put(kanji, nextReviewDate);
     }
 
-    /**
-     * Select the next Kanji for learning.
-     * Logic:
-     * 1. Due Kanji (nextReviewDate <= now): pick one randomly if available.
-     * 2. If none due, pick never-learned Kanji at random.
-     * 3. If still none, pick Kanji that will be due soon (e.g. within next day).
-     * 4. If still none, pick any Kanji at random.
-     */
     public Kanji getNextLearningKanji() {
         LocalDateTime now = LocalDateTime.now();
 
@@ -301,11 +285,6 @@ public class KanjiTrainer {
         return null;
     }
 
-    /**
-     * Add/update Kanji progress for the current day.
-     * If a progress entry already exists for today, update it. Otherwise, create a new one.
-     * Points increment depends on user performance and scales with review count.
-     */
     public Kanji addKanjiProgress(Kanji kanji, int percent) {
         LocalDateTime now = LocalDateTime.now();
         LocalDate today = now.toLocalDate();
