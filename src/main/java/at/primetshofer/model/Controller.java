@@ -179,11 +179,11 @@ public class Controller {
         return kanjiTrainer.getNextLearningKanji();
     }
 
-    public void addKanjiProgress(Kanji kanji, int percent) {
+    public Kanji addKanjiProgress(Kanji kanji, int percent) {
         kanji = kanjiTrainer.addKanjiProgress(kanji, percent);
         HibernateUtil.startTransaction();
         List<KanjiProgress> oldProgresses = kanji.getProgresses();
-        kanji = compressKanjiProgress(kanji);
+        compressKanjiProgress(kanji);
         for (KanjiProgress progress : oldProgresses) {
             if(!kanji.getProgresses().contains(progress)){
                 em.remove(progress);
@@ -191,6 +191,8 @@ public class Controller {
         }
         em.merge(kanji);
         HibernateUtil.commitTransaction();
+
+        return kanji;
     }
 
     public void updateLists(){
