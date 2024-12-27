@@ -129,7 +129,6 @@ public class NetworkLearningService extends Service<Void> {
             boolean firstConnection = true;
 
             while (deviceConnected.get() || firstConnection) {
-                firstConnection = false;
                 try (Socket clientSocket = serverSocket.accept();
                      ObjectInputStream objectInput = new ObjectInputStream(clientSocket.getInputStream());
                      ObjectOutputStream objectOutput = new ObjectOutputStream(clientSocket.getOutputStream())) {
@@ -147,6 +146,14 @@ public class NetworkLearningService extends Service<Void> {
                         }
                     }
                     System.out.println("Received command: " + command);
+
+                    if(firstConnection){
+                        if(command.equals("CONNECT")){
+                            firstConnection = false;
+                        } else {
+                            continue;
+                        }
+                    }
 
                     switch (command) {
                         case "CONNECT":
@@ -214,6 +221,11 @@ public class NetworkLearningService extends Service<Void> {
 
                             break;
 
+                        case "PLAY_AUDIO":
+                            controller.playAudio(value);
+
+                            break;
+
                         case "GET_DAILY_KANJI_INFO":
                             String response = controller.getDueKanjiCount() + ";" + controller.getDueTotalKanjiCount() + ";" + controller.getKanjiProgress();
 
@@ -231,11 +243,16 @@ public class NetworkLearningService extends Service<Void> {
 
                         case "EXIT":
                             deviceConnected.set(false);
+                            firstConnection = true;
                             System.out.println("Client requested disconnection.");
                             break;
 
                         default:
                             objectOutput.writeObject("Unknown command: " + command);
+                    }
+
+                    if(!command.equals("CONNECT") && !command.equals("EXIT")) {
+                        objectOutput.writeObject("CLOSE");
                     }
 
                 } catch (Exception e) {

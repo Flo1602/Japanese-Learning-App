@@ -170,7 +170,7 @@ public class KanjiListView extends View{
         }
 
         // Add sorting and create query
-        queryString.append(" ORDER BY k.id");
+        queryString.append(" ORDER BY k.id DESC");
         TypedQuery<Kanji> query = em.createQuery(queryString.toString(), Kanji.class)
                 .setFirstResult(start)
                 .setMaxResults(limit);

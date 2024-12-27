@@ -12,7 +12,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -108,20 +107,8 @@ public class MainMenuView extends View {
         hbWarning.getStyleClass().add("container");
         hbWarning.setAlignment(Pos.BOTTOM_CENTER);
 
-        Label progressLabel = new Label(LangController.getText("ProgressLabel"));
-        progressLabel.getStyleClass().add("normalText");
-
-        ProgressBar progressBar = new ProgressBar(0.5);
-        progressBar.getStyleClass().add("progressBar");
-        BorderPane.setAlignment(progressBar, Pos.CENTER);
-
-        HBox progressHBox = new HBox(progressLabel, progressBar);
-        progressHBox.setSpacing(100);
-        progressHBox.setAlignment(Pos.CENTER);
-
         bp.setTop(headline);
         bp.setCenter(vb);
-        bp.setBottom(progressHBox);
         bp.setRight(hb);
 
         hb.widthProperty().addListener((observableValue, oldValue, newValue) -> hbWarning.setPrefWidth(newValue.doubleValue()));

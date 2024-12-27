@@ -68,7 +68,7 @@ public class NetworkLearningView extends View {
             networkLearningService = new NetworkLearningService(deviceConnected);
         }
 
-        if(networkLearningService.getState() == Worker.State.CANCELLED){
+        if(networkLearningService.getState() != Worker.State.READY){
             networkLearningService.reset();
         }
 
