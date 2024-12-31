@@ -17,6 +17,7 @@ public class KanjiTrainer {
     private static KanjiTrainer instance;
     private List<Kanji> dueKanjiList;
     private List<Kanji> allKanjiList;
+    private List<Kanji> tmpDueKanjiList;
     private int todayDueMax;
     private int dueCurrent;
     private int dueTotal;
@@ -29,6 +30,7 @@ public class KanjiTrainer {
 
     public void updateKanjiList(){
         dueKanjiList = new ArrayList<>();
+        tmpDueKanjiList = new ArrayList<>();
 
         EntityManager entityManager = HibernateUtil.getEntityManager();
 
@@ -49,6 +51,7 @@ public class KanjiTrainer {
         dueTotal = 0;
 
         int maxKanji = Controller.getInstance().getSettings().getMaxDailyKanji() + tmpDueIncrease;
+        int cache = tmpDueIncrease;
 
         for (Kanji kanji : allKanjiList) {
             updateNextReviewTime(kanji);
@@ -66,11 +69,19 @@ public class KanjiTrainer {
             if (!reviewTime.toLocalDate().isAfter(now.toLocalDate().plusDays(daysGoal))) {
                 dueTotal++;
 
-                if(todayDueMax != maxKanji || (lastProgress != null && isToday(lastProgress.getLearned()))){
+                if(todayDueMax < maxKanji || (lastProgress != null && isToday(lastProgress.getLearned()))){
                     todayDueMax++;
                     dueCurrent++;
 
                     dueKanjiList.add(kanji);
+                } else if(cache > 0){
+                    cache--;
+
+                    todayDueMax++;
+                    dueCurrent++;
+
+                    dueKanjiList.add(kanji);
+                    tmpDueKanjiList.add(kanji);
                 }
             } else if(lastProgress != null && isToday(getLastProgress(kanji).getLearned())){
                 todayDueMax++;
@@ -132,6 +143,10 @@ public class KanjiTrainer {
         if (reviewTime.toLocalDate().isAfter(now.toLocalDate().plusDays(daysGoal))) {
             dueCurrent--;
             dueTotal--;
+        }
+        if(tmpDueKanjiList.contains(kanji)){
+            tmpDueIncrease--;
+            tmpDueKanjiList.remove(kanji);
         }
     }
 
@@ -388,8 +403,8 @@ public class KanjiTrainer {
         if(reviewCount == 0 || reviewCount == 1) {
             incrementFactor = 0.5;
         }
-        if(incrementFactor > 10){
-            incrementFactor = 10;
+        if(incrementFactor > 20){
+            incrementFactor = 20;
         }
         return (int) Math.round(baseIncrement * incrementFactor);
     }
