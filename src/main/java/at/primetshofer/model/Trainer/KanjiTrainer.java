@@ -50,8 +50,8 @@ public class KanjiTrainer {
         dueCurrent = 0;
         dueTotal = 0;
 
-        int maxKanji = Controller.getInstance().getSettings().getMaxDailyKanji() + tmpDueIncrease;
-        int cache = tmpDueIncrease;
+        int maxKanji = Controller.getInstance().getSettings().getMaxDailyKanji();
+        int extraKanjiRemaining = tmpDueIncrease;
 
         for (Kanji kanji : allKanjiList) {
             updateNextReviewTime(kanji);
@@ -74,8 +74,8 @@ public class KanjiTrainer {
                     dueCurrent++;
 
                     dueKanjiList.add(kanji);
-                } else if(cache > 0){
-                    cache--;
+                } else if(extraKanjiRemaining > 0){
+                    extraKanjiRemaining--;
 
                     todayDueMax++;
                     dueCurrent++;
