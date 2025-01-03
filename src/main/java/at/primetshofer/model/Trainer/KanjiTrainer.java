@@ -417,24 +417,24 @@ public class KanjiTrainer {
 
         Random random = new Random();
 
-        getRandomKanjiFromList(kanjis, half, random);
+        getRandomKanjiFromList(kanjis, dueKanjiList, half, random);
 
-        getRandomKanjiFromList(kanjis, otherHalf, random);
+        getRandomKanjiFromList(kanjis, allKanjiList, otherHalf, random);
 
         return kanjis;
     }
 
-    private void getRandomKanjiFromList(List<Kanji> kanjis, int amount, Random random) {
+    private void getRandomKanjiFromList(List<Kanji> toList, List<Kanji> fromList, int amount, Random random) {
         for (int i = 0; i < amount; i++) {
-            Kanji kanji = dueKanjiList.get(random.nextInt(dueKanjiList.size()));
+            Kanji kanji = fromList.get(random.nextInt(fromList.size()));
             int tries = 0;
 
-            while (kanjis.contains(kanji) && tries < 10) {
-                kanji = dueKanjiList.get(random.nextInt(dueKanjiList.size()));
+            while (toList.contains(kanji) && tries < 10) {
+                kanji = fromList.get(random.nextInt(fromList.size()));
                 tries++;
             }
 
-            kanjis.add(kanji);
+            toList.add(kanji);
         }
     }
 }
