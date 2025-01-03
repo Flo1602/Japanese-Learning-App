@@ -18,6 +18,7 @@ public class KanjiTrainer {
     private List<Kanji> dueKanjiList;
     private List<Kanji> allKanjiList;
     private List<Kanji> tmpDueKanjiList;
+    private Kanji currentKanji;
     private int todayDueMax;
     private int dueCurrent;
     private int dueTotal;
@@ -219,7 +220,7 @@ public class KanjiTrainer {
         nextReviewCache.put(kanji, nextReviewDate);
     }
 
-    public Kanji getNextLearningKanji() {
+    private Kanji calcNextLearningKanji(){
         LocalDateTime now = LocalDateTime.now();
 
         // Separate never-learned and learned Kanji
@@ -298,6 +299,14 @@ public class KanjiTrainer {
 
         // If no Kanji at all
         return null;
+    }
+
+    public Kanji getNextLearningKanji() {
+        Kanji kanji = calcNextLearningKanji();
+
+        currentKanji = kanji;
+
+        return kanji;
     }
 
     public Kanji addKanjiProgress(Kanji kanji, int percent) {
@@ -413,6 +422,10 @@ public class KanjiTrainer {
         List<Kanji> kanjis = new ArrayList<>();
 
         int half = number / 2;
+
+        half = Math.min(half, dueKanjiList.size());
+        half = (dueKanjiList.size() == 1) ? 0 : half;
+
         int otherHalf = number - half;
 
         Random random = new Random();
@@ -429,7 +442,7 @@ public class KanjiTrainer {
             Kanji kanji = fromList.get(random.nextInt(fromList.size()));
             int tries = 0;
 
-            while (toList.contains(kanji) && tries < 10) {
+            while ((toList.contains(kanji) || kanji.equals(currentKanji) ) && tries < 10) {
                 kanji = fromList.get(random.nextInt(fromList.size()));
                 tries++;
             }
