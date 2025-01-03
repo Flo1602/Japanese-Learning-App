@@ -1,9 +1,8 @@
 package at.primetshofer.view.learning.learnViews.sentenceLearnViews;
 
+import at.primetshofer.model.Controller;
 import at.primetshofer.model.entities.Word;
-import at.primetshofer.model.util.HibernateUtil;
 import at.primetshofer.view.learning.learnSessionManagers.LearnSessionManager;
-import jakarta.persistence.EntityManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,9 +28,7 @@ public class WordBuilderView extends SentenceLearnView {
 
         ArrayList<String> symbols = new ArrayList<>();
 
-        EntityManager entityManager = HibernateUtil.getEntityManager();
-        String sql = "SELECT * FROM WORD ORDER BY RAND() LIMIT " + rand.nextInt(1, 5);
-        List<Word> resultList = entityManager.createNativeQuery(sql, Word.class).getResultList();
+        List<Word> resultList = Controller.getInstance().getRandomWordsFromKanjiTrainer(rand.nextInt(1, 5));
 
         resultList.add(word);
 

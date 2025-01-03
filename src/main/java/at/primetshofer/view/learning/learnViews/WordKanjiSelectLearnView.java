@@ -3,9 +3,7 @@ package at.primetshofer.view.learning.learnViews;
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.entities.Kanji;
 import at.primetshofer.model.entities.Word;
-import at.primetshofer.model.util.HibernateUtil;
 import at.primetshofer.view.learning.learnSessionManagers.LearnSessionManager;
-import jakarta.persistence.EntityManager;
 import javafx.animation.ScaleTransition;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -122,9 +120,7 @@ public class WordKanjiSelectLearnView extends LearnView{
     }
 
     private void getWrongKanjis() {
-        EntityManager entityManager = HibernateUtil.getEntityManager();
-        String sql = "SELECT * FROM KANJI ORDER BY RAND() LIMIT " + (correctKanjis.size()*3);
-        wrongKanjis = entityManager.createNativeQuery(sql, Kanji.class).getResultList();
+        wrongKanjis = Controller.getInstance().getRandomKanji(correctKanjis.size()*3);
     }
 
     private ToggleButton createWordButton() {

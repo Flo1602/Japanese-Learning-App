@@ -408,4 +408,33 @@ public class KanjiTrainer {
         }
         return (int) Math.round(baseIncrement * incrementFactor);
     }
+
+    public List<Kanji> getRandomKanji(int number){
+        List<Kanji> kanjis = new ArrayList<>();
+
+        int half = number / 2;
+        int otherHalf = number - half;
+
+        Random random = new Random();
+
+        getRandomKanjiFromList(kanjis, half, random);
+
+        getRandomKanjiFromList(kanjis, otherHalf, random);
+
+        return kanjis;
+    }
+
+    private void getRandomKanjiFromList(List<Kanji> kanjis, int amount, Random random) {
+        for (int i = 0; i < amount; i++) {
+            Kanji kanji = dueKanjiList.get(random.nextInt(dueKanjiList.size()));
+            int tries = 0;
+
+            while (kanjis.contains(kanji) && tries < 10) {
+                kanji = dueKanjiList.get(random.nextInt(dueKanjiList.size()));
+                tries++;
+            }
+
+            kanjis.add(kanji);
+        }
+    }
 }

@@ -21,10 +21,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Controller {
@@ -250,5 +247,21 @@ public class Controller {
         kanji.setProgresses(compressedList);
 
         return kanji;
+    }
+
+    public List<Kanji> getRandomKanji(int number){
+        return kanjiTrainer.getRandomKanji(number);
+    }
+
+    public List<Word> getRandomWordsFromKanjiTrainer(int number){
+        List<Kanji> randomKanji = kanjiTrainer.getRandomKanji(number);
+        List<Word> randomWords = new ArrayList<>();
+        Random rand = new Random();
+
+        for (Kanji kanji : randomKanji) {
+            randomWords.add(kanji.getWords().get(rand.nextInt(kanji.getWords().size())));
+        }
+
+        return randomWords;
     }
 }

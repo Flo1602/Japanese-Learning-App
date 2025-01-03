@@ -180,16 +180,14 @@ public class NetworkLearningService extends Service<Void> {
                             break;
 
                         case "GET_RANDOM_WORDS":
-                            String jpql = "SELECT w FROM Word w WHERE SIZE(w.kanjis) >= 1 ORDER BY FUNCTION('RAND')";
-                            List<Word> wordList = entityManager.createQuery(jpql, Word.class).setMaxResults(Integer.parseInt(value)).getResultList();
+                            List<Word> wordList = controller.getRandomWordsFromKanjiTrainer(Integer.parseInt(value));
 
                             objectOutput.writeObject(JsonSerializer.toJson(DTOConverter.wordsToDTO(wordList, true)));
 
                             break;
 
                         case "GET_RANDOM_KANJIS":
-                            String jpql2 = "SELECT k FROM Kanji k ORDER BY FUNCTION('RAND')";
-                            List<Kanji> kanjiList = entityManager.createQuery(jpql2, Kanji.class).setMaxResults(Integer.parseInt(value)).getResultList();
+                            List<Kanji> kanjiList = controller.getRandomKanji(Integer.parseInt(value));
 
                             objectOutput.writeObject(JsonSerializer.toJson(DTOConverter.kanjisToDTO(kanjiList)));
 
