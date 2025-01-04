@@ -37,9 +37,10 @@ public class KanjiSessionManager extends LearnSessionManager {
     private int currentCounter;
     private Kanji kanji;
     private KanjiTracerLearnView kanjiTracerLearnView;
-    private boolean wordBuilder = false;
+    private boolean wordBuilder;
     private int difficulty;
     private Random random;
+    private int builderChanceIncrease;
 
     public KanjiSessionManager(Scene scene) {
         super(scene);
@@ -50,6 +51,8 @@ public class KanjiSessionManager extends LearnSessionManager {
     public void initSessionManager() {
         super.initSessionManager();
         currentCounter = 0;
+        wordBuilder = false;
+        builderChanceIncrease = 0;
         this.kanji = Controller.getInstance().getNextLearningKanji();
         calcDifficulty();
 
@@ -59,6 +62,13 @@ public class KanjiSessionManager extends LearnSessionManager {
 
         kanjiTracerLearnView.setKanji(kanji);
         traceLogic.changeTarget(kanji.getSymbol().charAt(0));
+
+        for (Word word : kanji.getWords()) {
+            if(word.getJapanese().length() > 1){
+                builderChanceIncrease = 1;
+                break;
+            }
+        }
     }
 
     private void calcDifficulty(){
@@ -186,12 +196,12 @@ public class KanjiSessionManager extends LearnSessionManager {
         } else if(currentCounter == 1){
             tracingExercise(TraceMode.ALL_HINTS);
         } else if(currentCounter <= 4){
-            int rand = random.nextInt(7);
-            if(rand == 0 && wordBuilder){
-                rand++;
+            int rand = random.nextInt(8 + builderChanceIncrease);
+            if((rand == 7 || rand == 6 || rand == 8) && wordBuilder){
+                rand = 1;
             }
             switch (rand){
-                case 0 -> wordBuilderExercise(random);
+                case 0,7,8 -> wordBuilderExercise();
                 case 1,2,3 -> tracingExercise(TraceMode.NEXT_HINT);
                 case 4,5,6 -> matchExercise();
             }
@@ -208,12 +218,12 @@ public class KanjiSessionManager extends LearnSessionManager {
         } else if(currentCounter == 1){
             tracingExercise(TraceMode.ALL_HINTS);
         } else if(currentCounter <= 5){
-            int rand = random.nextInt(6);
-            if(rand == 0 && wordBuilder){
-                rand++;
+            int rand = random.nextInt(6 + builderChanceIncrease);
+            if((rand == 0 || rand == 6) && wordBuilder){
+                rand = 1;
             }
             switch (rand){
-                case 0 -> wordBuilderExercise(random);
+                case 0,6 -> wordBuilderExercise();
                 case 1,2 -> tracingExercise(TraceMode.NEXT_HINT);
                 case 3,4,5 -> matchExercise();
             }
@@ -230,12 +240,12 @@ public class KanjiSessionManager extends LearnSessionManager {
         } else if(currentCounter <= 2){
             tracingExercise(TraceMode.ALL_HINTS);
         } else if(currentCounter <= 6){
-            int rand = random.nextInt(6);
-            if(rand == 0 && wordBuilder){
-                rand++;
+            int rand = random.nextInt(6 + builderChanceIncrease);
+            if((rand == 0 || rand == 6) && wordBuilder){
+                rand = 1;
             }
             switch (rand){
-                case 0 -> wordBuilderExercise(random);
+                case 0,6 -> wordBuilderExercise();
                 case 1,2,3 -> tracingExercise(TraceMode.NEXT_HINT);
                 case 4,5 -> matchExercise();
             }
@@ -272,7 +282,7 @@ public class KanjiSessionManager extends LearnSessionManager {
         bp.setCenter(currentLearnView.initView());
     }
 
-    private void wordBuilderExercise(Random random) {
+    private void wordBuilderExercise() {
         Word word = kanji.getWords().get(random.nextInt(kanji.getWords().size()));
         currentLearnView = new WordBuilderView(this, word);
         bp.setCenter(currentLearnView.initView());
