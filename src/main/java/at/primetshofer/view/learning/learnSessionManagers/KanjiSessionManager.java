@@ -41,10 +41,17 @@ public class KanjiSessionManager extends LearnSessionManager {
     private int difficulty;
     private Random random;
     private int builderChanceIncrease;
+    private boolean specificKanji;
 
     public KanjiSessionManager(Scene scene) {
         super(scene);
         random = new Random();
+        specificKanji = false;
+    }
+
+    public void setSpecificKanji(Kanji kanji) {
+        this.kanji = kanji;
+        this.specificKanji = true;
     }
 
     @Override
@@ -53,7 +60,10 @@ public class KanjiSessionManager extends LearnSessionManager {
         currentCounter = 0;
         wordBuilder = false;
         builderChanceIncrease = 0;
-        this.kanji = Controller.getInstance().getNextLearningKanji();
+        if(!specificKanji) {
+            this.kanji = Controller.getInstance().getNextLearningKanji();
+        }
+        specificKanji = false;
         calcDifficulty();
 
         if(kanjiTracerLearnView == null) {

@@ -142,8 +142,12 @@ public class KanjiTrainer {
             daysGoal = 0;
         }
         if (reviewTime.toLocalDate().isAfter(now.toLocalDate().plusDays(daysGoal))) {
-            dueCurrent--;
-            dueTotal--;
+            if(dueCurrent > 0){
+                dueCurrent--;
+            }
+            if(dueTotal > 0){
+                dueTotal--;
+            }
         }
         if(tmpDueKanjiList.contains(kanji)){
             tmpDueIncrease--;

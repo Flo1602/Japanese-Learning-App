@@ -30,6 +30,7 @@ public class LearningMenuView extends View {
     private Controller controller;
     private Button addKanjiToDue;
     private NetworkLearningView networkLearningView;
+    private SelectKanjiLearningView selectKanjiLearningView;
     private KanjiSessionManager kanjiSessionManager;
 
     public LearningMenuView(Scene scene) {
@@ -77,20 +78,38 @@ public class LearningMenuView extends View {
             speakingSessionManager.display(this);
         });
 
-        Button DailyKanjiButton = new Button(LangController.getText("DailyKanjiButton"));
-        DailyKanjiButton.getStyleClass().add("smallMenuButton");
-        DailyKanjiButton.setOnAction(e -> {
+        Button dailyKanjiButton = new Button(LangController.getText("DailyKanjiButton"));
+        dailyKanjiButton.getStyleClass().add("smallMenuButton");
+        dailyKanjiButton.setOnAction(e -> {
             if(kanjiSessionManager == null) {
                 kanjiSessionManager = new KanjiSessionManager(scene);
             }
+
             kanjiSessionManager.initSessionManager();
             kanjiSessionManager.initView();
             kanjiSessionManager.display(this);
         });
 
+        Button selectKanjiButton = new Button(LangController.getText("SelectKanji"));
+        selectKanjiButton.getStyleClass().add("smallMenuButton");
+        selectKanjiButton.setOnAction(e -> {
+            if(kanjiSessionManager == null) {
+                kanjiSessionManager = new KanjiSessionManager(scene);
+            }
+            if(selectKanjiLearningView == null) {
+                selectKanjiLearningView = new SelectKanjiLearningView(scene, kanjiSessionManager);
+            }
+
+            selectKanjiLearningView.display(this);
+        });
+
+        HBox kanjiLearningButtons = new HBox(dailyKanjiButton, selectKanjiButton);
+        kanjiLearningButtons.setSpacing(25);
+        kanjiLearningButtons.setAlignment(Pos.CENTER);
+
         VBox vb = new VBox();
         vb.getStyleClass().add("menuVBox");
-        vb.getChildren().addAll(wordsButton, questionButton, sentenceButton, speakingButton, DailyKanjiButton);
+        vb.getChildren().addAll(wordsButton, questionButton, sentenceButton, speakingButton, kanjiLearningButtons);
         BorderPane.setAlignment(vb, Pos.CENTER);
 
         HBox hb = ViewUtils.getBackButtonBox(origin);
