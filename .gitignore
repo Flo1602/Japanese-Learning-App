@@ -41,3 +41,6 @@ build/
 /vosk-model-ja-0.22/
 /data.mv.db
 /data.trace.db
+/DB_Backup/
+/dependency-reduced-pom.xml
+/.idea/inspectionProfiles/Project_Default.xml
