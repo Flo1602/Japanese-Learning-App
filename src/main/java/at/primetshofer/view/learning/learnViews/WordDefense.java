@@ -105,9 +105,13 @@ public class WordDefense extends LearnView{
 
                             String attackerRomaji = KanaToRomajiConverter.hiraganaToRomaji(attackerKana);
 
+                            System.out.println(romaji);
+
                             double similarity = StringSimilarity.calculateSimilarity(shot, attacker.getText());
                             double similarity2 = StringSimilarity.calculateSimilarity(romaji, attackerRomaji);
                             double similarity3 = StringSimilarity.calculateSimilarity(shot, attackerKana);
+
+                            System.out.println(similarity + " " + similarity2 + " " + similarity3);
 
                             if(similarity >= 50 || similarity2 >= 50 || similarity3 >= 50){
                                 ((TranslateTransition) attacker.getUserData()).stop();

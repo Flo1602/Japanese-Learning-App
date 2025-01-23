@@ -25,8 +25,6 @@ public class QuestionSessionManager extends LearnSessionManager{
         learnView = new QuestionLearnView(this, resultList.getFirst(), true, true);
         currentLearnView = learnView;
 
-        setProgress(100);
-
         bp.setCenter(learnView.initView());
         learnView.playQuestionTTS();
     }

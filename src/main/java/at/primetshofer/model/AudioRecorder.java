@@ -16,6 +16,8 @@ public class AudioRecorder {
     private static boolean recordingStarted;
 
     public static void startRecording() {
+        stopRecordingThread();
+
         try {
             AudioFormat format = new AudioFormat(SAMPLE_RATE, SAMPLE_SIZE_IN_BITS, 1, true, false);
             DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
@@ -42,6 +44,7 @@ public class AudioRecorder {
                 }
             });
 
+            recordingThread.setDaemon(false);
             recordingThread.start();
         } catch (LineUnavailableException ex) {
             ex.printStackTrace();
@@ -74,6 +77,12 @@ public class AudioRecorder {
             recordingStarted = false;
         } catch (IOException ex) {
             ex.printStackTrace();
+        }
+    }
+
+    public static void stopRecordingThread(){
+        if(recordingThread != null && recordingThread.isAlive()) {
+            recordingThread.interrupt();
         }
     }
 }

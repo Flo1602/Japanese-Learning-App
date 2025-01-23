@@ -1,5 +1,6 @@
 package at.primetshofer.view.learning;
 
+import at.primetshofer.model.AudioRecorder;
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.ViewUtils;
@@ -70,12 +71,13 @@ public class LearningMenuView extends View {
             sentenceSessionManager.display(this);
         });
 
-        Button speakingButton = new Button("Speaking");
+        Button speakingButton = new Button("Word Defense");
         speakingButton.getStyleClass().add("smallMenuButton");
         speakingButton.setOnAction(e -> {
-            SpeakingSessionManager speakingSessionManager = new SpeakingSessionManager(scene);
-            speakingSessionManager.initView();
-            speakingSessionManager.display(this);
+            WordDefenseSessionManager wordDefenseSessionManager = new WordDefenseSessionManager(scene);
+            wordDefenseSessionManager.initSessionManager();
+            wordDefenseSessionManager.initView();
+            wordDefenseSessionManager.display(this);
         });
 
         Button dailyKanjiButton = new Button(LangController.getText("DailyKanjiButton"));
@@ -189,6 +191,8 @@ public class LearningMenuView extends View {
     @Override
     public void display(View origin) {
         super.display(origin);
+
+        AudioRecorder.stopRecordingThread();
 
         updateProgress();
     }

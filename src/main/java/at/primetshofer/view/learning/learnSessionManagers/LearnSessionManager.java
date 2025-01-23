@@ -283,7 +283,7 @@ public abstract class LearnSessionManager {
         startLearning();
     }
 
-    public void setProgress(double progress){
+    private void setProgress(double progress){
         Timeline timeline = new Timeline(
                 new KeyFrame(
                         Duration.ZERO, // Start at 0 seconds

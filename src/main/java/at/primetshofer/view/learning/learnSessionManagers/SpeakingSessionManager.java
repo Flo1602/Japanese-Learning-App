@@ -25,8 +25,6 @@ public class SpeakingSessionManager extends LearnSessionManager{
         speakingLearnView = new SpeakingLearnView(this, resultList.getFirst());
         currentLearnView = speakingLearnView;
 
-        setProgress(100);
-
         bp.setCenter(speakingLearnView.initView());
         speakingLearnView.playSentenceTTS();
     }

@@ -36,8 +36,6 @@ public class SentenceSessionManager extends LearnSessionManager{
 
         currentLearnView = sentenceLearnView;
 
-        setProgress(100);
-
         bp.setCenter(sentenceLearnView.initView());
         sentenceLearnView.playSentenceTTS();
     }
