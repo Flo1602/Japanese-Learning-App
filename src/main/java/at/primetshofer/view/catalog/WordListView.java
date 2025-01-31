@@ -322,6 +322,7 @@ public class WordListView extends View{
                     MediaPlayer mediaPlayer = new MediaPlayer(media);
                     mediaPlayer.play();
                 } catch (Exception ex){
+                    ex.printStackTrace();
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Error");
                     alert.setContentText("Audio not found!");

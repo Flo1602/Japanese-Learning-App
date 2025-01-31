@@ -4,6 +4,7 @@ import at.primetshofer.model.TTS;
 import at.primetshofer.model.entities.Kanji;
 import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.HibernateUtil;
+import at.primetshofer.model.util.JishoAudioFetcher;
 import at.primetshofer.model.util.LangController;
 import jakarta.persistence.EntityManager;
 import javafx.application.Platform;
@@ -14,6 +15,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.io.File;
+import java.io.IOException;
 
 public class CreateEditWordWindow extends PopUp {
 
@@ -84,10 +86,32 @@ public class CreateEditWordWindow extends PopUp {
 
             new Thread(() ->{
                 try {
-                    String ttsString = (word.getKana() == null)? word.getJapanese() : word.getKana();
+                    File audioFile = JishoAudioFetcher.fetchAudioURL(word.getJapanese(), word.getId());
+                    if (audioFile == null) {
+                        String ttsString = (word.getKana() == null)? word.getJapanese() : word.getKana();
+                        try {
+                            audioFile = TTS.getTts().synthesizeAudio(ttsString, "audio/words/" + word.getId() + ".wav");
+                        } catch (IOException | InterruptedException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    } else {
+                        String mp3Path = audioFile.getAbsolutePath();
+                        audioFile = new File(audioFile.getAbsolutePath().replaceFirst("[.][^.]+$", ".wav"));
+                        String command = "ffmpeg/ffmpeg.exe -i \"" + mp3Path + "\" \"" + audioFile.getAbsolutePath() +"\"";
 
-                    File file = TTS.getTts().synthesizeAudio(ttsString, "audio/words/" + word.getId() + ".wav");
-                    word.setTtsPath(file.getAbsolutePath());
+                        Runtime run  = Runtime.getRuntime();
+                        try {
+                            Process proc = run.exec(command);
+
+                            proc.waitFor();
+
+                            new File(mp3Path).delete();
+                        } catch (IOException | InterruptedException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
+
+                    word.setTtsPath(audioFile.getAbsolutePath());
                     em.merge(word);
 
                 } catch (Exception ex) {
