@@ -65,7 +65,11 @@ public class CreateEditWordWindow extends PopUp {
         active.setStyle("-fx-font-size: 22pt");
         active.setSelected(word.isActive());
 
-        VBox vBox = new VBox(japaneseHbox, kanaHbox, englishHbox, active);
+        CheckBox useVV = new CheckBox(LangController.getText("UseVoiceVox"));
+        useVV.setStyle("-fx-font-size: 18pt");
+        useVV.setSelected(false);
+
+        VBox vBox = new VBox(japaneseHbox, kanaHbox, englishHbox, active, useVV);
         vBox.setAlignment(Pos.CENTER);
         vBox.setSpacing(20);
 
@@ -86,7 +90,12 @@ public class CreateEditWordWindow extends PopUp {
 
             new Thread(() ->{
                 try {
-                    File audioFile = JishoAudioFetcher.fetchAudioURL(word.getJapanese(), word.getId());
+                    File audioFile = null;
+
+                    if(!useVV.isSelected()) {
+                        audioFile = JishoAudioFetcher.fetchAudioURL(word.getJapanese(), word.getId());
+                    }
+
                     if (audioFile == null) {
                         String ttsString = (word.getKana() == null)? word.getJapanese() : word.getKana();
                         try {
@@ -97,7 +106,7 @@ public class CreateEditWordWindow extends PopUp {
                     } else {
                         String mp3Path = audioFile.getAbsolutePath();
                         audioFile = new File(audioFile.getAbsolutePath().replaceFirst("[.][^.]+$", ".wav"));
-                        String command = "ffmpeg/ffmpeg.exe -i \"" + mp3Path + "\" \"" + audioFile.getAbsolutePath() +"\"";
+                        String command = "ffmpeg/ffmpeg.exe -y -i \"" + mp3Path + "\" \"" + audioFile.getAbsolutePath() +"\"";
 
                         Runtime run  = Runtime.getRuntime();
                         try {
@@ -106,6 +115,7 @@ public class CreateEditWordWindow extends PopUp {
                             proc.waitFor();
 
                             new File(mp3Path).delete();
+
                         } catch (IOException | InterruptedException ex) {
                             throw new RuntimeException(ex);
                         }

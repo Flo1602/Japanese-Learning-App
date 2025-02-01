@@ -21,12 +21,14 @@ public class JishoAudioFetcher {
 
             for (Element audioElement : doc.select("audio")) {
                 String audioId = audioElement.id();
+                audioId = audioId.replaceAll("audio_", "");
+                audioId = audioId.split(":")[0];
 
-                if (audioId.contains(japanese)) { // Ensure the audio file is related to the word
+                if (audioId.equals(japanese)) { // Ensure the audio file is related to the word
                     Element sourceElement = audioElement.selectFirst("source");
                     if (sourceElement != null) {
                         String audioUrl = sourceElement.attr("src");
-                        return downloadAudio(audioUrl, japanese, id);
+                        return downloadAudio(audioUrl, id);
                     }
                 }
             }
@@ -36,7 +38,7 @@ public class JishoAudioFetcher {
         return null;
     }
 
-    private static File downloadAudio(String audioUrl, String word, int id) {
+    private static File downloadAudio(String audioUrl, int id) {
         try {
             URL url = new URL("https:" + audioUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();

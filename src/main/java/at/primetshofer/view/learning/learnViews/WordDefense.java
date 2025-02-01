@@ -1,6 +1,7 @@
 package at.primetshofer.view.learning.learnViews;
 
 import at.primetshofer.model.AudioRecorder;
+import at.primetshofer.model.Controller;
 import at.primetshofer.model.KanaToRomajiConverter;
 import at.primetshofer.model.STT;
 import at.primetshofer.model.entities.Word;
@@ -114,14 +115,7 @@ public class WordDefense extends LearnView{
                             System.out.println(similarity + " " + similarity2 + " " + similarity3);
 
                             if(similarity >= 50 || similarity2 >= 50 || similarity3 >= 50){
-                                ((TranslateTransition) attacker.getUserData()).stop();
-                                Platform.runLater(() -> animateSuccessDespawn(attacker));
-                                attackers.remove(attacker);
-
-                                if(attackers.isEmpty() && allSpawned){
-                                    disableButton.set(true);
-                                    Platform.runLater(() -> finished(true));
-
+                                if(destroyAttacker(attacker)){
                                     return;
                                 }
 
@@ -159,6 +153,29 @@ public class WordDefense extends LearnView{
         return bp;
     }
 
+    private boolean destroyAttacker(Label attacker) {
+        ((TranslateTransition) attacker.getUserData()).stop();
+        Platform.runLater(() -> animateSuccessDespawn(attacker));
+        attackers.remove(attacker);
+
+        if(attackers.isEmpty() && allSpawned){
+            disableButton.set(true);
+            Platform.runLater(() -> finished(true));
+
+            return true;
+        }
+
+        new Thread(() -> {
+            for (Word word : allWords) {
+                if(word.getJapanese().equals(attacker.getText())){
+                    Controller.getInstance().playAudio(word.getTtsPath());
+                }
+            }
+        }).start();
+
+        return false;
+    }
+
     @Override
     public void checkComplete() {
         throw new IllegalStateException("checkComplete should never be called");
@@ -191,6 +208,8 @@ public class WordDefense extends LearnView{
             word.getStyleClass().add("normalText");
             word.setLayoutX(0);
             word.setLayoutY(new Random().nextDouble(battlefield.getHeight()-50));
+
+            word.setOnMouseClicked(event -> destroyAttacker(word));
 
             battlefield.getChildren().add(word);
             attackers.add(word);

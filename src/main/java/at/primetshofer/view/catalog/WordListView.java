@@ -2,6 +2,7 @@ package at.primetshofer.view.catalog;
 
 import at.primetshofer.Main;
 import at.primetshofer.model.AnkiParser;
+import at.primetshofer.model.Controller;
 import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.HibernateUtil;
 import at.primetshofer.model.util.LangController;
@@ -20,8 +21,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -316,18 +315,8 @@ public class WordListView extends View{
             audioButton.setStyle("-fx-background-radius: 20; -fx-font-size: 16pt; -fx-background-color: transparent;");
             audioButton.setGraphic(audioImageView);
             audioButton.setOnAction(e ->{
-                try{
-                    Word word = HibernateUtil.getEntityManager().find(Word.class, id);
-                    Media media = new Media(new File(word.getTtsPath()).toURI().toString());
-                    MediaPlayer mediaPlayer = new MediaPlayer(media);
-                    mediaPlayer.play();
-                } catch (Exception ex){
-                    ex.printStackTrace();
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Error");
-                    alert.setContentText("Audio not found!");
-                    alert.showAndWait();
-                }
+                Word word = HibernateUtil.getEntityManager().find(Word.class, id);
+                Controller.getInstance().playAudio(word.getTtsPath());
             });
 
             Button sentences = new Button(LangController.getText("SentencesButton"));

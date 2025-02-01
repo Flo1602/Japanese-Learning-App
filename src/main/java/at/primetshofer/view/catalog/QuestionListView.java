@@ -1,5 +1,6 @@
 package at.primetshofer.view.catalog;
 
+import at.primetshofer.model.Controller;
 import at.primetshofer.model.entities.Question;
 import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.HibernateUtil;
@@ -16,10 +17,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -274,17 +272,8 @@ public class QuestionListView extends View{
             audioButton.setStyle("-fx-background-radius: 20; -fx-font-size: 16pt; -fx-background-color: transparent;");
             audioButton.setGraphic(audioImageView);
             audioButton.setOnAction(e ->{
-                try{
-                    Question question = HibernateUtil.getEntityManager().find(Question.class, id);
-                    Media media = new Media(new File(question.getTtsPath()).toURI().toString());
-                    MediaPlayer mediaPlayer = new MediaPlayer(media);
-                    mediaPlayer.play();
-                } catch (Exception ex){
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Error");
-                    alert.setContentText("Audio not found!");
-                    alert.showAndWait();
-                }
+                Question question = HibernateUtil.getEntityManager().find(Question.class, id);
+                Controller.getInstance().playAudio(question.getTtsPath());
             });
 
             Image editImage = new Image("edit.png");
