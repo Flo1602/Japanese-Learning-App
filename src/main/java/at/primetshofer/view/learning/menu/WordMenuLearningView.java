@@ -26,9 +26,9 @@ import javafx.util.Duration;
 
 public class WordMenuLearningView extends View {
 
+    private final Controller controller;
     private ProgressBar wordProgress;
     private Label wordProgressLabel;
-    private final Controller controller;
     private Button addWordToDue;
 
     private WordSessionManager wordSessionManager;
@@ -49,7 +49,7 @@ public class WordMenuLearningView extends View {
         Button dailyWordsButton = new Button(LangController.getText("DailyWordsButton"));
         dailyWordsButton.getStyleClass().add("menuButton");
         dailyWordsButton.setOnAction(e -> {
-            if(wordSessionManager == null) {
+            if (wordSessionManager == null) {
                 wordSessionManager = new WordSessionManager(scene);
             }
 
@@ -144,7 +144,7 @@ public class WordMenuLearningView extends View {
         addWordToDue.setVisible(controller.getDueWordCount() != controller.getDueTotalWordsCount());
     }
 
-    public void setProgress(double progress){
+    public void setProgress(double progress) {
         Timeline timeline = new Timeline(
                 new KeyFrame(
                         Duration.ZERO, // Start at 0 seconds

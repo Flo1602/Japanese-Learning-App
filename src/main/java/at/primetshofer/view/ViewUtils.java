@@ -25,10 +25,10 @@ import java.util.List;
 
 public class ViewUtils {
 
-    public static void applyStyleSheet(){
+    public static void applyStyleSheet() {
         Theme theme;
 
-        switch (Controller.getInstance().getSettings().getStyleSheet()){
+        switch (Controller.getInstance().getSettings().getStyleSheet()) {
             case Stylesheet.CUPERTINO_LIGHT -> theme = new CupertinoLight();
             case Stylesheet.DRACULA -> theme = new Dracula();
             case Stylesheet.NORD_DARK -> theme = new NordDark();
@@ -41,11 +41,11 @@ public class ViewUtils {
         Application.setUserAgentStylesheet(theme.getUserAgentStylesheet());
     }
 
-    public static void applyStyleSheetDefault(){
+    public static void applyStyleSheetDefault() {
         Application.setUserAgentStylesheet(new CupertinoDark().getUserAgentStylesheet());
     }
 
-    public static HBox getBackButtonBox(ObjectProperty<View> origin){
+    public static HBox getBackButtonBox(ObjectProperty<View> origin) {
         Image backImage = new Image("back.png");
 
         ImageView backImageView = new ImageView(backImage);
@@ -206,7 +206,7 @@ public class ViewUtils {
     }
 
     public static void showAlert(Alert.AlertType alertType, String message, String title) {
-        Platform.runLater(() ->{
+        Platform.runLater(() -> {
             Alert alert = new Alert(alertType);
             alert.setTitle(title);
             alert.setContentText(message);

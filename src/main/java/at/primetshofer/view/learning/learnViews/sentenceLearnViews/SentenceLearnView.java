@@ -41,7 +41,7 @@ public abstract class SentenceLearnView extends LearnView {
     private String toTranslate;
     private String translation;
     private String solution;
-    private int sentenceId;
+    private final int sentenceId;
     private List<SentenceWord> sentenceWords;
     private ArrayList<String> words;
     private Set<String> synonyms;
@@ -51,7 +51,7 @@ public abstract class SentenceLearnView extends LearnView {
     private HBox innerTranslationBox2;
     private HBox innerWordBox;
     private HBox innerWordBox2;
-    private int maxWidth = 950;
+    private final int maxWidth = 950;
     private Pane animationPane;
     private AtomicBoolean reshuffleAllowed;
     private BooleanProperty disableButtons;
@@ -69,13 +69,13 @@ public abstract class SentenceLearnView extends LearnView {
     public Pane initView() {
         Collections.shuffle(words);
 
-        if(sentenceWords != null && !sentenceWords.isEmpty() && toTranslate != null){
+        if (sentenceWords != null && !sentenceWords.isEmpty() && toTranslate != null) {
             Map<String, SentenceWord> sentenceWordStrings = new LinkedHashMap<>();
             for (SentenceWord sentenceWord : sentenceWords) {
-                if(sentenceWord.getWordJapanese() != null && !sentenceWord.getWordJapanese().isBlank()){
+                if (sentenceWord.getWordJapanese() != null && !sentenceWord.getWordJapanese().isBlank()) {
                     sentenceWordStrings.put(sentenceWord.getWordJapanese(), sentenceWord);
                 }
-                if(sentenceWord.getWordEnglish() != null && !sentenceWord.getWordEnglish().isBlank()){
+                if (sentenceWord.getWordEnglish() != null && !sentenceWord.getWordEnglish().isBlank()) {
                     sentenceWordStrings.put(sentenceWord.getWordEnglish(), sentenceWord);
                 }
             }
@@ -95,7 +95,7 @@ public abstract class SentenceLearnView extends LearnView {
         textBox.setSpacing(10);
         textBox.setAlignment(Pos.CENTER);
 
-        if(ttsPath != null) {
+        if (ttsPath != null) {
             Image audioImage = new Image("audio.png");
 
             ImageView audioImageView = new ImageView(audioImage);
@@ -109,8 +109,8 @@ public abstract class SentenceLearnView extends LearnView {
             textBox.getChildren().add(audioButton);
         }
 
-        if(toTranslate != null) {
-            if(toTranslateParts != null && !toTranslateParts.isEmpty()){
+        if (toTranslate != null) {
+            if (toTranslateParts != null && !toTranslateParts.isEmpty()) {
                 HBox textLabels = new HBox();
                 textLabels.setAlignment(Pos.CENTER);
                 for (Map.Entry<String, SentenceWord> toTranslatePart : toTranslateParts.entrySet()) {
@@ -118,7 +118,7 @@ public abstract class SentenceLearnView extends LearnView {
                     textLabel.setStyle("-fx-font-size: 20pt");
                     textLabels.getChildren().add(textLabel);
 
-                    if(toTranslatePart.getValue() != null){
+                    if (toTranslatePart.getValue() != null) {
                         Tooltip tooltip = new Tooltip(LangController.getText("EnglishLabel") + " " + toTranslatePart.getValue().getWordEnglish() +
                                 "\n" + LangController.getText("JapaneseLabel") + " " + toTranslatePart.getValue().getWordJapanese() +
                                 "\n" + LangController.getText("KanaLabel") + " " + toTranslatePart.getValue().getWordKana());
@@ -187,7 +187,7 @@ public abstract class SentenceLearnView extends LearnView {
             button.widthProperty().addListener((observableValue, oldValue, newValue) -> {
                 buttonCntr.getAndDecrement();
 
-                if(oldValue.doubleValue() == 0.0 && newValue.doubleValue() > 0.0 && wordBox.getWidth() > 900 && buttonCntr.get() == 0){
+                if (oldValue.doubleValue() == 0.0 && newValue.doubleValue() > 0.0 && wordBox.getWidth() > 900 && buttonCntr.get() == 0) {
                     reshuffleButtons(innerWordBox, innerWordBox2, true);
                     reshuffleButtons(innerWordBox, innerWordBox2, true);
                 }
@@ -198,7 +198,7 @@ public abstract class SentenceLearnView extends LearnView {
             targetHBox.getChildren().add(button);
 
             button.setOnAction(e -> {
-                if(innerWordBox.getMinHeight() <= 0){
+                if (innerWordBox.getMinHeight() <= 0) {
                     innerWordBox.setMinHeight(innerWordBox.getHeight());
                 }
 
@@ -215,8 +215,8 @@ public abstract class SentenceLearnView extends LearnView {
         return pane;
     }
 
-    private void reshuffleButtons(HBox hBox1, HBox hBox2, boolean startup){
-        if(!reshuffleAllowed.get()){
+    private void reshuffleButtons(HBox hBox1, HBox hBox2, boolean startup) {
+        if (!reshuffleAllowed.get()) {
             return;
         }
         List<Node> list1 = new ArrayList<>(hBox1.getChildren().stream().toList());
@@ -229,8 +229,8 @@ public abstract class SentenceLearnView extends LearnView {
             HBox hBox = getHBoxWithSpace(hBox1, hBox2, button, true);
             hBox.getChildren().add(button);
 
-            if(hBox == hBox2){
-                button.setOnAction( e -> wordButtonAction(button, hBox2, animationPane));
+            if (hBox == hBox2) {
+                button.setOnAction(e -> wordButtonAction(button, hBox2, animationPane));
             }
         }
 
@@ -238,32 +238,32 @@ public abstract class SentenceLearnView extends LearnView {
             Button button = (Button) node;
             HBox hBox = getHBoxWithSpace(hBox1, hBox2, button, true);
 
-            if(hBox == hBox1){
-                if(startup){
+            if (hBox == hBox1) {
+                if (startup) {
                     hBox2.getChildren().remove(node);
                     hBox1.getChildren().add(node);
                 } else {
                     reshuffleAllowed.set(false);
                     removeWithAnimation(button, hBox2);
                     moveElement(button, hBox2, hBox1, animationPane).addListener((observableValue, oldValue, newValue) -> {
-                        if(!newValue){
+                        if (!newValue) {
                             return;
                         }
-                        button.setOnAction( e -> wordButtonAction(button, hBox1, animationPane));
+                        button.setOnAction(e -> wordButtonAction(button, hBox1, animationPane));
                         reshuffleAllowed.set(true);
-                        if(checkReshuffleNeeded(hBox1, hBox2)){
+                        if (checkReshuffleNeeded(hBox1, hBox2)) {
                             reshuffleButtons(hBox1, hBox2, false);
                         }
                     });
                     return;
                 }
-                button.setOnAction( e -> wordButtonAction(button, hBox1, animationPane));
+                button.setOnAction(e -> wordButtonAction(button, hBox1, animationPane));
             }
         }
     }
 
     private HBox getHBoxWithSpace(HBox hBox1, HBox hBox2, Button newElement, boolean reshuffle) {
-        if(!reshuffle && !hBox2.getChildren().isEmpty()){
+        if (!reshuffle && !hBox2.getChildren().isEmpty()) {
             return hBox2;
         }
 
@@ -272,7 +272,7 @@ public abstract class SentenceLearnView extends LearnView {
         for (Node child : hBox1.getChildren()) {
             Button button = (Button) child;
 
-            if(button.getWidth() <= 0.0){
+            if (button.getWidth() <= 0.0) {
                 Text text = new Text(button.getText());
                 text.setFont(button.getFont());
 
@@ -286,15 +286,15 @@ public abstract class SentenceLearnView extends LearnView {
             width += hBox1.getSpacing();
         }
 
-        if((width + newElement.getWidth()) > maxWidth){
+        if ((width + newElement.getWidth()) > maxWidth) {
             return hBox2;
         }
 
         return hBox1;
     }
 
-    private boolean checkReshuffleNeeded(HBox hBox1, HBox hBox2){
-        if(hBox2.getChildren().isEmpty()){
+    private boolean checkReshuffleNeeded(HBox hBox1, HBox hBox2) {
+        if (hBox2.getChildren().isEmpty()) {
             return false;
         }
 
@@ -308,15 +308,12 @@ public abstract class SentenceLearnView extends LearnView {
 
         Button firstButton = (Button) hBox2.getChildren().getFirst();
 
-        if((width + firstButton.getWidth()) < maxWidth){
-            return true;
-        }
-        return false;
+        return (width + firstButton.getWidth()) < maxWidth;
     }
 
     private void wordButtonAction(Button button, HBox sourceBox, Pane animationPane) {
         HBox targetBox;
-        if((boolean) button.getUserData()){
+        if ((boolean) button.getUserData()) {
             button.setUserData(false);
             targetBox = getHBoxWithSpace(this.innerTranslationBox, this.innerTranslationBox2, button, false);
         } else {
@@ -329,7 +326,7 @@ public abstract class SentenceLearnView extends LearnView {
     }
 
     public void playSentenceTTS() {
-        if(ttsPath == null){
+        if (ttsPath == null) {
             return;
         }
         Controller.getInstance().playAudio(ttsPath);
@@ -350,8 +347,8 @@ public abstract class SentenceLearnView extends LearnView {
             userTranslation.append(button.getText());
         }
 
-        if(userTranslation.toString().equals(translation) || (synonyms != null && synonyms.contains(userTranslation.toString()))){
-            if(toTranslate == null){
+        if (userTranslation.toString().equals(translation) || (synonyms != null && synonyms.contains(userTranslation.toString()))) {
+            if (toTranslate == null) {
                 finished(true, solution);
             } else {
                 finished(true);
@@ -368,7 +365,7 @@ public abstract class SentenceLearnView extends LearnView {
         if (indexToRemove < 0) {
             return;
         }
-        if(indexToRemove >= hbox.getChildren().size()-1){
+        if (indexToRemove >= hbox.getChildren().size() - 1) {
             removeFromBox(nodeToRemove, hbox);
             return;
         }
@@ -403,11 +400,11 @@ public abstract class SentenceLearnView extends LearnView {
         }
 
         Platform.runLater(() -> {
-            if(checkReshuffleNeeded(this.innerWordBox, this.innerWordBox2)){
+            if (checkReshuffleNeeded(this.innerWordBox, this.innerWordBox2)) {
                 reshuffleButtons(this.innerWordBox, this.innerWordBox2, false);
             }
 
-            if(checkReshuffleNeeded(this.innerTranslationBox, this.innerTranslationBox2)){
+            if (checkReshuffleNeeded(this.innerTranslationBox, this.innerTranslationBox2)) {
                 reshuffleButtons(this.innerTranslationBox, this.innerTranslationBox2, false);
             }
         });
@@ -421,7 +418,7 @@ public abstract class SentenceLearnView extends LearnView {
         newButton.disableProperty().bind(disableButtons);
         newButton.setUserData(element.getUserData());
         newButton.setStyle(element.getStyle());
-        newButton.setOnAction( e -> wordButtonAction(newButton, toContainer, overlayPane));
+        newButton.setOnAction(e -> wordButtonAction(newButton, toContainer, overlayPane));
 
         overlayPane.getChildren().add(newButton);
         newButton.setTranslateX(startX);

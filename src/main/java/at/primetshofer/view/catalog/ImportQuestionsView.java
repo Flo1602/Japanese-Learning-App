@@ -30,10 +30,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class ImportQuestionsView extends View{
+public class ImportQuestionsView extends View {
 
     private Word word;
-    private Controller controller;
+    private final Controller controller;
     private List<Word> words;
     private TextArea jsonInput;
 
@@ -46,6 +46,7 @@ public class ImportQuestionsView extends View{
         this.controller = Controller.getInstance();
         headline.setText(LangController.getText("ImportQuestionsHeadline") + " " + word.getJapanese());
     }
+
     public ImportQuestionsView(Scene scene, List<Word> words) {
         super(scene);
         this.words = words;
@@ -141,13 +142,13 @@ public class ImportQuestionsView extends View{
     }
 
     private void submitEvent() {
-        if(words != null && words.size() > 1) {
+        if (words != null && words.size() > 1) {
             ImportQuestionsView importQuestionsView = new ImportQuestionsView(scene, words);
             importQuestionsView.display(this);
             words = null;
             return;
         }
-        if(words != null && words.size() == 1){
+        if (words != null && words.size() == 1) {
             ImportQuestionsView importQuestionsView = new ImportQuestionsView(scene, words.getFirst());
             importQuestionsView.display(this);
             words = null;
@@ -182,9 +183,9 @@ public class ImportQuestionsView extends View{
 
         Question[] finalQuestions = questions;
         DoubleProperty progress = new SimpleDoubleProperty(0.0);
-        new Thread(() ->{
+        new Thread(() -> {
             try {
-                double progressValue = 1.0 / (finalQuestions.length+1);
+                double progressValue = 1.0 / (finalQuestions.length + 1);
                 for (Question question : finalQuestions) {
                     String ttsString = question.getJapanese();
 
@@ -209,7 +210,7 @@ public class ImportQuestionsView extends View{
         }).start();
 
         progress.addListener((observable, oldValue, newValue) -> {
-            if(newValue.doubleValue() >= 1.0){
+            if (newValue.doubleValue() >= 1.0) {
                 Platform.runLater(() -> this.origin.get().popToView());
             }
         });

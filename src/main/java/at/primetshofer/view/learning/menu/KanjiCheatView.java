@@ -92,7 +92,7 @@ public class KanjiCheatView extends View {
         LocalDate today = LocalDate.now();
 
         for (KanjiProgress progress : kanji.getProgresses()) {
-            if(progress.getLearned().toLocalDate().equals(today)) {
+            if (progress.getLearned().toLocalDate().equals(today)) {
                 return progress.getPoints();
             }
         }

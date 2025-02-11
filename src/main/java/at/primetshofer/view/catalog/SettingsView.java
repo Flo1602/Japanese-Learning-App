@@ -32,7 +32,7 @@ public class SettingsView extends View {
         super(scene);
     }
 
-    protected void initView(){
+    protected void initView() {
         bp = new BorderPane();
 
         Label headline = new Label(LangController.getText("SettingsHeading"));
@@ -58,8 +58,8 @@ public class SettingsView extends View {
 
         Button test = new Button(LangController.getText("TestButton"));
         test.getStyleClass().add("normalButton");
-        test.setOnAction(event ->{
-            new Thread(() ->{
+        test.setOnAction(event -> {
+            new Thread(() -> {
                 try {
                     int id = TTS.getSpeakerId();
                     TTS.setSpeakerId(Integer.parseInt(voiceIdInput.getText()));
@@ -149,7 +149,7 @@ public class SettingsView extends View {
             Controller controller = Controller.getInstance();
             Settings settings = controller.getSettings();
 
-            try{
+            try {
                 settings.setVoiceId(Integer.parseInt(voiceIdInput.getText()));
                 settings.setNewWords(Integer.parseInt(newWordsInput.getText()));
                 settings.setStyleSheet(styleSheetComboBox.getValue());
@@ -162,7 +162,7 @@ public class SettingsView extends View {
                 TTS.updateSpeakerId();
 
                 origin.get().popToView();
-            } catch (NumberFormatException ex){
+            } catch (NumberFormatException ex) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
                 alert.setContentText("Please enter a valid number!");
@@ -187,19 +187,19 @@ public class SettingsView extends View {
     public void display(View origin) {
         Settings settings = Controller.getInstance().getSettings();
 
-        if(voiceIdInput != null){
+        if (voiceIdInput != null) {
             voiceIdInput.setText(settings.getVoiceId() + "");
         }
-        if(newWordsInput != null){
+        if (newWordsInput != null) {
             newWordsInput.setText(settings.getNewWords() + "");
         }
-        if(styleSheetComboBox != null){
+        if (styleSheetComboBox != null) {
             styleSheetComboBox.setValue(settings.getStyleSheet());
         }
-        if(maxDailyKanjiInput != null){
+        if (maxDailyKanjiInput != null) {
             maxDailyKanjiInput.setText(settings.getMaxDailyKanji() + "");
         }
-        if(maxDailyWordsInput != null){
+        if (maxDailyWordsInput != null) {
             maxDailyWordsInput.setText(settings.getMaxDailyWords() + "");
         }
 

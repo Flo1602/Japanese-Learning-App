@@ -10,7 +10,7 @@ public abstract class LearnView {
 
     private final LearnSessionManager learnSessionManager;
 
-    public LearnView (LearnSessionManager learnSessionManager, boolean checkButtonVisible) {
+    public LearnView(LearnSessionManager learnSessionManager, boolean checkButtonVisible) {
         this.learnSessionManager = learnSessionManager;
         if (checkButtonVisible) {
             learnSessionManager.changeContinueToCheck();
@@ -28,8 +28,8 @@ public abstract class LearnView {
     }
 
     protected void finished(boolean success, Map<String, Boolean> results) {
-        if(learnSessionManager instanceof WordSessionManager){
-            ((WordSessionManager)learnSessionManager).learnViewFinished(success, results);
+        if (learnSessionManager instanceof WordSessionManager) {
+            ((WordSessionManager) learnSessionManager).learnViewFinished(success, results);
         } else {
             learnSessionManager.learnViewFinished(success);
         }
@@ -45,7 +45,7 @@ public abstract class LearnView {
         learnSessionManager.setDisableOverwrite(disable);
     }
 
-    public void correctnessOverwritten(){
+    public void correctnessOverwritten() {
 
     }
 

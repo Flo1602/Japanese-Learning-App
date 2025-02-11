@@ -20,7 +20,7 @@ import java.time.Duration;
 public class SessionCompletedView extends View {
 
     protected Duration duration;
-    private int percent;
+    private final int percent;
     private SequentialTransition animation;
 
     public SessionCompletedView(Scene scene, Duration duration, int percent) {
@@ -44,8 +44,8 @@ public class SessionCompletedView extends View {
         percentLabel.getStyleClass().add("sessionCompleteText");
 
         long seconds = duration.getSeconds();
-        long minutes = seconds/60;
-        seconds = seconds%60;
+        long minutes = seconds / 60;
+        seconds = seconds % 60;
 
         Label durationLabel = new Label();
         durationLabel.getStyleClass().add("sessionCompleteText");
@@ -104,10 +104,10 @@ public class SessionCompletedView extends View {
                     @Override
                     protected void invalidated() {
                         String percentText = get() + "";
-                        if(get() < 10){
+                        if (get() < 10) {
                             percentText = "0" + percentText;
                         }
-                        if(get() < 100){
+                        if (get() < 100) {
                             percentText = "0" + percentText;
                         }
                         percentLabel.setText(LangController.getText("PercentLabel") + ": " + percentText + "%");
@@ -136,10 +136,10 @@ public class SessionCompletedView extends View {
                         long currentSeconds = get() % 60;
                         String seconds = currentSeconds + "";
                         String minutes = currentSeconds + "";
-                        if(currentSeconds < 10){
+                        if (currentSeconds < 10) {
                             seconds = "0" + currentSeconds;
                         }
-                        if(currentMinutes < 10){
+                        if (currentMinutes < 10) {
                             minutes = "0" + currentMinutes;
                         }
                         durationLabel.setText(LangController.getText("DurationLabel") + ": " + minutes + ":" + seconds);

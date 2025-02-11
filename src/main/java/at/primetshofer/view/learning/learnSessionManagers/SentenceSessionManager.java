@@ -12,7 +12,7 @@ import javafx.scene.Scene;
 import java.util.List;
 import java.util.Random;
 
-public class SentenceSessionManager extends LearnSessionManager{
+public class SentenceSessionManager extends LearnSessionManager {
 
     public SentenceSessionManager(Scene scene) {
         super(scene);
@@ -28,7 +28,7 @@ public class SentenceSessionManager extends LearnSessionManager{
 
         Random rand = new Random();
 
-        switch (rand.nextInt(3)){
+        switch (rand.nextInt(3)) {
             case 0 -> sentenceLearnView = new SentenceEnglishToJapanese(this, resultList.getFirst());
             case 1 -> sentenceLearnView = new SentenceJapaneseToEnglish(this, resultList.getFirst());
             case 2 -> sentenceLearnView = new SentenceAudioToJapanese(this, resultList.getFirst());

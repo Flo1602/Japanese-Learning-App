@@ -8,4 +8,5 @@ public record TraceLineOptions(
         double fieldWidth,
         double fieldHeight,
         double lineWidth
-) { }
+) {
+}

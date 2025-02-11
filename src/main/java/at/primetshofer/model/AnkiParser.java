@@ -4,11 +4,13 @@ import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.HibernateUtil;
 import jakarta.persistence.EntityManager;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.scene.control.Alert;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -59,7 +61,7 @@ public class AnkiParser {
                 String[] fieldArray = fields.split("\u001F");
                 Word word = new Word();
 
-                if(fieldArray.length > 3 && !fieldArray[3].isBlank() && !fieldArray[2].isBlank() && !fieldArray[1].isBlank()){
+                if (fieldArray.length > 3 && !fieldArray[3].isBlank() && !fieldArray[2].isBlank() && !fieldArray[1].isBlank()) {
                     word.setJapaneseIgnoreKanji(fieldArray[1]);
                     word.setKana(fieldArray[2]);
                     word.setEnglish(fieldArray[3]);
@@ -76,7 +78,7 @@ public class AnkiParser {
         return words;
     }
 
-    public static void importAnki(String apkgPath, DoubleProperty finished){
+    public static void importAnki(String apkgPath, DoubleProperty finished) {
         try {
             String outputDir = "./tmp";
 
@@ -90,7 +92,7 @@ public class AnkiParser {
 
             EntityManager em = HibernateUtil.getEntityManager();
 
-            double progressValue = 1.0 / (words.size()+1);
+            double progressValue = 1.0 / (words.size() + 1);
 
             for (Word word : words) {
                 TTS tts = TTS.getTts();
@@ -99,7 +101,7 @@ public class AnkiParser {
 
                 Word dbWord = em.merge(word);
 
-                String ttsString = (word.getKana() == null)? word.getJapanese() : word.getKana();
+                String ttsString = (word.getKana() == null) ? word.getJapanese() : word.getKana();
 
                 File file = tts.synthesizeAudio(ttsString, "audio/words/" + dbWord.getId() + ".wav");
                 dbWord.setTtsPath(file.getAbsolutePath());

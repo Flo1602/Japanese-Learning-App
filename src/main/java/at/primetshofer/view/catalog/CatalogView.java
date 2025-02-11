@@ -11,13 +11,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
-public class CatalogView extends View{
+public class CatalogView extends View {
 
     public CatalogView(Scene scene) {
         super(scene);
     }
 
-    protected void initView(){
+    protected void initView() {
         bp = new BorderPane();
 
         Label headline = new Label(LangController.getText("CatalogHeading"));

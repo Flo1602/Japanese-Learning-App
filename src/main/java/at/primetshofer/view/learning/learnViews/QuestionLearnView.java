@@ -19,10 +19,10 @@ import javafx.util.Duration;
 
 public class QuestionLearnView extends LearnView {
 
-    private Question question;
-    private boolean ttsEnabled;
-    private boolean textEnabled;
-    private BooleanProperty disableButton;
+    private final Question question;
+    private final boolean ttsEnabled;
+    private final boolean textEnabled;
+    private final BooleanProperty disableButton;
     private VBox vbox;
 
     private ToggleButton selectedButton;
@@ -30,7 +30,7 @@ public class QuestionLearnView extends LearnView {
     public QuestionLearnView(LearnSessionManager learnSessionManager, Question question, boolean ttsEnabled, boolean textEnabled) {
         super(learnSessionManager, true);
 
-        if(!ttsEnabled && !textEnabled) {
+        if (!ttsEnabled && !textEnabled) {
             throw new IllegalArgumentException("ttsEnabled and textEnabled cannot be both false");
         }
 
@@ -50,7 +50,7 @@ public class QuestionLearnView extends LearnView {
         textBox.setSpacing(10);
         textBox.setAlignment(Pos.CENTER);
 
-        if(ttsEnabled) {
+        if (ttsEnabled) {
             Image audioImage = new Image("audio.png");
 
             ImageView audioImageView = new ImageView(audioImage);
@@ -64,7 +64,7 @@ public class QuestionLearnView extends LearnView {
             textBox.getChildren().add(audioButton);
         }
 
-        if(textEnabled) {
+        if (textEnabled) {
             Label textLabel = new Label(question.getJapanese());
             textLabel.setWrapText(true);
             textLabel.setStyle("-fx-font-size: 20pt");
@@ -108,11 +108,7 @@ public class QuestionLearnView extends LearnView {
         Controller.getInstance().stopAudio();
         disableButton.set(true);
 
-        if(selectedButton.getText().equals(question.getCorrectAnswer())){
-            super.finished(true);
-        } else {
-            super.finished(false);
-        }
+        super.finished(selectedButton.getText().equals(question.getCorrectAnswer()));
     }
 
     @Override
@@ -125,8 +121,8 @@ public class QuestionLearnView extends LearnView {
         return vbox;
     }
 
-    public void playQuestionTTS(){
-        if(!ttsEnabled){
+    public void playQuestionTTS() {
+        if (!ttsEnabled) {
             return;
         }
         Controller.getInstance().playAudio(question.getTtsPath());

@@ -39,7 +39,7 @@ public class KanjiSessionManager extends LearnSessionManager {
     private KanjiTracerLearnView kanjiTracerLearnView;
     private boolean wordBuilder;
     private int difficulty;
-    private Random random;
+    private final Random random;
     private int builderChanceIncrease;
     private boolean specificKanji;
 
@@ -47,6 +47,42 @@ public class KanjiSessionManager extends LearnSessionManager {
         super(scene);
         random = new Random();
         specificKanji = false;
+    }
+
+    private static ITraceLogic<Character> buildLogic(VerificationOptions verificationOptions) {
+        UnicodeFilenameFileProvider fileProvider = new UnicodeFilenameFileProvider(
+                "kanjivg-20240807-all",
+                '0',
+                5,
+                ".svg"
+        );
+
+        ISVGPathParser svgPathParser = new SVGPathParser();
+        SVGPolyProviderOptions polyProviderOptions = new SVGPolyProviderOptions(0.001, 5);
+
+        IPolygonProvider sourcePolygonProvider = new SVGPolygonProvider(
+                fileProvider,
+                svgPathParser,
+                polyProviderOptions
+        );
+
+        IPolygonConverter scaler = new PolygonScaler(4);
+        IPolygonConverter fixedDistanceSetter = new VertexFixedDistanceSetter(5);
+
+        IPolygonProvider convertingPolygonProvider = () -> {
+            List<Polygon> polygons = sourcePolygonProvider.getAllPolygons();
+            scaler.convert(polygons);
+            fixedDistanceSetter.convert(polygons);
+            return polygons;
+        };
+
+        ITraceVerificationLogic verificationLogic = new VerificationLogic(
+                verificationOptions,
+                fixedDistanceSetter
+        );
+
+        ITraceTargetChanger<Character> targetChanger = fileProvider::setCharForFilename;
+        return new UnicodeTraceLineLogic(verificationLogic, convertingPolygonProvider, targetChanger);
     }
 
     public void setSpecificKanji(Kanji kanji) {
@@ -60,13 +96,13 @@ public class KanjiSessionManager extends LearnSessionManager {
         currentCounter = 0;
         wordBuilder = false;
         builderChanceIncrease = 0;
-        if(!specificKanji) {
+        if (!specificKanji) {
             this.kanji = Controller.getInstance().getNextLearningKanji();
         }
         specificKanji = false;
         calcDifficulty();
 
-        if(kanjiTracerLearnView == null) {
+        if (kanjiTracerLearnView == null) {
             this.initLogic();
         }
 
@@ -74,14 +110,14 @@ public class KanjiSessionManager extends LearnSessionManager {
         traceLogic.changeTarget(kanji.getSymbol().charAt(0));
 
         for (Word word : kanji.getWords()) {
-            if(word.getJapanese().length() > 1){
+            if (word.getJapanese().length() > 1) {
                 builderChanceIncrease = 1;
                 break;
             }
         }
     }
 
-    private void calcDifficulty(){
+    private void calcDifficulty() {
         difficulty = 0;
         for (KanjiProgress progress : kanji.getProgresses()) {
             difficulty += progress.getCompressedEntries();
@@ -135,14 +171,14 @@ public class KanjiSessionManager extends LearnSessionManager {
     protected void startLearning() {
         kanjiTracerLearnView.initView();
 
-        if(kanji.getWords().isEmpty()){
+        if (kanji.getWords().isEmpty()) {
             ViewUtils.showAlert(Alert.AlertType.ERROR, "No words for current Kanji found!", "No words for: " + kanji.getSymbol());
             return;
         }
 
-        if(difficulty < EASY_CAP){
+        if (difficulty < EASY_CAP) {
             super.setMaxViews(9);
-        } else if(difficulty < MID_CAP){
+        } else if (difficulty < MID_CAP) {
             super.setMaxViews(8);
         } else {
             super.setMaxViews(7);
@@ -151,47 +187,11 @@ public class KanjiSessionManager extends LearnSessionManager {
         nextLearningView();
     }
 
-    private static ITraceLogic<Character> buildLogic(VerificationOptions verificationOptions) {
-        UnicodeFilenameFileProvider fileProvider = new UnicodeFilenameFileProvider(
-                "kanjivg-20240807-all",
-                '0',
-                5,
-                ".svg"
-        );
-
-        ISVGPathParser svgPathParser = new SVGPathParser();
-        SVGPolyProviderOptions polyProviderOptions = new SVGPolyProviderOptions(0.001, 5);
-
-        IPolygonProvider sourcePolygonProvider = new SVGPolygonProvider(
-                fileProvider,
-                svgPathParser,
-                polyProviderOptions
-        );
-
-        IPolygonConverter scaler = new PolygonScaler(4);
-        IPolygonConverter fixedDistanceSetter = new VertexFixedDistanceSetter(5);
-
-        IPolygonProvider convertingPolygonProvider = () -> {
-            List<Polygon> polygons = sourcePolygonProvider.getAllPolygons();
-            scaler.convert(polygons);
-            fixedDistanceSetter.convert(polygons);
-            return polygons;
-        };
-
-        ITraceVerificationLogic verificationLogic = new VerificationLogic(
-                verificationOptions,
-                fixedDistanceSetter
-        );
-
-        ITraceTargetChanger<Character> targetChanger = fileProvider::setCharForFilename;
-        return new UnicodeTraceLineLogic(verificationLogic, convertingPolygonProvider, targetChanger);
-    }
-
     @Override
     protected void nextLearningView() {
-        if(difficulty < EASY_CAP){
+        if (difficulty < EASY_CAP) {
             lowDifficulty();
-        } else if(difficulty < MID_CAP){
+        } else if (difficulty < MID_CAP) {
             midDifficulty();
         } else {
             highDifficulty();
@@ -201,65 +201,65 @@ public class KanjiSessionManager extends LearnSessionManager {
     }
 
     private void highDifficulty() {
-        if(currentCounter == 0){
+        if (currentCounter == 0) {
             kanjiSelectExercise();
-        } else if(currentCounter == 1){
+        } else if (currentCounter == 1) {
             tracingExercise(TraceMode.ALL_HINTS);
-        } else if(currentCounter <= 4){
+        } else if (currentCounter <= 4) {
             int rand = random.nextInt(8 + builderChanceIncrease);
-            if((rand == 7 || rand == 6 || rand == 8) && wordBuilder){
+            if ((rand == 7 || rand == 6 || rand == 8) && wordBuilder) {
                 rand = 1;
             }
-            switch (rand){
-                case 0,7,8 -> wordBuilderExercise();
-                case 1,2,3 -> tracingExercise(TraceMode.NEXT_HINT);
-                case 4,5,6 -> matchExercise();
+            switch (rand) {
+                case 0, 7, 8 -> wordBuilderExercise();
+                case 1, 2, 3 -> tracingExercise(TraceMode.NEXT_HINT);
+                case 4, 5, 6 -> matchExercise();
             }
-        } else if(currentCounter <= 6){
+        } else if (currentCounter <= 6) {
             tracingExercise(TraceMode.NO_HINTS);
         } else {
             learnSessionFinished();
         }
     }
 
-    private void midDifficulty(){
-        if(currentCounter == 0){
+    private void midDifficulty() {
+        if (currentCounter == 0) {
             kanjiSelectExercise();
-        } else if(currentCounter == 1){
+        } else if (currentCounter == 1) {
             tracingExercise(TraceMode.ALL_HINTS);
-        } else if(currentCounter <= 5){
+        } else if (currentCounter <= 5) {
             int rand = random.nextInt(6 + builderChanceIncrease);
-            if((rand == 0 || rand == 6) && wordBuilder){
+            if ((rand == 0 || rand == 6) && wordBuilder) {
                 rand = 1;
             }
-            switch (rand){
-                case 0,6 -> wordBuilderExercise();
-                case 1,2 -> tracingExercise(TraceMode.NEXT_HINT);
-                case 3,4,5 -> matchExercise();
+            switch (rand) {
+                case 0, 6 -> wordBuilderExercise();
+                case 1, 2 -> tracingExercise(TraceMode.NEXT_HINT);
+                case 3, 4, 5 -> matchExercise();
             }
-        } else if(currentCounter <= 7){
+        } else if (currentCounter <= 7) {
             tracingExercise(TraceMode.NO_HINTS);
         } else {
             learnSessionFinished();
         }
     }
 
-    private void lowDifficulty(){
-        if(currentCounter == 0){
+    private void lowDifficulty() {
+        if (currentCounter == 0) {
             kanjiSelectExercise();
-        } else if(currentCounter <= 2){
+        } else if (currentCounter <= 2) {
             tracingExercise(TraceMode.ALL_HINTS);
-        } else if(currentCounter <= 6){
+        } else if (currentCounter <= 6) {
             int rand = random.nextInt(6 + builderChanceIncrease);
-            if((rand == 0 || rand == 6) && wordBuilder){
+            if ((rand == 0 || rand == 6) && wordBuilder) {
                 rand = 1;
             }
-            switch (rand){
-                case 0,6 -> wordBuilderExercise();
-                case 1,2,3 -> tracingExercise(TraceMode.NEXT_HINT);
-                case 4,5 -> matchExercise();
+            switch (rand) {
+                case 0, 6 -> wordBuilderExercise();
+                case 1, 2, 3 -> tracingExercise(TraceMode.NEXT_HINT);
+                case 4, 5 -> matchExercise();
             }
-        } else if(currentCounter <= 8){
+        } else if (currentCounter <= 8) {
             tracingExercise(TraceMode.NO_HINTS);
         } else {
             learnSessionFinished();
@@ -274,16 +274,16 @@ public class KanjiSessionManager extends LearnSessionManager {
 
         int cntr = 0;
         int rnd = random.nextInt(1, 6);
-        for ( ; cntr<rnd && cntr<kanji.getWords().size(); cntr++){
+        for (; cntr < rnd && cntr < kanji.getWords().size(); cntr++) {
             words.add(allWords.pop());
         }
 
-        words.addAll(getRandomWords(5-cntr));
-        if(random.nextInt(4) == 0){
+        words.addAll(getRandomWords(5 - cntr));
+        if (random.nextInt(4) == 0) {
             currentLearnView = new VocabAudioToJapaneseMatch(this, words);
         } else {
             JapaneseToKanaMatch matchLearnView = new JapaneseToKanaMatch(this, words);
-            if(random.nextBoolean()){
+            if (random.nextBoolean()) {
                 matchLearnView.setReverse(true);
             }
             currentLearnView = matchLearnView;

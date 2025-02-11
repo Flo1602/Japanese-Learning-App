@@ -8,7 +8,7 @@ import javafx.scene.Scene;
 
 import java.util.List;
 
-public class SpeakingSessionManager extends LearnSessionManager{
+public class SpeakingSessionManager extends LearnSessionManager {
 
     public SpeakingSessionManager(Scene scene) {
         super(scene);

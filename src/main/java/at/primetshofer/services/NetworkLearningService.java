@@ -24,17 +24,15 @@ import java.util.List;
 
 public class NetworkLearningService extends Service<Void> {
 
-    private BooleanProperty deviceConnected;
-    private DatagramSocket datagramSocket;
-    private ServerSocket serverSocket;
-
-    private Controller controller;
-    private EntityManager entityManager;
-    private boolean udpActive;
-
     private static final int UDP_BROADCAST_PORT = 9875;
     private static final int UDP_PORT = 9876;
     private static final int TCP_PORT = 9877;
+    private final BooleanProperty deviceConnected;
+    private DatagramSocket datagramSocket;
+    private ServerSocket serverSocket;
+    private final Controller controller;
+    private final EntityManager entityManager;
+    private boolean udpActive;
 
     public NetworkLearningService(BooleanProperty deviceConnected) {
         this.deviceConnected = deviceConnected;
@@ -73,8 +71,8 @@ public class NetworkLearningService extends Service<Void> {
         return super.cancel();
     }
 
-    private void createUDPThread(){
-        if(udpActive){
+    private void createUDPThread() {
+        if (udpActive) {
             Thread udpThread = new Thread(() -> {
                 startUDPListener();
             });
@@ -85,7 +83,7 @@ public class NetworkLearningService extends Service<Void> {
 
     private void startUDPListener() {
         try {
-            if(datagramSocket != null && !datagramSocket.isClosed()){
+            if (datagramSocket != null && !datagramSocket.isClosed()) {
                 datagramSocket.close();
             }
 
@@ -137,18 +135,18 @@ public class NetworkLearningService extends Service<Void> {
                     String[] commandParts = command.split(":");
                     command = commandParts[0];
                     String value = "";
-                    if(commandParts.length > 1) {
-                        for(int i = 1; i < commandParts.length; i++) {
+                    if (commandParts.length > 1) {
+                        for (int i = 1; i < commandParts.length; i++) {
                             value += commandParts[i];
-                            if(i < commandParts.length - 1) {
+                            if (i < commandParts.length - 1) {
                                 value += ":";
                             }
                         }
                     }
                     System.out.println("Received command: " + command);
 
-                    if(firstConnection){
-                        if(command.equals("CONNECT")){
+                    if (firstConnection) {
+                        if (command.equals("CONNECT")) {
                             firstConnection = false;
                         } else {
                             continue;
@@ -249,7 +247,7 @@ public class NetworkLearningService extends Service<Void> {
                             objectOutput.writeObject("Unknown command: " + command);
                     }
 
-                    if(!command.equals("CONNECT") && !command.equals("EXIT")) {
+                    if (!command.equals("CONNECT") && !command.equals("EXIT")) {
                         objectOutput.writeObject("CLOSE");
                     }
 

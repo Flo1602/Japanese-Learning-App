@@ -8,7 +8,7 @@ import javafx.scene.Scene;
 
 import java.util.List;
 
-public class WordDefenseSessionManager extends LearnSessionManager{
+public class WordDefenseSessionManager extends LearnSessionManager {
 
     public WordDefenseSessionManager(Scene scene) {
         super(scene);

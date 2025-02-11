@@ -55,7 +55,7 @@ public class Main extends Application {
         try {
             HibernateUtil.getEntityManager();
         } catch (Exception e) {
-            Platform.runLater(() ->{
+            Platform.runLater(() -> {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
                 alert.setContentText("DB connection Failed! \nMake sure that no other instances of the program are running!");
@@ -65,7 +65,7 @@ public class Main extends Application {
         }
     }
 
-    private void showMainStage(Stage stage){
+    private void showMainStage(Stage stage) {
         Pane pane = new Pane();
 
         Scene scene = new Scene(pane, 1280, 720);
@@ -74,7 +74,7 @@ public class Main extends Application {
         MainMenuView mainMenu = new MainMenuView(scene);
         mainMenu.display(null);
 
-        new Thread(() ->{
+        new Thread(() -> {
 
             try {
                 Thread.sleep(200);

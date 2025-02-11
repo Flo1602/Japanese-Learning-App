@@ -21,7 +21,7 @@ import javafx.scene.layout.VBox;
 
 import java.io.File;
 
-public class CreateEditSentenceWindow extends PopUp{
+public class CreateEditSentenceWindow extends PopUp {
 
     private Sentence sentence;
     private Word word;
@@ -37,7 +37,7 @@ public class CreateEditSentenceWindow extends PopUp{
 
     @Override
     protected void initView() {
-        if(sentence == null) {
+        if (sentence == null) {
             sentence = new Sentence();
             create = true;
         }
@@ -78,7 +78,7 @@ public class CreateEditSentenceWindow extends PopUp{
             sentence.setJapanese(japaneseField.getText());
             sentence.setWord(word);
 
-            if(create) {
+            if (create) {
                 em.persist(sentence);
             } else {
                 sentence = em.merge(sentence);
@@ -88,7 +88,7 @@ public class CreateEditSentenceWindow extends PopUp{
 
             em.merge(word);
 
-            new Thread(() ->{
+            new Thread(() -> {
                 try {
                     String ttsString = sentence.getJapanese();
 
@@ -137,7 +137,7 @@ public class CreateEditSentenceWindow extends PopUp{
         buttonHbox.setAlignment(Pos.CENTER);
         buttonHbox.setPadding(new Insets(10, 0, 10, 0));
 
-        if(!create) {
+        if (!create) {
             buttonHbox.getChildren().add(delete);
         }
 
@@ -154,14 +154,14 @@ public class CreateEditSentenceWindow extends PopUp{
 
         int offset = 0;
 
-        for(int i=0; i<tableData.size(); i++) {
-            int index = i-offset;
+        for (int i = 0; i < tableData.size(); i++) {
+            int index = i - offset;
 
-            if(tableData.get(i).getWordPos() != -1){
+            if (tableData.get(i).getWordPos() != -1) {
                 tableData.get(i).setSentence(sentence);
                 tableData.get(i).setWordPos(index);
 
-                if(tableData.get(i).getWordJapanese() != null &&
+                if (tableData.get(i).getWordJapanese() != null &&
                         tableData.get(i).getWordEnglish() != null &&
                         !tableData.get(i).getWordJapanese().isBlank() &&
                         !tableData.get(i).getWordEnglish().isBlank()) {
@@ -189,10 +189,10 @@ public class CreateEditSentenceWindow extends PopUp{
         japaneseColumn.setPrefWidth(199);
         japaneseColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         japaneseColumn.setOnEditCommit(event -> {
-            if(event.getRowValue().getWordPos() == -1){
+            if (event.getRowValue().getWordPos() == -1) {
                 SentenceWord sentenceWord = new SentenceWord();
                 sentenceWord.setWordJapanese(event.getNewValue());
-                tableData.add(tableView.getItems().size()-1, sentenceWord);
+                tableData.add(tableView.getItems().size() - 1, sentenceWord);
             } else {
                 SentenceWord sentenceWord = event.getRowValue();
                 sentenceWord.setWordJapanese(event.getNewValue());
@@ -204,10 +204,10 @@ public class CreateEditSentenceWindow extends PopUp{
         englishColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         englishColumn.setPrefWidth(199);
         englishColumn.setOnEditCommit(event -> {
-            if(event.getRowValue().getWordPos() == -1){
+            if (event.getRowValue().getWordPos() == -1) {
                 SentenceWord sentenceWord = new SentenceWord();
                 sentenceWord.setWordEnglish(event.getNewValue());
-                tableData.add(tableView.getItems().size()-1, sentenceWord);
+                tableData.add(tableView.getItems().size() - 1, sentenceWord);
             } else {
                 SentenceWord sentenceWord = event.getRowValue();
                 sentenceWord.setWordEnglish(event.getNewValue());
@@ -219,10 +219,10 @@ public class CreateEditSentenceWindow extends PopUp{
         kanaColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         kanaColumn.setPrefWidth(199);
         kanaColumn.setOnEditCommit(event -> {
-            if(event.getRowValue().getWordPos() == -1){
+            if (event.getRowValue().getWordPos() == -1) {
                 SentenceWord sentenceWord = new SentenceWord();
                 sentenceWord.setWordKana(event.getNewValue());
-                tableData.add(tableView.getItems().size()-1, sentenceWord);
+                tableData.add(tableView.getItems().size() - 1, sentenceWord);
             } else {
                 SentenceWord sentenceWord = event.getRowValue();
                 sentenceWord.setWordKana(event.getNewValue());
@@ -241,7 +241,7 @@ public class CreateEditSentenceWindow extends PopUp{
 
         tableView.getColumns().addAll(japaneseColumn, kanaColumn, englishColumn);
 
-        if(!create){
+        if (!create) {
             tableView.getColumns().add(createWordColumn);
         }
 
@@ -263,13 +263,13 @@ public class CreateEditSentenceWindow extends PopUp{
     private class ButtonCell extends TableCell<SentenceWord, Boolean> {
         final Button cellButton = new Button(LangController.getText("createWordButton"));
 
-        ButtonCell(final TableView tblView){
+        ButtonCell(final TableView tblView) {
 
             cellButton.setOnAction(t -> {
                 int selectedIndex = getTableRow().getIndex();
                 SentenceWord sentenceWord = (SentenceWord) tblView.getItems().get(selectedIndex);
 
-                if(sentenceWord.getWordPos() == -1){
+                if (sentenceWord.getWordPos() == -1) {
                     return;
                 }
 
@@ -287,7 +287,7 @@ public class CreateEditSentenceWindow extends PopUp{
         @Override
         protected void updateItem(Boolean t, boolean empty) {
             super.updateItem(t, empty);
-            if(!empty){
+            if (!empty) {
                 setGraphic(cellButton);
             }
         }

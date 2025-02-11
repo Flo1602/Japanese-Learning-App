@@ -31,8 +31,8 @@ import java.util.Map;
 
 public class SpeakingLearnView extends LearnView {
 
-    private Sentence sentence;
     private static final String SPEAKING_PATH = "audio/system/recording.wav";
+    private final Sentence sentence;
     private String speakingTranscription;
     private Label accuracyLabel;
     private Button recordButton;
@@ -49,13 +49,13 @@ public class SpeakingLearnView extends LearnView {
 
         List<SentenceWord> sentenceWords = sentence.getSentenceWords();
 
-        if(sentenceWords != null && !sentenceWords.isEmpty() && sentence.getJapanese() != null){
+        if (sentenceWords != null && !sentenceWords.isEmpty() && sentence.getJapanese() != null) {
             Map<String, SentenceWord> sentenceWordStrings = new LinkedHashMap<>();
             for (SentenceWord sentenceWord : sentenceWords) {
-                if(sentenceWord.getWordJapanese() != null && !sentenceWord.getWordJapanese().isBlank()){
+                if (sentenceWord.getWordJapanese() != null && !sentenceWord.getWordJapanese().isBlank()) {
                     sentenceWordStrings.put(sentenceWord.getWordJapanese(), sentenceWord);
                 }
-                if(sentenceWord.getWordEnglish() != null && !sentenceWord.getWordEnglish().isBlank()){
+                if (sentenceWord.getWordEnglish() != null && !sentenceWord.getWordEnglish().isBlank()) {
                     sentenceWordStrings.put(sentenceWord.getWordEnglish(), sentenceWord);
                 }
             }
@@ -68,6 +68,13 @@ public class SpeakingLearnView extends LearnView {
         }
     }
 
+    public static String extractText(String input) {
+        // Parse the JSON input
+        JSONObject jsonObject = new JSONObject(input);
+        // Extract the value of the "text" key
+        return jsonObject.getString("text");
+    }
+
     @Override
     public Pane initView() {
         bp = new BorderPane();
@@ -76,7 +83,7 @@ public class SpeakingLearnView extends LearnView {
         textBox.setSpacing(10);
         textBox.setAlignment(Pos.CENTER);
 
-        if(sentence.getTtsPath() != null) {
+        if (sentence.getTtsPath() != null) {
             Image audioImage = new Image("audio.png");
 
             ImageView audioImageView = new ImageView(audioImage);
@@ -90,7 +97,7 @@ public class SpeakingLearnView extends LearnView {
             textBox.getChildren().add(audioButton);
         }
 
-        if(japaneseParts != null && !japaneseParts.isEmpty()){
+        if (japaneseParts != null && !japaneseParts.isEmpty()) {
             HBox textLabels = new HBox();
             textLabels.setAlignment(Pos.CENTER);
             for (Map.Entry<String, SentenceWord> toTranslatePart : japaneseParts.entrySet()) {
@@ -98,7 +105,7 @@ public class SpeakingLearnView extends LearnView {
                 textLabel.setStyle("-fx-font-size: 20pt");
                 textLabels.getChildren().add(textLabel);
 
-                if(toTranslatePart.getValue() != null){
+                if (toTranslatePart.getValue() != null) {
                     Tooltip tooltip = new Tooltip(LangController.getText("EnglishLabel") + " " + toTranslatePart.getValue().getWordEnglish() +
                             "\n" + LangController.getText("JapaneseLabel") + " " + toTranslatePart.getValue().getWordJapanese() +
                             "\n" + LangController.getText("KanaLabel") + " " + toTranslatePart.getValue().getWordKana());
@@ -121,8 +128,8 @@ public class SpeakingLearnView extends LearnView {
         recordButton.setUserData(false);
         recordButton.setOnAction(actionEvent -> {
             animateButtonClick(recordButton);
-            boolean recording = (boolean)recordButton.getUserData();
-            if(recording){
+            boolean recording = (boolean) recordButton.getUserData();
+            if (recording) {
                 recordButton.setDisable(true);
                 recordButton.setText(LangController.getText("AnalyseRecording"));
                 AudioRecorder.stopRecording(SPEAKING_PATH);
@@ -130,7 +137,7 @@ public class SpeakingLearnView extends LearnView {
                 STT stt = STT.getStt();
 
                 listener = (observableValue, oldValue, newValue) -> {
-                    if(newValue){
+                    if (newValue) {
                         stt.sttCompletedProperty().removeListener(listener);
                         speakingTranscription = stt.getTranscript();
                         checkComplete();
@@ -183,12 +190,12 @@ public class SpeakingLearnView extends LearnView {
 
         double similarity = StringSimilarity.calculateSimilarity(speakingTranscription, sentence.getJapanese());
 
-        Platform.runLater(() ->{
-            accuracyLabel.setText(LangController.getText("AccuracyLabel") + " " + (int)similarity + "%");
+        Platform.runLater(() -> {
+            accuracyLabel.setText(LangController.getText("AccuracyLabel") + " " + (int) similarity + "%");
             accuracyLabel.setVisible(true);
 
-            if(similarity < 70){
-                if(tries >= 3){
+            if (similarity < 70) {
+                if (tries >= 3) {
                     finished(false, sentence.getEnglish());
                 } else {
                     recordButton.setText(LangController.getText("StartRecording"));
@@ -210,17 +217,10 @@ public class SpeakingLearnView extends LearnView {
     }
 
     public void playSentenceTTS() {
-        if(sentence.getTtsPath() == null){
+        if (sentence.getTtsPath() == null) {
             return;
         }
 
         Controller.getInstance().playAudio(sentence.getTtsPath());
-    }
-
-    public static String extractText(String input) {
-        // Parse the JSON input
-        JSONObject jsonObject = new JSONObject(input);
-        // Extract the value of the "text" key
-        return jsonObject.getString("text");
     }
 }

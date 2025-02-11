@@ -8,12 +8,13 @@ import at.primetshofer.view.learning.learnSessionManagers.LearnSessionManager;
 import jakarta.persistence.EntityManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class SentenceJapaneseToEnglish extends SentenceLearnView{
+public class SentenceJapaneseToEnglish extends SentenceLearnView {
 
-    private Sentence sentence;
+    private final Sentence sentence;
 
     public SentenceJapaneseToEnglish(LearnSessionManager learnSessionManager, Sentence sentence) {
         super(learnSessionManager, sentence.getId());
@@ -21,7 +22,7 @@ public class SentenceJapaneseToEnglish extends SentenceLearnView{
         initSuper();
     }
 
-    private void initSuper(){
+    private void initSuper() {
         super.setToTranslate(sentence.getJapanese());
         super.setTtsPath(sentence.getTtsPath());
         super.setSolution(sentence.getEnglish());
@@ -30,9 +31,7 @@ public class SentenceJapaneseToEnglish extends SentenceLearnView{
         String english = sentence.getEnglish().replaceAll("[\\p{Punct}\\p{IsPunctuation}]", "");
 
         ArrayList<String> words = new ArrayList<>();
-        for (String word : english.split(" ")) {
-            words.add(word);
-        }
+        Collections.addAll(words, english.split(" "));
 
         Random rand = new Random();
 

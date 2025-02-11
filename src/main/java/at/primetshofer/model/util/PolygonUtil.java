@@ -5,7 +5,8 @@ import at.primetshofer.model.Polygon;
 
 public class PolygonUtil {
 
-    private PolygonUtil() { }
+    private PolygonUtil() {
+    }
 
     public static double calculatePolylineLength(Polygon polygon) {
         if (polygon.getVerticesCount() < 2)

@@ -10,7 +10,7 @@ import java.util.Random;
 
 public class WordBuilderView extends SentenceLearnView {
 
-    private Word word;
+    private final Word word;
 
     public WordBuilderView(LearnSessionManager learnSessionManager, Word word) {
         super(learnSessionManager, -1);
@@ -19,7 +19,7 @@ public class WordBuilderView extends SentenceLearnView {
         initSuper();
     }
 
-    private void initSuper(){
+    private void initSuper() {
         super.setSolution(word.getJapanese() + " (" + word.getEnglish() + ")");
         super.setTtsPath(word.getTtsPath());
         super.setTranslation(word.getJapanese());

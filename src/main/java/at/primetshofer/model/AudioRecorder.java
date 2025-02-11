@@ -8,10 +8,10 @@ import java.io.IOException;
 
 public class AudioRecorder {
 
-    private static TargetDataLine targetLine;
-    private static ByteArrayOutputStream byteArrayOutputStream;
     public static final int SAMPLE_RATE = 8000;
     public static final int SAMPLE_SIZE_IN_BITS = 16;
+    private static TargetDataLine targetLine;
+    private static ByteArrayOutputStream byteArrayOutputStream;
     private static Thread recordingThread;
     private static boolean recordingStarted;
 
@@ -52,7 +52,7 @@ public class AudioRecorder {
     }
 
     public static void stopRecording(String outputFilePath) {
-        if(!recordingStarted) {
+        if (!recordingStarted) {
             return;
         }
         if (targetLine != null) {
@@ -68,7 +68,7 @@ public class AudioRecorder {
             AudioInputStream audioStream = new AudioInputStream(inputStream, format, audioData.length / format.getFrameSize());
 
             // Audiodaten in eine WAVE-Datei schreiben
-            if(outputFilePath != null){
+            if (outputFilePath != null) {
                 File outputFile = new File(outputFilePath);
                 AudioSystem.write(audioStream, AudioFileFormat.Type.WAVE, outputFile);
             }
@@ -80,8 +80,8 @@ public class AudioRecorder {
         }
     }
 
-    public static void stopRecordingThread(){
-        if(recordingThread != null && recordingThread.isAlive()) {
+    public static void stopRecordingThread() {
+        if (recordingThread != null && recordingThread.isAlive()) {
             recordingThread.interrupt();
         }
     }

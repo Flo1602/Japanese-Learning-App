@@ -28,7 +28,14 @@ public class VocabTrainer {
         tmpDueIncrease = 0;
     }
 
-    public void updateWordList(){
+    public static VocabTrainer getInstance() {
+        if (instance == null) {
+            instance = new VocabTrainer();
+        }
+        return instance;
+    }
+
+    public void updateWordList() {
         dueWordList = new ArrayList<>();
         tmpDueWordList = new ArrayList<>();
 
@@ -38,7 +45,7 @@ public class VocabTrainer {
         Query query = entityManager.createQuery(jpql);
         long wordCount = (long) query.getSingleResult();
 
-        if(allWordList == null || wordCount != allWordList.size()){
+        if (allWordList == null || wordCount != allWordList.size()) {
             allWordList = entityManager.createQuery("SELECT w FROM Word w", Word.class).getResultList();
 
             sortWordList(allWordList);
@@ -60,7 +67,7 @@ public class VocabTrainer {
             int daysGoal = getIntervalDays(getDynamicMaxPoints(word));
             daysGoal--;
 
-            if(getTodayProgress(word, now.toLocalDate()) == null){
+            if (getTodayProgress(word, now.toLocalDate()) == null) {
                 daysGoal = 0;
             }
 
@@ -69,12 +76,12 @@ public class VocabTrainer {
             if (!reviewTime.toLocalDate().isAfter(now.toLocalDate().plusDays(daysGoal))) {
                 dueTotal++;
 
-                if(todayDueMax < maxWords || (lastProgress != null && isToday(lastProgress.getLearned()))){
+                if (todayDueMax < maxWords || (lastProgress != null && isToday(lastProgress.getLearned()))) {
                     todayDueMax++;
                     dueCurrent++;
 
                     dueWordList.add(word);
-                } else if(extraWordsRemaining > 0){
+                } else if (extraWordsRemaining > 0) {
                     extraWordsRemaining--;
 
                     todayDueMax++;
@@ -83,7 +90,7 @@ public class VocabTrainer {
                     dueWordList.add(word);
                     tmpDueWordList.add(word);
                 }
-            } else if(lastProgress != null && isToday(getLastProgress(word).getLearned())){
+            } else if (lastProgress != null && isToday(getLastProgress(word).getLearned())) {
                 todayDueMax++;
             }
         }
@@ -129,35 +136,28 @@ public class VocabTrainer {
         return dueTotal;
     }
 
-    private void updateDueCurrent(Word word){
+    private void updateDueCurrent(Word word) {
         LocalDateTime now = LocalDateTime.now();
 
         LocalDateTime reviewTime = nextReviewCache.getOrDefault(word, now);
         int daysGoal = getIntervalDays(getDynamicMaxPoints(word));
 
         daysGoal--;
-        if(getTodayProgress(word, now.toLocalDate()) == null){
+        if (getTodayProgress(word, now.toLocalDate()) == null) {
             daysGoal = 0;
         }
         if (reviewTime.toLocalDate().isAfter(now.toLocalDate().plusDays(daysGoal))) {
-            if(dueCurrent > 0){
+            if (dueCurrent > 0) {
                 dueCurrent--;
             }
-            if(dueTotal > 0){
+            if (dueTotal > 0) {
                 dueTotal--;
             }
         }
-        if(tmpDueWordList.contains(word)){
+        if (tmpDueWordList.contains(word)) {
             tmpDueIncrease--;
             tmpDueWordList.remove(word);
         }
-    }
-
-    public static VocabTrainer getInstance() {
-        if(instance == null) {
-            instance = new VocabTrainer();
-        }
-        return instance;
     }
 
     private int getIntervalDays(int points) {
@@ -197,8 +197,8 @@ public class VocabTrainer {
         }
         daysSinceFirstLearned /= 4;
 
-        int dynamicMax = (int)Math.min((daysSinceFirstLearned + reviewCount) * 20, 600);
-        if(dynamicMax < 0){
+        int dynamicMax = (int) Math.min((daysSinceFirstLearned + reviewCount) * 20, 600);
+        if (dynamicMax < 0) {
             dynamicMax = 600;
         }
 
@@ -224,7 +224,7 @@ public class VocabTrainer {
         nextReviewCache.put(word, nextReviewDate);
     }
 
-    private List<Word> calcNextLearningWord(int count){
+    private List<Word> calcNextLearningWord(int count) {
         Set<Word> words = new HashSet<>();
         LocalDateTime now = LocalDateTime.now();
 
@@ -271,7 +271,7 @@ public class VocabTrainer {
             words.add(neverLearned.removeFirst());
         }
 
-        if(dueWords.size() >= count){
+        if (dueWords.size() >= count) {
             return new ArrayList<>(words);
         }
 
@@ -280,7 +280,7 @@ public class VocabTrainer {
             LocalDateTime reviewTime = nextReviewCache.get(w);
             int daysGoal = getIntervalDays(getDynamicMaxPoints(w));
             daysGoal--;
-            if(getTodayProgress(w, now.toLocalDate()) == null){
+            if (getTodayProgress(w, now.toLocalDate()) == null) {
                 daysGoal = 0;
             }
             if (reviewTime.isBefore(now.plusDays(daysGoal))) {
@@ -294,16 +294,17 @@ public class VocabTrainer {
             words.add(soonDueWord.removeFirst());
         }
 
-        if(!words.isEmpty()){
+        if (!words.isEmpty()) {
             return new ArrayList<>(words);
         }
 
         int tries = 50;
+        Random random = new Random();
         while (!allWordList.isEmpty() && words.size() < count && tries > 0) {
-            int rand = new Random().nextInt(allWordList.size());
+            int rand = random.nextInt(allWordList.size());
             System.out.println("random");
             Word word = allWordList.get(rand);
-            if(!words.contains(word)){
+            if (!words.contains(word)) {
                 words.add(word);
             } else {
                 tries--;
@@ -328,7 +329,7 @@ public class VocabTrainer {
         LocalDateTime reviewTime = nextReviewCache.getOrDefault(word, now);
         int daysGoal = getIntervalDays(getDynamicMaxPoints(word));
         daysGoal--;
-        if(getTodayProgress(word, now.toLocalDate()) == null){
+        if (getTodayProgress(word, now.toLocalDate()) == null) {
             daysGoal = 0;
         }
         if (reviewTime.toLocalDate().isAfter(now.toLocalDate()) && !reviewTime.isBefore(now.plusDays(daysGoal))) {
@@ -384,7 +385,7 @@ public class VocabTrainer {
     }
 
     private WordProgress getLastProgress(Word word) {
-        if(word.getProgresses().isEmpty()){
+        if (word.getProgresses().isEmpty()) {
             return null;
         }
         return word.getProgresses().get(word.getProgresses().size() - 1);
@@ -402,7 +403,7 @@ public class VocabTrainer {
             baseIncrement = 5;
         }
 
-        if(negtive){
+        if (negtive) {
             baseIncrement = 25 - baseIncrement;
         }
 
@@ -413,7 +414,7 @@ public class VocabTrainer {
 
         long daysSinceFirstLearned = 0;
 
-        if(!word.getProgresses().isEmpty()){
+        if (!word.getProgresses().isEmpty()) {
             WordProgress firstProgress = word.getProgresses().getFirst();
             daysSinceFirstLearned = ChronoUnit.DAYS.between(firstProgress.getLearned().toLocalDate(), LocalDate.now());
         }
@@ -424,16 +425,16 @@ public class VocabTrainer {
         daysSinceFirstLearned /= 2;
 
         double incrementFactor = 1.0 + ((reviewCount + daysSinceFirstLearned) * 0.3);
-        if(reviewCount == 0 || reviewCount == 1) {
+        if (reviewCount == 0 || reviewCount == 1) {
             incrementFactor = 0.5;
         }
-        if(incrementFactor > 20){
+        if (incrementFactor > 20) {
             incrementFactor = 20;
         }
         return (int) Math.round(baseIncrement * incrementFactor);
     }
 
-    public List<Word> getRandomWords(int number){
+    public List<Word> getRandomWords(int number) {
         List<Word> words = new ArrayList<>();
 
         int half = number / 2;

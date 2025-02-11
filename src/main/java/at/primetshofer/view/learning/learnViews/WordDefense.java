@@ -32,17 +32,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class WordDefense extends LearnView{
+public class WordDefense extends LearnView {
 
     private static final String SPEAKING_PATH = "audio/system/recording.wav";
     private ChangeListener<Boolean> listener;
-    private List<Word> words;
-    private List<Word> allWords;
+    private final List<Word> words;
+    private final List<Word> allWords;
     private Button recordButton;
-    private List<Label> attackers;
-    private IntegerProperty lives = new SimpleIntegerProperty(3);
+    private final List<Label> attackers;
+    private final IntegerProperty lives = new SimpleIntegerProperty(3);
     private boolean allSpawned = false;
-    private BooleanProperty disableButton;
+    private final BooleanProperty disableButton;
 
     public WordDefense(LearnSessionManager learnSessionManager, List<Word> words) {
         super(learnSessionManager, false);
@@ -52,201 +52,6 @@ public class WordDefense extends LearnView{
         this.disableButton = new SimpleBooleanProperty(false);
 
         Collections.shuffle(words);
-    }
-
-    @Override
-    public Pane initView() {
-        BorderPane bp = new BorderPane();
-
-        Label livesLabel = new Label(LangController.getText("Lives") + " " + lives.getValue());
-        livesLabel.getStyleClass().add("normalText");
-        BorderPane.setAlignment(livesLabel, Pos.CENTER);
-
-        lives.addListener((observableValue, oldValue, newValue) -> {
-            if(lives.get() >= 0){
-                livesLabel.setText(LangController.getText("Lives") + " " + lives.getValue());
-            } else {
-                livesLabel.setText(LangController.getText("Lives") + " ☠");
-            }
-        });
-
-        bp.setTop(livesLabel);
-
-        recordButton = new Button(LangController.getText("StartLoading"));
-        recordButton.disableProperty().bind(disableButton);
-        recordButton.setUserData(false);
-        recordButton.setStyle("-fx-font-size: 16; -fx-font-weight: bold; -fx-pref-width: 150");
-        recordButton.setOnAction(actionEvent -> {
-            animateButtonClick(recordButton);
-            boolean recording = (boolean)recordButton.getUserData();
-            if(recording){
-                disableButton.set(true);
-                recordButton.setText(LangController.getText("PrepareFire"));
-                AudioRecorder.stopRecording(SPEAKING_PATH);
-
-                STT stt = STT.getStt();
-
-                listener = (observableValue, oldValue, newValue) -> {
-                    if(newValue){
-                        stt.sttCompletedProperty().removeListener(listener);
-                        String shot = SpeakingLearnView.extractText(stt.getTranscript()).replaceAll(" ", "").replace("これは", "").replace("です", "");
-                        String romaji = KanaToRomajiConverter.katakanaToRomaji(ViewUtils.convertKanjiToKatakana(shot));
-                        if(romaji.isEmpty() || romaji.equals("*")){
-                            romaji = KanaToRomajiConverter.katakanaToRomaji(shot);
-                        }
-
-                        for (Label attacker : attackers) {
-                            String attackerKana = "";
-
-                            for (Word word : allWords) {
-                                if(word.getJapanese().equals(attacker.getText())){
-                                    attackerKana = word.getKana();
-                                }
-                            }
-
-                            String attackerRomaji = KanaToRomajiConverter.hiraganaToRomaji(attackerKana);
-
-                            System.out.println(romaji);
-
-                            double similarity = StringSimilarity.calculateSimilarity(shot, attacker.getText());
-                            double similarity2 = StringSimilarity.calculateSimilarity(romaji, attackerRomaji);
-                            double similarity3 = StringSimilarity.calculateSimilarity(shot, attackerKana);
-
-                            System.out.println(similarity + " " + similarity2 + " " + similarity3);
-
-                            if(similarity >= 50 || similarity2 >= 50 || similarity3 >= 50){
-                                if(destroyAttacker(attacker)){
-                                    return;
-                                }
-
-                                break;
-                            }
-                        }
-
-                        Platform.runLater(() ->{
-                            recordButton.setText(LangController.getText("StartLoading"));
-                            disableButton.set(false);
-                        });
-                    }
-                };
-
-                stt.sttCompletedProperty().addListener(listener);
-
-                new Thread(() -> {
-                    stt.convertAudio(SPEAKING_PATH);
-                }).start();
-            } else {
-                recordButton.setText(LangController.getText("StopLoading"));
-                AudioRecorder.startRecording();
-            }
-
-            recordButton.setUserData(!recording);
-        });
-
-        HBox right = new HBox(recordButton);
-        right.setAlignment(Pos.CENTER_RIGHT);
-        right.setPadding(new Insets(0, -100, 0, 100));
-
-        bp.setCenter(getBattlefield());
-        bp.setRight(right);
-
-        return bp;
-    }
-
-    private boolean destroyAttacker(Label attacker) {
-        ((TranslateTransition) attacker.getUserData()).stop();
-        Platform.runLater(() -> animateSuccessDespawn(attacker));
-        attackers.remove(attacker);
-
-        if(attackers.isEmpty() && allSpawned){
-            disableButton.set(true);
-            Platform.runLater(() -> finished(true));
-
-            return true;
-        }
-
-        new Thread(() -> {
-            for (Word word : allWords) {
-                if(word.getJapanese().equals(attacker.getText())){
-                    Controller.getInstance().playAudio(word.getTtsPath());
-                }
-            }
-        }).start();
-
-        return false;
-    }
-
-    @Override
-    public void checkComplete() {
-        throw new IllegalStateException("checkComplete should never be called");
-    }
-
-    @Override
-    public Pane resetView() {
-        throw new UnsupportedOperationException("ResetView should not be called on WordDefense!");
-    }
-
-    private Pane getBattlefield(){
-        Pane battlefield = new Pane();
-        battlefield.setPrefHeight(500);
-
-        Line line = new Line();
-        line.setStroke(Color.RED);
-        line.startXProperty().bind(battlefield.widthProperty());
-        line.setStartY(0);
-        line.endXProperty().bind(battlefield.widthProperty());
-        line.endYProperty().bind(battlefield.heightProperty());
-
-        battlefield.getChildren().add(line);
-
-        Timeline spawner = new Timeline();
-        spawner.setCycleCount(words.size());
-        spawner.getKeyFrames().add(new KeyFrame(Duration.millis(10000), e ->{
-            Word nextWord = words.getFirst();
-            words.remove(nextWord);
-            Label word = new Label(nextWord.getJapanese());
-            word.getStyleClass().add("normalText");
-            word.setLayoutX(0);
-            word.setLayoutY(new Random().nextDouble(battlefield.getHeight()-50));
-
-            word.setOnMouseClicked(event -> destroyAttacker(word));
-
-            battlefield.getChildren().add(word);
-            attackers.add(word);
-
-            animateSpawn(word);
-
-            TranslateTransition transition = new TranslateTransition(Duration.millis(25000), word);
-            transition.setToX(battlefield.getWidth());
-            transition.setOnFinished(event -> {
-                attackers.remove(word);
-                if(lives.get() == 0){
-                    disableButton.set(true);
-                    finished(false);
-                    spawner.stop();
-                    animateDespawn(word);
-                }
-                if(word.isVisible()){
-                    lives.set(lives.get()-1);
-                    animateDespawn(word);
-                }
-
-                if(attackers.isEmpty() && allSpawned){
-                    disableButton.set(true);
-                    Platform.runLater(() -> finished(true));
-                }
-            });
-
-            word.setUserData(transition);
-
-            transition.play();
-        }));
-
-        spawner.setOnFinished(event -> allSpawned = true);
-
-        spawner.play();
-
-        return battlefield;
     }
 
     private static void animateDespawn(Label label) {
@@ -340,6 +145,201 @@ public class WordDefense extends LearnView{
 
         // Start the animation
         spawnAnimation.play();
+    }
+
+    @Override
+    public Pane initView() {
+        BorderPane bp = new BorderPane();
+
+        Label livesLabel = new Label(LangController.getText("Lives") + " " + lives.getValue());
+        livesLabel.getStyleClass().add("normalText");
+        BorderPane.setAlignment(livesLabel, Pos.CENTER);
+
+        lives.addListener((observableValue, oldValue, newValue) -> {
+            if (lives.get() >= 0) {
+                livesLabel.setText(LangController.getText("Lives") + " " + lives.getValue());
+            } else {
+                livesLabel.setText(LangController.getText("Lives") + " ☠");
+            }
+        });
+
+        bp.setTop(livesLabel);
+
+        recordButton = new Button(LangController.getText("StartLoading"));
+        recordButton.disableProperty().bind(disableButton);
+        recordButton.setUserData(false);
+        recordButton.setStyle("-fx-font-size: 16; -fx-font-weight: bold; -fx-pref-width: 150");
+        recordButton.setOnAction(actionEvent -> {
+            animateButtonClick(recordButton);
+            boolean recording = (boolean) recordButton.getUserData();
+            if (recording) {
+                disableButton.set(true);
+                recordButton.setText(LangController.getText("PrepareFire"));
+                AudioRecorder.stopRecording(SPEAKING_PATH);
+
+                STT stt = STT.getStt();
+
+                listener = (observableValue, oldValue, newValue) -> {
+                    if (newValue) {
+                        stt.sttCompletedProperty().removeListener(listener);
+                        String shot = SpeakingLearnView.extractText(stt.getTranscript()).replaceAll(" ", "").replace("これは", "").replace("です", "");
+                        String romaji = KanaToRomajiConverter.katakanaToRomaji(ViewUtils.convertKanjiToKatakana(shot));
+                        if (romaji.isEmpty() || romaji.equals("*")) {
+                            romaji = KanaToRomajiConverter.katakanaToRomaji(shot);
+                        }
+
+                        for (Label attacker : attackers) {
+                            String attackerKana = "";
+
+                            for (Word word : allWords) {
+                                if (word.getJapanese().equals(attacker.getText())) {
+                                    attackerKana = word.getKana();
+                                }
+                            }
+
+                            String attackerRomaji = KanaToRomajiConverter.hiraganaToRomaji(attackerKana);
+
+                            System.out.println(romaji);
+
+                            double similarity = StringSimilarity.calculateSimilarity(shot, attacker.getText());
+                            double similarity2 = StringSimilarity.calculateSimilarity(romaji, attackerRomaji);
+                            double similarity3 = StringSimilarity.calculateSimilarity(shot, attackerKana);
+
+                            System.out.println(similarity + " " + similarity2 + " " + similarity3);
+
+                            if (similarity >= 50 || similarity2 >= 50 || similarity3 >= 50) {
+                                if (destroyAttacker(attacker)) {
+                                    return;
+                                }
+
+                                break;
+                            }
+                        }
+
+                        Platform.runLater(() -> {
+                            recordButton.setText(LangController.getText("StartLoading"));
+                            disableButton.set(false);
+                        });
+                    }
+                };
+
+                stt.sttCompletedProperty().addListener(listener);
+
+                new Thread(() -> {
+                    stt.convertAudio(SPEAKING_PATH);
+                }).start();
+            } else {
+                recordButton.setText(LangController.getText("StopLoading"));
+                AudioRecorder.startRecording();
+            }
+
+            recordButton.setUserData(!recording);
+        });
+
+        HBox right = new HBox(recordButton);
+        right.setAlignment(Pos.CENTER_RIGHT);
+        right.setPadding(new Insets(0, -100, 0, 100));
+
+        bp.setCenter(getBattlefield());
+        bp.setRight(right);
+
+        return bp;
+    }
+
+    private boolean destroyAttacker(Label attacker) {
+        ((TranslateTransition) attacker.getUserData()).stop();
+        Platform.runLater(() -> animateSuccessDespawn(attacker));
+        attackers.remove(attacker);
+
+        if (attackers.isEmpty() && allSpawned) {
+            disableButton.set(true);
+            Platform.runLater(() -> finished(true));
+
+            return true;
+        }
+
+        new Thread(() -> {
+            for (Word word : allWords) {
+                if (word.getJapanese().equals(attacker.getText())) {
+                    Controller.getInstance().playAudio(word.getTtsPath());
+                }
+            }
+        }).start();
+
+        return false;
+    }
+
+    @Override
+    public void checkComplete() {
+        throw new IllegalStateException("checkComplete should never be called");
+    }
+
+    @Override
+    public Pane resetView() {
+        throw new UnsupportedOperationException("ResetView should not be called on WordDefense!");
+    }
+
+    private Pane getBattlefield() {
+        Pane battlefield = new Pane();
+        battlefield.setPrefHeight(500);
+
+        Line line = new Line();
+        line.setStroke(Color.RED);
+        line.startXProperty().bind(battlefield.widthProperty());
+        line.setStartY(0);
+        line.endXProperty().bind(battlefield.widthProperty());
+        line.endYProperty().bind(battlefield.heightProperty());
+
+        battlefield.getChildren().add(line);
+
+        Timeline spawner = new Timeline();
+        spawner.setCycleCount(words.size());
+        spawner.getKeyFrames().add(new KeyFrame(Duration.millis(10000), e -> {
+            Word nextWord = words.getFirst();
+            words.remove(nextWord);
+            Label word = new Label(nextWord.getJapanese());
+            word.getStyleClass().add("normalText");
+            word.setLayoutX(0);
+            word.setLayoutY(new Random().nextDouble(battlefield.getHeight() - 50));
+
+            word.setOnMouseClicked(event -> destroyAttacker(word));
+
+            battlefield.getChildren().add(word);
+            attackers.add(word);
+
+            animateSpawn(word);
+
+            TranslateTransition transition = new TranslateTransition(Duration.millis(25000), word);
+            transition.setToX(battlefield.getWidth());
+            transition.setOnFinished(event -> {
+                attackers.remove(word);
+                if (lives.get() == 0) {
+                    disableButton.set(true);
+                    finished(false);
+                    spawner.stop();
+                    animateDespawn(word);
+                }
+                if (word.isVisible()) {
+                    lives.set(lives.get() - 1);
+                    animateDespawn(word);
+                }
+
+                if (attackers.isEmpty() && allSpawned) {
+                    disableButton.set(true);
+                    Platform.runLater(() -> finished(true));
+                }
+            });
+
+            word.setUserData(transition);
+
+            transition.play();
+        }));
+
+        spawner.setOnFinished(event -> allSpawned = true);
+
+        spawner.play();
+
+        return battlefield;
     }
 
     private void animateButtonClick(Button btn) {

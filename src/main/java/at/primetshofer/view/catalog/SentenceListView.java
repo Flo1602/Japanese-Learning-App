@@ -13,7 +13,10 @@ import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -22,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class SentenceListView extends View{
+public class SentenceListView extends View {
 
     private int scrollPage = 0;
     private ChangeListener scrollPageListener;
@@ -57,7 +60,7 @@ public class SentenceListView extends View{
         searchLabel.getStyleClass().add("normalText");
 
         searchField = new TextField();
-        if(search != null){
+        if (search != null) {
             searchField.setText(search);
             searchField.setDisable(true);
         }
@@ -97,7 +100,7 @@ public class SentenceListView extends View{
         buttons.setSpacing(40);
         buttons.setPadding(new Insets(20, 0, 20, 0));
 
-        if(word == null){
+        if (word == null) {
             buttons.setVisible(false);
         }
 
@@ -113,10 +116,10 @@ public class SentenceListView extends View{
         bp.setRight(spacer);
     }
 
-    private void populateSentenceList(){
+    private void populateSentenceList() {
         scrollPage = 0;
         String search = searchField.getText();
-        if(scrollPageListener != null){
+        if (scrollPageListener != null) {
             sentenceList.vvalueProperty().removeListener(scrollPageListener);
         }
         VBox vb = new VBox();
@@ -132,7 +135,7 @@ public class SentenceListView extends View{
             vb.getChildren().add(card.getCard());
         }
 
-        List<Sentence> nextNewSentences = fetchWords(em, 5 * (scrollPage+1), 50, search);
+        List<Sentence> nextNewSentences = fetchWords(em, 5 * (scrollPage + 1), 50, search);
         List<Sentence> prevNewSentences = fetchWords(em, 5 * (scrollPage), 50, search);
         AtomicBoolean listsUpdated = new AtomicBoolean(true);
 
@@ -193,11 +196,11 @@ public class SentenceListView extends View{
         // Check if searchString is provided and add conditions to the query
         if (searchString != null && !searchString.trim().isEmpty() && word == null) {
             searchString = searchString.toLowerCase();
-            queryString.append(" WHERE LOWER(s.japanese) LIKE \'%" + searchString + "%\'")
-                    .append(" OR LOWER(s.english) LIKE \'%" + searchString + "%\'")
-                    .append(" OR LOWER(w.japanese) LIKE \'%" + searchString + "%\'")
-                    .append(" OR LOWER(w.english) LIKE \'%" + searchString + "%\'");
-        } else if(word != null){
+            queryString.append(" WHERE LOWER(s.japanese) LIKE '%" + searchString + "%'")
+                    .append(" OR LOWER(s.english) LIKE '%" + searchString + "%'")
+                    .append(" OR LOWER(w.japanese) LIKE '%" + searchString + "%'")
+                    .append(" OR LOWER(w.english) LIKE '%" + searchString + "%'");
+        } else if (word != null) {
             queryString.append(" WHERE s.word.id = " + word.getId());
         }
 
@@ -213,12 +216,12 @@ public class SentenceListView extends View{
     private void updateSentenceLists(EntityManager em, List<Sentence> nextNewSentence, List<Sentence> prevNewSentence, AtomicBoolean listsUpdated, String search) {
         final int scrollPageFinal = scrollPage;
         new Thread(() -> {
-            synchronized (nextNewSentence){
+            synchronized (nextNewSentence) {
                 nextNewSentence.clear();
-                nextNewSentence.addAll(fetchWords(em, 5 * (scrollPageFinal+1), 50, search));
-                if(scrollPageFinal>0){
+                nextNewSentence.addAll(fetchWords(em, 5 * (scrollPageFinal + 1), 50, search));
+                if (scrollPageFinal > 0) {
                     prevNewSentence.clear();
-                    prevNewSentence.addAll(fetchWords(em, 5 * (scrollPageFinal-1), 50, search));
+                    prevNewSentence.addAll(fetchWords(em, 5 * (scrollPageFinal - 1), 50, search));
                 }
                 listsUpdated.set(true);
             }
@@ -231,19 +234,19 @@ public class SentenceListView extends View{
         populateSentenceList();
     }
 
-    private class SentenceCard{
+    private class SentenceCard {
 
-        private Label japanese;
-        private Label english;
+        private final Label japanese;
+        private final Label english;
         private int id;
 
-        private SentenceCard(Sentence sentence){
+        private SentenceCard(Sentence sentence) {
             this.japanese = new Label(sentence.getJapanese());
             this.english = new Label(sentence.getEnglish());
             this.id = sentence.getId();
         }
 
-        private StackPane getCard(){
+        private StackPane getCard() {
             StackPane card = new StackPane();
             card.setPadding(new Insets(15));
             card.setPrefWidth(900);
@@ -271,7 +274,7 @@ public class SentenceListView extends View{
             Button audioButton = new Button();
             audioButton.setStyle("-fx-background-radius: 20; -fx-font-size: 16pt; -fx-background-color: transparent;");
             audioButton.setGraphic(audioImageView);
-            audioButton.setOnAction(e ->{
+            audioButton.setOnAction(e -> {
                 Sentence sentence = HibernateUtil.getEntityManager().find(Sentence.class, id);
                 Controller.getInstance().playAudio(sentence.getTtsPath());
             });
@@ -285,7 +288,7 @@ public class SentenceListView extends View{
             Button editButton = new Button();
             editButton.setStyle("-fx-background-radius: 20; -fx-font-size: 16pt; -fx-background-color: transparent;");
             editButton.setGraphic(editImageView);
-            editButton.setOnAction(event ->{
+            editButton.setOnAction(event -> {
                 Sentence sentence = HibernateUtil.getEntityManager().find(Sentence.class, id);
                 Word word = HibernateUtil.getEntityManager().find(Word.class, sentence.getWord().getId());
                 CreateEditSentenceWindow window = new CreateEditSentenceWindow(word);

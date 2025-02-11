@@ -326,11 +326,11 @@ public class KanjiTracerLearnView extends LearnView implements ITraceLogic.ITrac
         playWordWithKanjiTTS();
     }
 
-    public void playWordWithKanjiTTS(){
+    public void playWordWithKanjiTTS() {
         Controller.getInstance().playAudio(this.wordWithKanji.getTtsPath());
     }
 
-    public Pane getPane(){
+    public Pane getPane() {
         return this.rootView;
     }
 

@@ -11,14 +11,17 @@ import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class KanjiListView extends View{
+public class KanjiListView extends View {
 
     private int scrollPage = 0;
     private ChangeListener scrollPageListener;
@@ -73,7 +76,7 @@ public class KanjiListView extends View{
     private void populateKanjiList() {
         scrollPage = 0;
         String search = searchField.getText();
-        if(scrollPageListener != null){
+        if (scrollPageListener != null) {
             kanjiList.vvalueProperty().removeListener(scrollPageListener);
         }
         VBox vb = new VBox();
@@ -90,7 +93,7 @@ public class KanjiListView extends View{
             vb.getChildren().add(card.getCard());
         }
 
-        List<Kanji> nextNewKanji = fetchKanji(em, 5 * (scrollPage+1), 50, search);
+        List<Kanji> nextNewKanji = fetchKanji(em, 5 * (scrollPage + 1), 50, search);
         List<Kanji> prevNewKanji = fetchKanji(em, 5 * (scrollPage), 50, search);
         AtomicBoolean listsUpdated = new AtomicBoolean(true);
 
@@ -147,12 +150,12 @@ public class KanjiListView extends View{
     private void updateKanjiLists(EntityManager em, List<Kanji> nextNewKanji, List<Kanji> prevNewKanji, AtomicBoolean listsUpdated, String search) {
         final int scrollPageFinal = scrollPage;
         new Thread(() -> {
-            synchronized (nextNewKanji){
+            synchronized (nextNewKanji) {
                 nextNewKanji.clear();
-                nextNewKanji.addAll(fetchKanji(em, 5 * (scrollPageFinal+1), 50, search));
-                if(scrollPageFinal>0){
+                nextNewKanji.addAll(fetchKanji(em, 5 * (scrollPageFinal + 1), 50, search));
+                if (scrollPageFinal > 0) {
                     prevNewKanji.clear();
-                    prevNewKanji.addAll(fetchKanji(em, 5 * (scrollPageFinal-1), 50, search));
+                    prevNewKanji.addAll(fetchKanji(em, 5 * (scrollPageFinal - 1), 50, search));
                 }
                 listsUpdated.set(true);
             }
@@ -166,7 +169,7 @@ public class KanjiListView extends View{
         // Check if searchString is provided and add conditions to the query
         if (searchString != null && !searchString.isBlank()) {
             searchString = searchString.toLowerCase();
-            queryString.append(" WHERE LOWER(k.symbol) LIKE \'%" + searchString + "%\'");
+            queryString.append(" WHERE LOWER(k.symbol) LIKE '%" + searchString + "%'");
         }
 
         // Add sorting and create query
@@ -184,10 +187,20 @@ public class KanjiListView extends View{
         populateKanjiList();
     }
 
+    private String kanjiWordListToString(Kanji kanji) {
+        List<String> wordsList = new ArrayList<>();
+
+        for (Word word : kanji.getWords()) {
+            wordsList.add(word.getJapanese());
+        }
+
+        return String.join(", ", wordsList);
+    }
+
     private class KanjiCard {
 
-        private Label symbol;
-        private Label words;
+        private final Label symbol;
+        private final Label words;
         private int id;
 
         private KanjiCard(Kanji kanji) {
@@ -244,15 +257,5 @@ public class KanjiListView extends View{
         public void setId(int id) {
             this.id = id;
         }
-    }
-
-    private String kanjiWordListToString(Kanji kanji) {
-        List<String> wordsList = new ArrayList<>();
-
-        for (Word word : kanji.getWords()) {
-            wordsList.add(word.getJapanese());
-        }
-
-        return String.join(", ", wordsList);
     }
 }

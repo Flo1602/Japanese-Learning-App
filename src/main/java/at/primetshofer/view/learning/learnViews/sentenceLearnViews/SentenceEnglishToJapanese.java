@@ -7,11 +7,13 @@ import at.primetshofer.view.ViewUtils;
 import at.primetshofer.view.learning.learnSessionManagers.LearnSessionManager;
 import jakarta.persistence.EntityManager;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
-public class SentenceEnglishToJapanese extends SentenceLearnView{
+public class SentenceEnglishToJapanese extends SentenceLearnView {
 
-    private Sentence sentence;
+    private final Sentence sentence;
 
     public SentenceEnglishToJapanese(LearnSessionManager learnSessionManager, Sentence sentence) {
         super(learnSessionManager, sentence.getId());
@@ -19,7 +21,7 @@ public class SentenceEnglishToJapanese extends SentenceLearnView{
         initSuper();
     }
 
-    private void initSuper(){
+    private void initSuper() {
         super.setToTranslate(sentence.getEnglish());
         super.setSolution(sentence.getJapanese());
         super.setSynonyms(sentence.getSynonyms());
@@ -28,10 +30,10 @@ public class SentenceEnglishToJapanese extends SentenceLearnView{
 
         List<String> sentenceWordStrings = new ArrayList<>();
         for (SentenceWord sentenceWord : sentence.getSentenceWords()) {
-            if(sentenceWord.getWordJapanese() != null && !sentenceWord.getWordJapanese().isBlank()){
+            if (sentenceWord.getWordJapanese() != null && !sentenceWord.getWordJapanese().isBlank()) {
                 sentenceWordStrings.add(sentenceWord.getWordJapanese());
             }
-            if(sentenceWord.getWordEnglish() != null && !sentenceWord.getWordEnglish().isBlank()){
+            if (sentenceWord.getWordEnglish() != null && !sentenceWord.getWordEnglish().isBlank()) {
                 sentenceWordStrings.add(sentenceWord.getWordEnglish());
             }
         }

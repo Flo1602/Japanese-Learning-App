@@ -64,11 +64,11 @@ public class NetworkLearningView extends View {
     }
 
     private void startNetworkLearning() {
-        if(networkLearningService == null) {
+        if (networkLearningService == null) {
             networkLearningService = new NetworkLearningService(deviceConnected);
         }
 
-        if(networkLearningService.getState() != Worker.State.READY){
+        if (networkLearningService.getState() != Worker.State.READY) {
             networkLearningService.reset();
         }
 

@@ -30,10 +30,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class ImportSentencesView extends View{
+public class ImportSentencesView extends View {
 
     private Word word;
-    private Controller controller;
+    private final Controller controller;
     private List<Word> words;
     private TextArea jsonInput;
 
@@ -46,6 +46,7 @@ public class ImportSentencesView extends View{
         this.controller = Controller.getInstance();
         this.headline.setText(LangController.getText("ImportSentencesHeadline") + " " + word.getJapanese());
     }
+
     public ImportSentencesView(Scene scene, List<Word> words) {
         super(scene);
         this.words = words;
@@ -141,13 +142,13 @@ public class ImportSentencesView extends View{
     }
 
     private void submitEvent() {
-        if(words != null && words.size() > 1) {
+        if (words != null && words.size() > 1) {
             ImportSentencesView importSentencesView = new ImportSentencesView(scene, words);
             importSentencesView.display(this);
             words = null;
             return;
         }
-        if(words != null && words.size() == 1){
+        if (words != null && words.size() == 1) {
             ImportSentencesView importSentencesView = new ImportSentencesView(scene, words.getFirst());
             importSentencesView.display(this);
             words = null;
@@ -173,7 +174,7 @@ public class ImportSentencesView extends View{
         word = em.find(Word.class, word.getId());
 
         for (Sentence sentence : sentences) {
-            if(sentence.getJapanese() == null || sentence.getJapanese().isBlank() || sentence.getEnglish() == null || sentence.getEnglish().isBlank() ||sentence.getSentenceWords().isEmpty()) {
+            if (sentence.getJapanese() == null || sentence.getJapanese().isBlank() || sentence.getEnglish() == null || sentence.getEnglish().isBlank() || sentence.getSentenceWords().isEmpty()) {
                 continue;
             }
 
@@ -190,9 +191,9 @@ public class ImportSentencesView extends View{
 
         Sentence[] finalSentences = sentences;
         DoubleProperty progress = new SimpleDoubleProperty(0.0);
-        new Thread(() ->{
+        new Thread(() -> {
             try {
-                double progressValue = 1.0 / (finalSentences.length+1);
+                double progressValue = 1.0 / (finalSentences.length + 1);
                 for (Sentence sentence : finalSentences) {
                     String ttsString = sentence.getJapanese();
 
@@ -217,7 +218,7 @@ public class ImportSentencesView extends View{
         }).start();
 
         progress.addListener((observable, oldValue, newValue) -> {
-            if(newValue.doubleValue() >= 1.0){
+            if (newValue.doubleValue() >= 1.0) {
                 Platform.runLater(() -> this.origin.get().popToView());
             }
         });

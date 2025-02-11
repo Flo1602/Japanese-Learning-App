@@ -26,7 +26,7 @@ public class MainMenuView extends View {
     private CatalogView catalogView;
     private LearningMenuView learningMenuView;
     private Button warning;
-    private LoadLearningDataService loadLearningDataService;
+    private final LoadLearningDataService loadLearningDataService;
     private boolean needLearningDataUpdate;
 
     public MainMenuView(Scene scene) {
@@ -42,7 +42,7 @@ public class MainMenuView extends View {
         loadLearningDataService.setOnSucceeded(null);
     }
 
-    protected void initView(){
+    protected void initView() {
         bp = new BorderPane();
 
         Label headline = new Label(LangController.getText("MainMenuHeading"));
@@ -57,7 +57,7 @@ public class MainMenuView extends View {
         catalog.getStyleClass().add("menuButton");
         catalog.setOnAction(e -> {
             loadLearningDataService.cancel();
-            if(catalogView == null){
+            if (catalogView == null) {
                 catalogView = new CatalogView(scene);
             }
             needLearningDataUpdate = true;
@@ -84,7 +84,7 @@ public class MainMenuView extends View {
         settings.getStyleClass().add("settingsButton");
         settings.setGraphic(settingsImageView);
         settings.setOnAction(e -> {
-            if(settingsView == null){
+            if (settingsView == null) {
                 settingsView = new SettingsView(scene);
             }
             needLearningDataUpdate = true;
@@ -119,24 +119,24 @@ public class MainMenuView extends View {
     }
 
     private void startLearning() {
-        if(learningMenuView == null){
+        if (learningMenuView == null) {
             learningMenuView = new LearningMenuView(scene);
         }
 
-        if(loadLearningDataService.getState() == Worker.State.SUCCEEDED){
+        if (loadLearningDataService.getState() == Worker.State.SUCCEEDED) {
             learningMenuView.display(this);
         } else {
             LoadingView loadingView = new LoadingView(scene);
             loadingView.setProgress(-1);
             loadingView.display(this);
 
-            if(loadLearningDataService.getState() == Worker.State.CANCELLED || loadLearningDataService.getState() == Worker.State.FAILED){
+            if (loadLearningDataService.getState() == Worker.State.CANCELLED || loadLearningDataService.getState() == Worker.State.FAILED) {
                 loadLearningDataService.reset();
                 loadLearningDataService.start();
             }
 
-            if(loadLearningDataService.getState() == Worker.State.RUNNING){
-                loadLearningDataService.setOnSucceeded(event ->{
+            if (loadLearningDataService.getState() == Worker.State.RUNNING) {
+                loadLearningDataService.setOnSucceeded(event -> {
                     learningMenuView.display(this);
                     loadLearningDataService.setOnSucceeded(null);
                 });
@@ -154,14 +154,14 @@ public class MainMenuView extends View {
         List<Word> wordsWithoutSentences = controller.getWordsWithoutSentences();
         List<Word> wordsWithoutQuestions = controller.getWordsWithoutQuestions();
 
-        if(!wordsWithoutSentences.isEmpty()){
+        if (!wordsWithoutSentences.isEmpty()) {
             warning.setOnAction(e -> {
                 needLearningDataUpdate = true;
                 ImportSentencesView importSentencesView = new ImportSentencesView(scene, wordsWithoutSentences);
                 importSentencesView.display(this);
             });
             warning.setVisible(true);
-        } else if(!wordsWithoutQuestions.isEmpty()) {
+        } else if (!wordsWithoutQuestions.isEmpty()) {
             warning.setOnAction(e -> {
                 needLearningDataUpdate = true;
                 ImportQuestionsView importQuestionsView = new ImportQuestionsView(scene, wordsWithoutQuestions);
@@ -169,13 +169,14 @@ public class MainMenuView extends View {
             });
             warning.setVisible(true);
         } else {
-            warning.setOnAction(e -> {});
+            warning.setOnAction(e -> {
+            });
             warning.setVisible(false);
         }
 
         if (needLearningDataUpdate) {
             needLearningDataUpdate = false;
-            if(loadLearningDataService.getState() == Worker.State.RUNNING){
+            if (loadLearningDataService.getState() == Worker.State.RUNNING) {
                 loadLearningDataService.cancel();
             }
             loadLearningDataService.reset();

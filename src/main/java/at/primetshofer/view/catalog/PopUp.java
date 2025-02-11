@@ -10,8 +10,8 @@ import javafx.stage.Stage;
 public abstract class PopUp {
 
     protected BorderPane bp;
-    private Stage stage;
-    private Scene scene;
+    private final Stage stage;
+    private final Scene scene;
 
     public PopUp() {
         bp = new BorderPane();
@@ -31,28 +31,28 @@ public abstract class PopUp {
 
     protected abstract void initView();
 
-    public void showAndWait(){
+    public void showAndWait() {
         stage.showAndWait();
     }
 
-    public void close(){
+    public void close() {
         stage.close();
     }
 
-    protected void setTitle(String title){
+    protected void setTitle(String title) {
         stage.setTitle(title);
     }
 
-    protected void setStageSize(double width, double height){
+    protected void setStageSize(double width, double height) {
         stage.setWidth(width);
         stage.setHeight(height);
     }
 
-    public void setStageOwner(Stage stage){
+    public void setStageOwner(Stage stage) {
         this.stage.initOwner(stage);
     }
 
-    protected Stage getStage(){
+    protected Stage getStage() {
         return stage;
     }
 }

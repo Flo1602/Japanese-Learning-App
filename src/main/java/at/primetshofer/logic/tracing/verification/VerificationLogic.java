@@ -166,8 +166,8 @@ public class VerificationLogic implements ITraceVerificationLogic {
             return 1.0D;
 
         int sampleSize = Math.min(Math.min(
-                this.options.angularDiffMaxCheckSamples(),
-                source.getVerticesCount() / 2),
+                        this.options.angularDiffMaxCheckSamples(),
+                        source.getVerticesCount() / 2),
                 toVerify.getVerticesCount() / 2);
 
         int lastSourceStartIndex = -1;

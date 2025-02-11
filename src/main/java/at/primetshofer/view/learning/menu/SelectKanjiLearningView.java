@@ -19,7 +19,7 @@ import javafx.scene.layout.Region;
 
 public class SelectKanjiLearningView extends View {
 
-    private KanjiSessionManager kanjiSessionManager;
+    private final KanjiSessionManager kanjiSessionManager;
 
     public SelectKanjiLearningView(Scene scene, KanjiSessionManager kanjiSessionManager) {
         super(scene);
@@ -47,7 +47,7 @@ public class SelectKanjiLearningView extends View {
         learnButton.setOnAction(e -> {
             Kanji selectedKanji = getKanji(kanji);
 
-            if(selectedKanji != null) {
+            if (selectedKanji != null) {
                 kanjiSessionManager.setSpecificKanji(selectedKanji);
                 kanjiSessionManager.initSessionManager();
                 kanjiSessionManager.initView();

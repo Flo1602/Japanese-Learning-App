@@ -1,9 +1,9 @@
 package at.primetshofer.logic.provider.polygon;
 
-import at.primetshofer.model.Point;
-import at.primetshofer.model.Polygon;
 import at.primetshofer.logic.parser.ISVGPathParser;
 import at.primetshofer.logic.provider.file.IFileProvider;
+import at.primetshofer.model.Point;
+import at.primetshofer.model.Polygon;
 
 import java.io.File;
 import java.util.ArrayList;

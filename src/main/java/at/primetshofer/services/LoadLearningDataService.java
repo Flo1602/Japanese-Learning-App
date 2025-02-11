@@ -13,7 +13,7 @@ public class LoadLearningDataService extends Service<Void> {
         return new Task<>() {
             @Override
             protected Void call() throws InterruptedException {
-                if(startup) {
+                if (startup) {
                     Thread.sleep(200);
                     startup = false;
                 }

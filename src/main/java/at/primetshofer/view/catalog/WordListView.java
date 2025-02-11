@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class WordListView extends View{
+public class WordListView extends View {
 
     private int scrollPage = 0;
     private ChangeListener scrollPageListener;
@@ -47,7 +47,7 @@ public class WordListView extends View{
         initView();
     }
 
-    protected void initView(){
+    protected void initView() {
         bp = new BorderPane();
 
         Label headline = new Label(LangController.getText("WordListHeading"));
@@ -60,7 +60,7 @@ public class WordListView extends View{
         searchLabel.getStyleClass().add("normalText");
 
         searchField = new TextField();
-        if(search != null){
+        if (search != null) {
             searchField.setText(search);
             searchField.setDisable(true);
         }
@@ -90,7 +90,7 @@ public class WordListView extends View{
 
         Button importButton = new Button(LangController.getText("ImportButton"));
         importButton.getStyleClass().add("wordListButton");
-        importButton.setOnAction(event ->{
+        importButton.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Open File");
 
@@ -110,8 +110,8 @@ public class WordListView extends View{
                 loadingView.display(this);
 
                 progressProperty.addListener((observableValue, oldValue, newValue) -> {
-                    if(newValue.doubleValue() >= 1.0) {
-                        Platform.runLater(() ->{
+                    if (newValue.doubleValue() >= 1.0) {
+                        Platform.runLater(() -> {
                             this.popToView();
                             populateWordList();
                         });
@@ -125,7 +125,7 @@ public class WordListView extends View{
         buttons.setSpacing(40);
         buttons.setPadding(new Insets(20, 0, 20, 0));
 
-        if(search != null){
+        if (search != null) {
             buttons.setVisible(false);
         }
 
@@ -141,10 +141,10 @@ public class WordListView extends View{
         bp.setRight(spacer);
     }
 
-    private void populateWordList(){
+    private void populateWordList() {
         scrollPage = 0;
         String search = searchField.getText();
-        if(scrollPageListener != null){
+        if (scrollPageListener != null) {
             wordList.vvalueProperty().removeListener(scrollPageListener);
         }
         VBox vb = new VBox();
@@ -160,7 +160,7 @@ public class WordListView extends View{
             vb.getChildren().add(card.getCard());
         }
 
-        List<Word> nextNewWords = fetchWords(em, 5 * (scrollPage+1), 50, search);
+        List<Word> nextNewWords = fetchWords(em, 5 * (scrollPage + 1), 50, search);
         List<Word> prevNewWords = fetchWords(em, 5 * (scrollPage), 50, search);
         AtomicBoolean listsUpdated = new AtomicBoolean(true);
 
@@ -179,7 +179,7 @@ public class WordListView extends View{
                     String japanese = nextNewWords.get(i).getJapanese();
                     String kana = nextNewWords.get(i).getKana();
 
-                    if(!kana.equals(japanese) && !kana.trim().isEmpty()){
+                    if (!kana.equals(japanese) && !kana.trim().isEmpty()) {
                         japanese = japanese + " (" + kana + ")";
                     }
 
@@ -204,7 +204,7 @@ public class WordListView extends View{
                     String japanese = prevNewWords.get(i).getJapanese();
                     String kana = prevNewWords.get(i).getKana();
 
-                    if(!kana.equals(japanese) && !kana.trim().isEmpty()){
+                    if (!kana.equals(japanese) && !kana.trim().isEmpty()) {
                         japanese = japanese + " (" + kana + ")";
                     }
 
@@ -232,12 +232,12 @@ public class WordListView extends View{
     private void updateWordLists(EntityManager em, List<Word> nextNewWords, List<Word> prevNewWords, AtomicBoolean listsUpdated, String search) {
         final int scrollPageFinal = scrollPage;
         new Thread(() -> {
-            synchronized (nextNewWords){
+            synchronized (nextNewWords) {
                 nextNewWords.clear();
-                nextNewWords.addAll(fetchWords(em, 5 * (scrollPageFinal+1), 50, search));
-                if(scrollPageFinal>0){
+                nextNewWords.addAll(fetchWords(em, 5 * (scrollPageFinal + 1), 50, search));
+                if (scrollPageFinal > 0) {
                     prevNewWords.clear();
-                    prevNewWords.addAll(fetchWords(em, 5 * (scrollPageFinal-1), 50, search));
+                    prevNewWords.addAll(fetchWords(em, 5 * (scrollPageFinal - 1), 50, search));
                 }
                 listsUpdated.set(true);
             }
@@ -251,9 +251,9 @@ public class WordListView extends View{
         // Check if searchString is provided and add conditions to the query
         if (searchString != null && !searchString.trim().isEmpty()) {
             searchString = searchString.toLowerCase();
-            queryString.append(" WHERE LOWER(w.japanese) LIKE \'%" + searchString + "%\'")
-                    .append(" OR LOWER(w.english) LIKE \'%" + searchString + "%\'")
-                    .append(" OR LOWER(w.kana) LIKE \'%" + searchString + "%\'");
+            queryString.append(" WHERE LOWER(w.japanese) LIKE '%" + searchString + "%'")
+                    .append(" OR LOWER(w.english) LIKE '%" + searchString + "%'")
+                    .append(" OR LOWER(w.kana) LIKE '%" + searchString + "%'");
         }
 
         // Add sorting and create query
@@ -265,16 +265,16 @@ public class WordListView extends View{
         return query.getResultList();
     }
 
-    private class WordCard{
+    private class WordCard {
 
-        private Label japanese;
-        private Label english;
-        private CheckBox active;
+        private final Label japanese;
+        private final Label english;
+        private final CheckBox active;
         private int id;
 
-        private WordCard(Word word){
+        private WordCard(Word word) {
             String japanese = word.getJapanese();
-            if(word.getKana() != null && !word.getKana().equals(word.getJapanese()) && !word.getKana().isBlank()){
+            if (word.getKana() != null && !word.getKana().equals(word.getJapanese()) && !word.getKana().isBlank()) {
                 japanese = japanese + " (" + word.getKana() + ")";
             }
 
@@ -285,7 +285,7 @@ public class WordListView extends View{
             this.id = word.getId();
         }
 
-        private StackPane getCard(){
+        private StackPane getCard() {
             StackPane card = new StackPane();
             card.setPadding(new Insets(15));
             card.setPrefWidth(900);
@@ -314,7 +314,7 @@ public class WordListView extends View{
             Button audioButton = new Button();
             audioButton.setStyle("-fx-background-radius: 20; -fx-font-size: 16pt; -fx-background-color: transparent;");
             audioButton.setGraphic(audioImageView);
-            audioButton.setOnAction(e ->{
+            audioButton.setOnAction(e -> {
                 Word word = HibernateUtil.getEntityManager().find(Word.class, id);
                 Controller.getInstance().playAudio(word.getTtsPath());
             });
@@ -347,7 +347,7 @@ public class WordListView extends View{
             Button editButton = new Button();
             editButton.setStyle("-fx-background-radius: 20; -fx-font-size: 16pt; -fx-background-color: transparent;");
             editButton.setGraphic(editImageView);
-            editButton.setOnAction(event ->{
+            editButton.setOnAction(event -> {
                 CreateEditWordWindow window = new CreateEditWordWindow();
                 Word word = HibernateUtil.getEntityManager().find(Word.class, id);
                 window.setWord(word);
@@ -356,7 +356,7 @@ public class WordListView extends View{
             });
 
             active.setStyle("-fx-font-size: 16pt");
-            active.setOnAction(event ->{
+            active.setOnAction(event -> {
                 EntityManager em = HibernateUtil.getEntityManager();
                 Word word = em.find(Word.class, id);
                 word.setActive(active.isSelected());

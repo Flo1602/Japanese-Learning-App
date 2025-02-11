@@ -4,10 +4,10 @@ import at.primetshofer.model.Controller;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.ViewUtils;
 import at.primetshofer.view.catalog.View;
-import at.primetshofer.view.learning.menu.SessionCompletedView;
 import at.primetshofer.view.learning.learnViews.KanjiTracerLearnView;
 import at.primetshofer.view.learning.learnViews.LearnView;
 import at.primetshofer.view.learning.learnViews.WordDefense;
+import at.primetshofer.view.learning.menu.SessionCompletedView;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -26,7 +26,10 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 import java.time.LocalTime;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class LearnSessionManager {
@@ -49,7 +52,7 @@ public abstract class LearnSessionManager {
     private VBox infoBox;
     private BorderPane bottomArea;
     private ProgressBar progressBar;
-    private Controller controller;
+    private final Controller controller;
 
     private LocalTime startTIme;
     private List<Boolean> successList;
@@ -63,7 +66,7 @@ public abstract class LearnSessionManager {
         this.controller = Controller.getInstance();
     }
 
-    public void initSessionManager(){
+    public void initSessionManager() {
         origin = new SimpleObjectProperty<>();
         successList = new ArrayList<>();
         checkButton = false;
@@ -77,7 +80,7 @@ public abstract class LearnSessionManager {
 
     protected abstract void nextLearningView();
 
-    public void initView(){
+    public void initView() {
         bp = new BorderPane();
         HBox backButtonBox = ViewUtils.getBackButtonBox(origin);
         backButtonBox.getStyleClass().clear();
@@ -101,7 +104,7 @@ public abstract class LearnSessionManager {
         bp.setBottom(bottomArea);
     }
 
-    private BorderPane getBottomArea(){
+    private BorderPane getBottomArea() {
         BorderPane bottomArea = new BorderPane();
         bottomArea.setPrefHeight(110);
 
@@ -112,7 +115,7 @@ public abstract class LearnSessionManager {
         continueButton.setDisable(true);
         continueButton.getStyleClass().add("normalButton");
         continueButton.setOnAction(event -> {
-            if(checkButton){
+            if (checkButton) {
                 currentLearnView.checkComplete();
                 checkButton = false;
                 continueButton.setText(LangController.getText("ContinueButton"));
@@ -148,7 +151,7 @@ public abstract class LearnSessionManager {
         overwriteCorrectness.getStyleClass().add("smallButton");
         overwriteCorrectness.setOnAction(event -> {
             overwriteCorrectness.setDisable(true);
-            if(!correctMistakesMode){
+            if (!correctMistakesMode) {
                 successList.remove(successList.getLast());
             }
             learnViewFinished(true);
@@ -165,22 +168,22 @@ public abstract class LearnSessionManager {
     }
 
     public void learnViewFinished(boolean success) {
-        learnViewFinished(success, (String) null);
+        learnViewFinished(success, null);
     }
 
     public void learnViewFinished(boolean success, String message) {
-        if(!correctMistakesMode){
+        if (!correctMistakesMode) {
             successList.add(success);
         }
         continueButton.setDisable(false);
         infoLabel.setVisible(true);
         infoLabel.getStyleClass().clear();
-        if(message != null){
+        if (message != null) {
             messageLabel.setText(message);
             messageLabel.setVisible(true);
             infoBox.getChildren().add(messageLabel);
 
-            if(!disableOverwrite){
+            if (!disableOverwrite) {
                 overwriteCorrectness.setVisible(true);
                 overwriteCorrectness.setDisable(false);
             }
@@ -188,7 +191,7 @@ public abstract class LearnSessionManager {
 
         AtomicReference<Double> opacity = new AtomicReference<>(0.0);
         int cycles = 40;
-        double increase = 1.0/cycles;
+        double increase = 1.0 / cycles;
 
         Timeline backgroundColorAnimation = new Timeline();
         KeyFrame keyFrame = new KeyFrame(Duration.millis(5), event -> {
@@ -206,7 +209,7 @@ public abstract class LearnSessionManager {
             infoLabel.getStyleClass().add("correctText");
             infoLabel.setText(LangController.getText("CorrectText"));
         } else {
-            if(currentLearnView instanceof KanjiTracerLearnView || currentLearnView instanceof WordDefense){
+            if (currentLearnView instanceof KanjiTracerLearnView || currentLearnView instanceof WordDefense) {
                 correctCounter++;
                 setProgress((double) correctCounter / maxViews);
             } else {
@@ -224,13 +227,13 @@ public abstract class LearnSessionManager {
         backgroundColorAnimation.play();
         fadeIn.play();
 
-        if(message != null){
+        if (message != null) {
             FadeTransition fadeIn2 = new FadeTransition(Duration.seconds(0.2), messageLabel);
             fadeIn2.setFromValue(0.0);
             fadeIn2.setToValue(1.0);
             fadeIn2.play();
 
-            if(!disableOverwrite){
+            if (!disableOverwrite) {
                 FadeTransition fadeIn3 = new FadeTransition(Duration.seconds(0.2), overwriteCorrectness);
                 fadeIn3.setFromValue(0.0);
                 fadeIn3.setToValue(1.0);
@@ -239,8 +242,8 @@ public abstract class LearnSessionManager {
         }
     }
 
-    protected void learnSessionFinished(){
-        if(!wrongList.isEmpty()){
+    protected void learnSessionFinished() {
+        if (!wrongList.isEmpty()) {
             correctMistakesMode = true;
             currentLearnView = wrongList.poll();
             bp.setCenter(currentLearnView.resetView());
@@ -250,29 +253,29 @@ public abstract class LearnSessionManager {
         java.time.Duration duration = java.time.Duration.between(startTIme, LocalTime.now());
 
         double percent = 0;
-        double percentValue = 100.0/successList.size();
+        double percentValue = 100.0 / successList.size();
 
         for (Boolean b : successList) {
-            if(b){
+            if (b) {
                 percent += percentValue;
             }
         }
 
-        if(percent == 0){
+        if (percent == 0) {
             percent = 1;
         }
 
-        updateProgresses((int)percent);
+        updateProgresses((int) percent);
 
-        SessionCompletedView sessionCompletedView = new SessionCompletedView(scene, duration, (int)percent);
+        SessionCompletedView sessionCompletedView = new SessionCompletedView(scene, duration, (int) percent);
         sessionCompletedView.display(origin.get());
         controller.playAudio(FINISHED_AUDIO);
     }
 
     protected abstract void updateProgresses(int percent);
 
-    public void display(View origin){
-        if(origin != null){
+    public void display(View origin) {
+        if (origin != null) {
             this.origin.set(origin);
         }
         scene.setRoot(bp);
@@ -280,7 +283,7 @@ public abstract class LearnSessionManager {
         startLearning();
     }
 
-    private void setProgress(double progress){
+    private void setProgress(double progress) {
         Timeline timeline = new Timeline(
                 new KeyFrame(
                         Duration.ZERO, // Start at 0 seconds
@@ -295,12 +298,12 @@ public abstract class LearnSessionManager {
         timeline.play();
     }
 
-    public void changeContinueToCheck(){
+    public void changeContinueToCheck() {
         checkButton = true;
         continueButton.setText(LangController.getText("CheckButton"));
     }
 
-    public void activateCheckButton(boolean activate){
+    public void activateCheckButton(boolean activate) {
         continueButton.setDisable(!activate);
     }
 

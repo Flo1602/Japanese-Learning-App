@@ -17,7 +17,7 @@ public class WordSessionManager extends LearnSessionManager {
     private List<Word> words;
     private List<Word> neverWords;
     private Map<Word, List<Boolean>> results;
-    private Random rand;
+    private final Random rand;
     private boolean listening;
 
     public WordSessionManager(Scene scene) {
@@ -55,14 +55,14 @@ public class WordSessionManager extends LearnSessionManager {
     protected void nextLearningView() {
         currentCounter++;
 
-        if(currentCounter <= 6){
+        if (currentCounter <= 6) {
             MatchLearnView learnView = null;
 
-            switch (rand.nextInt((listening) ? 2 : 3)){
+            switch (rand.nextInt((listening) ? 2 : 3)) {
                 case 0 -> learnView = new VocabEnglishToJapaneseMatch(this, getFiveWords());
                 case 1 -> {
                     learnView = new VocabEnglishToJapaneseMatch(this, getFiveWords());
-                    ((VocabEnglishToJapaneseMatch)learnView).setReverse(true);
+                    ((VocabEnglishToJapaneseMatch) learnView).setReverse(true);
                 }
                 case 2 -> {
                     learnView = new VocabAudioToEnglishMatch(this, getFiveWords());
@@ -91,7 +91,7 @@ public class WordSessionManager extends LearnSessionManager {
         }
 
         while (cntr > 0) {
-            if(words.size() > 5){
+            if (words.size() > 5) {
                 Word word = words.get(rand.nextInt(words.size()));
                 for (int i = 0; i < 50 && result.contains(word); i++) {
                     word = words.get(rand.nextInt(words.size()));
@@ -114,12 +114,12 @@ public class WordSessionManager extends LearnSessionManager {
             System.out.print(key.getEnglish() + ": ");
             double wordResult = 0;
             for (Boolean b : value) {
-                if(b){
+                if (b) {
                     wordResult++;
                 }
             }
 
-            if(!value.isEmpty()){
+            if (!value.isEmpty()) {
                 wordResult = wordResult / value.size();
                 wordResult *= 100;
             }
@@ -132,12 +132,12 @@ public class WordSessionManager extends LearnSessionManager {
     public void learnViewFinished(boolean success, Map<String, Boolean> results) {
         results.forEach((key, value) -> {
             int id = -1;
-            try{
+            try {
                 id = Integer.parseInt(key);
-            } catch (NumberFormatException e){
+            } catch (NumberFormatException e) {
             }
             for (Word word : words) {
-                if(word.getJapanese().equals(key) || word.getId() == id) {
+                if (word.getJapanese().equals(key) || word.getId() == id) {
                     this.results.get(word).add(value);
                 }
             }

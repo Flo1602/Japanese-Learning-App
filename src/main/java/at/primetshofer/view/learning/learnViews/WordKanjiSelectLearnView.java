@@ -22,11 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class WordKanjiSelectLearnView extends LearnView{
+public class WordKanjiSelectLearnView extends LearnView {
 
-    private Word word;
-    private BooleanProperty disableButton;
-    private List<Kanji> correctKanjis;
+    private final Word word;
+    private final BooleanProperty disableButton;
+    private final List<Kanji> correctKanjis;
     private List<Kanji> wrongKanjis;
     private int correctButtonNumber;
     private VBox vbox;
@@ -97,11 +97,7 @@ public class WordKanjiSelectLearnView extends LearnView{
         Controller.getInstance().stopAudio();
         disableButton.set(true);
 
-        if(selectedButton.getText().equals(word.getJapanese())){
-            super.finished(true, word.getEnglish());
-        } else {
-            super.finished(false, word.getEnglish());
-        }
+        super.finished(selectedButton.getText().equals(word.getJapanese()), word.getEnglish());
     }
 
     @Override
@@ -115,12 +111,12 @@ public class WordKanjiSelectLearnView extends LearnView{
         return vbox;
     }
 
-    public void playWordTTS(){
+    public void playWordTTS() {
         Controller.getInstance().playAudio(word.getTtsPath());
     }
 
     private void getWrongKanjis() {
-        wrongKanjis = Controller.getInstance().getRandomKanji(correctKanjis.size()*3);
+        wrongKanjis = Controller.getInstance().getRandomKanji(correctKanjis.size() * 3);
     }
 
     private ToggleButton createWordButton() {
@@ -128,7 +124,7 @@ public class WordKanjiSelectLearnView extends LearnView{
         toggleButton.getStyleClass().add("menuButton");
         toggleButton.disableProperty().bind(disableButton);
 
-        if(correctButtonNumber == 0){
+        if (correctButtonNumber == 0) {
             toggleButton.setText(word.getJapanese());
         } else {
             List<Kanji> useKanjis = new ArrayList<>(correctKanjis.size());

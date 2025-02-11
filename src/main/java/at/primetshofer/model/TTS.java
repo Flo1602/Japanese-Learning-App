@@ -1,8 +1,5 @@
 package at.primetshofer.model;
 
-import at.primetshofer.model.entities.Settings;
-import at.primetshofer.model.util.HibernateUtil;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -13,20 +10,31 @@ import java.nio.charset.StandardCharsets;
 
 public class TTS {
 
-    private static TTS tts = null;
-
     private static final String VOICEVOX_BASE_URL = "http://localhost:50021"; // Default Voicevox API URL
+    private static TTS tts = null;
     private static int speakerId = 0; // Adjust speaker ID based on your preferred speaker
 
-    private TTS(){
+    private TTS() {
 
     }
 
     public static TTS getTts() {
-        if(tts == null){
+        if (tts == null) {
             tts = new TTS();
         }
         return tts;
+    }
+
+    public static void updateSpeakerId() {
+        speakerId = Controller.getInstance().getSettings().getVoiceId();
+    }
+
+    public static int getSpeakerId() {
+        return speakerId;
+    }
+
+    public static void setSpeakerId(int speakerId) {
+        TTS.speakerId = speakerId;
     }
 
     public File synthesizeAudio(String text, String savePath) throws IOException, InterruptedException {
@@ -62,10 +70,10 @@ public class TTS {
 
         File tmpFile = new File(savePath);
 
-        if(!tmpFile.getParentFile().exists()){
+        if (!tmpFile.getParentFile().exists()) {
             tmpFile.getParentFile().mkdirs();
         }
-        if(!tmpFile.exists()){
+        if (!tmpFile.exists()) {
             tmpFile.createNewFile();
         }
 
@@ -73,17 +81,5 @@ public class TTS {
             inputStream.transferTo(outputStream);
             return tmpFile;
         }
-    }
-
-    public static void updateSpeakerId() {
-        speakerId = Controller.getInstance().getSettings().getVoiceId();
-    }
-
-    public static int getSpeakerId() {
-        return speakerId;
-    }
-
-    public static void setSpeakerId(int speakerId) {
-        TTS.speakerId = speakerId;
     }
 }

@@ -7,27 +7,28 @@ import org.vosk.LogLevel;
 import org.vosk.Model;
 import org.vosk.Recognizer;
 
-import javax.sound.sampled.*;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 import java.io.File;
 
 public class STT {
 
     private static STT stt = null;
-    private BooleanProperty sttCompleted;
+    private final BooleanProperty sttCompleted;
     private String transcript;
 
-    private STT(){
+    private STT() {
         sttCompleted = new SimpleBooleanProperty(false);
     }
 
     public static STT getStt() {
-        if(stt == null){
+        if (stt == null) {
             stt = new STT();
         }
         return stt;
     }
 
-    public void convertAudio(String audioPath){
+    public void convertAudio(String audioPath) {
         sttCompleted.set(false);
         LibVosk.setLogLevel(LogLevel.WARNINGS);
 

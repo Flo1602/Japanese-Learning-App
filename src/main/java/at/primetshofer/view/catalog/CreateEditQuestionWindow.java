@@ -21,7 +21,7 @@ import javafx.scene.layout.VBox;
 import java.io.File;
 import java.util.Objects;
 
-public class CreateEditQuestionWindow extends PopUp{
+public class CreateEditQuestionWindow extends PopUp {
 
     private Question question;
     private Word word;
@@ -37,7 +37,7 @@ public class CreateEditQuestionWindow extends PopUp{
 
     @Override
     protected void initView() {
-        if(question == null) {
+        if (question == null) {
             question = new Question();
             create = true;
         }
@@ -96,13 +96,13 @@ public class CreateEditQuestionWindow extends PopUp{
             question.setJapanese(japaneseField.getText());
             question.setWord(word);
 
-            if(answerBox.getSelectionModel().getSelectedItem() != null) {
+            if (answerBox.getSelectionModel().getSelectedItem() != null) {
                 question.setCorrectAnswer(answerBox.getSelectionModel().getSelectedItem().getText());
             } else {
                 question.setCorrectAnswer(null);
             }
 
-            if(create) {
+            if (create) {
                 em.persist(question);
             } else {
                 question = em.merge(question);
@@ -112,7 +112,7 @@ public class CreateEditQuestionWindow extends PopUp{
 
             em.merge(word);
 
-            new Thread(() ->{
+            new Thread(() -> {
                 try {
                     String ttsString = question.getJapanese();
 
@@ -158,7 +158,7 @@ public class CreateEditQuestionWindow extends PopUp{
         buttonHbox.setAlignment(Pos.CENTER);
         buttonHbox.setPadding(new Insets(10, 0, 10, 0));
 
-        if(!create) {
+        if (!create) {
             buttonHbox.getChildren().add(delete);
         }
 
@@ -171,13 +171,13 @@ public class CreateEditQuestionWindow extends PopUp{
 
         int offset = 0;
 
-        for(int i=0; i<tableData.size(); i++) {
-            int index = i-offset;
+        for (int i = 0; i < tableData.size(); i++) {
+            int index = i - offset;
 
-            if(!tableData.get(i).isEmpty()){
+            if (!tableData.get(i).isEmpty()) {
                 String answer = tableData.get(i).getText();
 
-                if(!answer.isBlank()){
+                if (!answer.isBlank()) {
                     question.getAnswers().add(answer);
                 } else {
                     offset++;
@@ -204,12 +204,12 @@ public class CreateEditQuestionWindow extends PopUp{
         answerColumn.setPrefWidth(598);
         answerColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         answerColumn.setOnEditCommit(event -> {
-            if(event.getRowValue().isEmpty() && !event.getNewValue().isBlank()){
+            if (event.getRowValue().isEmpty() && !event.getNewValue().isBlank()) {
                 Answer answer = new Answer("");
                 answer.setText(event.getNewValue());
-                tableData.add(tableView.getItems().size()-1, answer);
+                tableData.add(tableView.getItems().size() - 1, answer);
             } else {
-                if(event.getNewValue().isBlank()){
+                if (event.getNewValue().isBlank()) {
                     tableData.remove(event.getRowValue());
                 } else {
                     Answer answer = event.getRowValue();

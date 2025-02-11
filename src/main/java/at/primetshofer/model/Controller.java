@@ -29,10 +29,10 @@ public class Controller {
     private static Controller instance;
 
     private Settings settings;
-    private EntityManager em;
+    private final EntityManager em;
     private MediaPlayer mediaPlayer;
-    private KanjiTrainer kanjiTrainer;
-    private VocabTrainer vocabTrainer;
+    private final KanjiTrainer kanjiTrainer;
+    private final VocabTrainer vocabTrainer;
 
     private Controller() {
         em = HibernateUtil.getEntityManager();
@@ -47,13 +47,71 @@ public class Controller {
         return instance;
     }
 
+    private static void compressKanjiProgress(Kanji kanji) {
+        List<KanjiProgress> kanjiProgressList = kanji.getProgresses();
+        if (kanjiProgressList == null || kanjiProgressList.size() <= 3) {
+            return;
+        }
+
+        KanjiProgress firstEntry = kanjiProgressList.get(0);
+        KanjiProgress middleCompressed = kanjiProgressList.get(kanjiProgressList.size() - 2);
+        KanjiProgress lastEntry = kanjiProgressList.get(kanjiProgressList.size() - 1);
+
+        int totalPoints = 0;
+        int totalRealMiddleEntries = 0;
+
+        for (int i = 1; i < kanjiProgressList.size() - 1; i++) {
+            KanjiProgress p = kanjiProgressList.get(i);
+            totalPoints += p.getPoints();
+            totalRealMiddleEntries += (p.getCompressedEntries());
+        }
+
+        middleCompressed.setPoints(totalPoints);
+
+        middleCompressed.setCompressedEntries(totalRealMiddleEntries);
+
+        List<KanjiProgress> compressedList = new ArrayList<>();
+        compressedList.add(firstEntry);
+        compressedList.add(middleCompressed);
+        compressedList.add(lastEntry);
+
+        kanji.setProgresses(compressedList);
+    }
+
+    private static void compressWordProgress(Word word) {
+        List<WordProgress> wordProgressList = word.getProgresses();
+        if (wordProgressList == null || wordProgressList.size() <= 3) {
+            return; // No compression needed
+        }
+
+        List<WordProgress> compressedList = new ArrayList<>();
+
+        // Add the first entry
+        compressedList.add(wordProgressList.getFirst());
+
+        // Compress middle entries
+        WordProgress middleCompressed = wordProgressList.get(wordProgressList.size() - 2);
+        middleCompressed.setCompressedEntries(wordProgressList.size() - 2);
+        middleCompressed.setLearned(wordProgressList.get(wordProgressList.size() - 2).getLearned()); // Use the timestamp of the second last entry
+        middleCompressed.setPoints(wordProgressList.subList(1, wordProgressList.size() - 2)
+                .stream()
+                .mapToInt(WordProgress::getPoints)
+                .sum());
+        compressedList.add(middleCompressed);
+
+        // Add the last entry
+        compressedList.add(wordProgressList.getLast());
+
+        word.setProgresses(compressedList);
+    }
+
     public Settings getSettings() {
-        if(settings == null) {
+        if (settings == null) {
             EntityManager entityManager = HibernateUtil.getEntityManager();
 
             settings = entityManager.find(Settings.class, SETTING_ID);
 
-            if(settings == null) {
+            if (settings == null) {
                 settings = new Settings();
                 settings.setId(SETTING_ID);
                 settings.setNewWords(20);
@@ -99,7 +157,7 @@ public class Controller {
     }
 
     public void copyToClipboard(File file) {
-        Platform.runLater(() ->{
+        Platform.runLater(() -> {
             Clipboard clipboard = Clipboard.getSystemClipboard();
             ClipboardContent content = new ClipboardContent();
             content.putFiles(List.of(file));
@@ -153,12 +211,12 @@ public class Controller {
         return tmp;
     }
 
-    public void playAudio(String path){
-        try{
+    public void playAudio(String path) {
+        try {
             Media media = new Media(new File(path).toURI().toString());
             mediaPlayer = new MediaPlayer(media);
             mediaPlayer.play();
-        } catch (Exception ex){
+        } catch (Exception ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setContentText("Audio not found!");
@@ -166,17 +224,17 @@ public class Controller {
         }
     }
 
-    public void stopAudio(){
-        if(mediaPlayer != null){
+    public void stopAudio() {
+        if (mediaPlayer != null) {
             mediaPlayer.stop();
         }
     }
 
-    public Kanji getNextLearningKanji(){
+    public Kanji getNextLearningKanji() {
         return kanjiTrainer.getNextLearningKanji();
     }
 
-    public List<Word> getNextLearningWords(int count){
+    public List<Word> getNextLearningWords(int count) {
         return vocabTrainer.getNextLearningWord(count);
     }
 
@@ -186,7 +244,7 @@ public class Controller {
         List<KanjiProgress> oldProgresses = kanji.getProgresses();
         compressKanjiProgress(kanji);
         for (KanjiProgress progress : oldProgresses) {
-            if(!kanji.getProgresses().contains(progress)){
+            if (!kanji.getProgresses().contains(progress)) {
                 em.remove(progress);
             }
         }
@@ -202,7 +260,7 @@ public class Controller {
         List<WordProgress> oldProgresses = word.getProgresses();
         compressWordProgress(word);
         for (WordProgress progress : oldProgresses) {
-            if(!word.getProgresses().contains(progress)){
+            if (!word.getProgresses().contains(progress)) {
                 em.remove(progress);
             }
         }
@@ -212,123 +270,64 @@ public class Controller {
         return word;
     }
 
-    public void updateLists(){
+    public void updateLists() {
         updateKanjiList();
         updateWordList();
     }
 
-    public void updateKanjiList(){
+    public void updateKanjiList() {
         kanjiTrainer.updateKanjiList();
     }
 
-    public void updateWordList(){
+    public void updateWordList() {
         vocabTrainer.updateWordList();
     }
 
-    public double getKanjiProgress(){
+    public double getKanjiProgress() {
         int max = kanjiTrainer.getTodayDueMax();
         if (max == 0) {
             return 100;
         }
-        return (double) (100 * (max-kanjiTrainer.getTodayDueCurrent())) / max / 100;
+        return (double) (100 * (max - kanjiTrainer.getTodayDueCurrent())) / max / 100;
     }
 
-    public double getWordsProgress(){
+    public double getWordsProgress() {
         int max = vocabTrainer.getTodayDueMax();
         if (max == 0) {
             return 100;
         }
-        return (double) (100 * (max-vocabTrainer.getTodayDueCurrent())) / max / 100;
+        return (double) (100 * (max - vocabTrainer.getTodayDueCurrent())) / max / 100;
     }
 
-    public int getDueKanjiCount(){
+    public int getDueKanjiCount() {
         return kanjiTrainer.getTodayDueCurrent();
     }
 
-    public int getDueWordCount(){
+    public int getDueWordCount() {
         return vocabTrainer.getTodayDueCurrent();
     }
 
-    public void increaseDueKanjiTmp(int count){
+    public void increaseDueKanjiTmp(int count) {
         kanjiTrainer.tmpDueIncrease(count);
     }
 
-    public void increaseDueWordsTmp(int count){
+    public void increaseDueWordsTmp(int count) {
         vocabTrainer.tmpDueIncrease(count);
     }
 
-    public int getDueTotalKanjiCount(){
+    public int getDueTotalKanjiCount() {
         return kanjiTrainer.getDueTotal();
     }
 
-    public int getDueTotalWordsCount(){
+    public int getDueTotalWordsCount() {
         return vocabTrainer.getDueTotal();
     }
 
-    private static void compressKanjiProgress(Kanji kanji) {
-        List<KanjiProgress> kanjiProgressList = kanji.getProgresses();
-        if (kanjiProgressList == null || kanjiProgressList.size() <= 3) {
-            return;
-        }
-
-        KanjiProgress firstEntry = kanjiProgressList.get(0);
-        KanjiProgress middleCompressed = kanjiProgressList.get(kanjiProgressList.size() - 2);
-        KanjiProgress lastEntry = kanjiProgressList.get(kanjiProgressList.size() - 1);
-
-        int totalPoints = 0;
-        int totalRealMiddleEntries = 0;
-
-        for (int i = 1; i < kanjiProgressList.size() - 1; i++) {
-            KanjiProgress p = kanjiProgressList.get(i);
-            totalPoints += p.getPoints();
-            totalRealMiddleEntries += (p.getCompressedEntries());
-        }
-
-        middleCompressed.setPoints(totalPoints);
-
-        middleCompressed.setCompressedEntries(totalRealMiddleEntries);
-
-        List<KanjiProgress> compressedList = new ArrayList<>();
-        compressedList.add(firstEntry);
-        compressedList.add(middleCompressed);
-        compressedList.add(lastEntry);
-
-        kanji.setProgresses(compressedList);
-    }
-
-
-    private static void compressWordProgress(Word word) {
-        List<WordProgress> wordProgressList = word.getProgresses();
-        if (wordProgressList == null || wordProgressList.size() <= 3) {
-            return; // No compression needed
-        }
-
-        List<WordProgress> compressedList = new ArrayList<>();
-
-        // Add the first entry
-        compressedList.add(wordProgressList.getFirst());
-
-        // Compress middle entries
-        WordProgress middleCompressed = wordProgressList.get(wordProgressList.size()-2);
-        middleCompressed.setCompressedEntries(wordProgressList.size() - 2);
-        middleCompressed.setLearned(wordProgressList.get(wordProgressList.size() - 2).getLearned()); // Use the timestamp of the second last entry
-        middleCompressed.setPoints(wordProgressList.subList(1, wordProgressList.size() - 2)
-                .stream()
-                .mapToInt(WordProgress::getPoints)
-                .sum());
-        compressedList.add(middleCompressed);
-
-        // Add the last entry
-        compressedList.add(wordProgressList.getLast());
-
-        word.setProgresses(compressedList);
-    }
-
-    public List<Kanji> getRandomKanji(int number){
+    public List<Kanji> getRandomKanji(int number) {
         return kanjiTrainer.getRandomKanji(number);
     }
 
-    public List<Word> getRandomWordsFromKanjiTrainer(int number){
+    public List<Word> getRandomWordsFromKanjiTrainer(int number) {
         List<Kanji> randomKanji = kanjiTrainer.getRandomKanji(number);
         List<Word> randomWords = new ArrayList<>();
         Random rand = new Random();

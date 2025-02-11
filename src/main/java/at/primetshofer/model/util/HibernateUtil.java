@@ -7,7 +7,7 @@ public class HibernateUtil {
     private static EntityManager entityManager = null;
 
     public static EntityManager getEntityManager() {
-        if(entityManager == null) {
+        if (entityManager == null) {
             entityManager = Persistence.createEntityManagerFactory("JapaneseLearningAppPU").createEntityManager();
         }
         return entityManager;

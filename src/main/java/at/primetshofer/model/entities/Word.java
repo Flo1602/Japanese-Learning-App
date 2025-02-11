@@ -74,10 +74,10 @@ public class Word {
     }
 
     public void setActive(boolean active) {
-        if(!this.active && active){
+        if (!this.active && active) {
             learned = LocalDate.now();
         }
-        if(this.active && !active){
+        if (this.active && !active) {
             learned = null;
         }
 
@@ -102,16 +102,16 @@ public class Word {
         connectKanji();
     }
 
-    public void setJapaneseIgnoreKanji(String japanese){
+    public void setJapaneseIgnoreKanji(String japanese) {
         this.japanese = japanese;
     }
 
-    public void connectKanji(){
+    public void connectKanji() {
         List<String> kanjis = JapaneseUtil.extractKanji(japanese);
         EntityManager em = HibernateUtil.getEntityManager();
 
         for (String kanji : kanjis) {
-            String jpql = "SELECT k FROM Kanji k WHERE k.symbol = \'" + kanji + "\'";
+            String jpql = "SELECT k FROM Kanji k WHERE k.symbol = '" + kanji + "'";
             TypedQuery<Kanji> query = HibernateUtil.getEntityManager().createQuery(jpql, Kanji.class);
             List<Kanji> foundKanji = query.getResultList();
             Kanji k;
@@ -122,18 +122,18 @@ public class Word {
                 k.setSymbol(kanji);
             }
 
-            if(!k.getWords().contains(this)){
+            if (!k.getWords().contains(this)) {
                 k.getWords().add(this);
                 k = em.merge(k);
             }
-            if(!this.kanjis.contains(k)){
+            if (!this.kanjis.contains(k)) {
                 this.kanjis.add(k);
             }
         }
 
         List<Kanji> removeKanjis = new ArrayList<>();
         for (Kanji kanji : this.kanjis) {
-            if(!kanjis.contains(kanji.getSymbol())){
+            if (!kanjis.contains(kanji.getSymbol())) {
                 removeKanjis.add(kanji);
                 kanji.getWords().remove(this);
                 em.merge(kanji);

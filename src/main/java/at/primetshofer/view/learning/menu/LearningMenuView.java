@@ -53,7 +53,7 @@ public class LearningMenuView extends View {
         Button vocabButton = new Button(LangController.getText("VocabButton"));
         vocabButton.getStyleClass().add("smallMenuButton");
         vocabButton.setOnAction(e -> {
-            if(wordMenuLearningView == null) {
+            if (wordMenuLearningView == null) {
                 wordMenuLearningView = new WordMenuLearningView(scene);
                 wordMenuLearningView.initView();
             }
@@ -64,7 +64,7 @@ public class LearningMenuView extends View {
         Button kanjiButton = new Button(LangController.getText("KanjiButton"));
         kanjiButton.getStyleClass().add("smallMenuButton");
         kanjiButton.setOnAction(e -> {
-            if(kanjiMenuLearningView == null) {
+            if (kanjiMenuLearningView == null) {
                 kanjiMenuLearningView = new KanjiMenuLearningView(scene);
                 kanjiMenuLearningView.initView();
             }

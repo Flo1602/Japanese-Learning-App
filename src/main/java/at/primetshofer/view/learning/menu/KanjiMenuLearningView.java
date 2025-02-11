@@ -25,9 +25,9 @@ import javafx.util.Duration;
 
 public class KanjiMenuLearningView extends View {
 
+    private final Controller controller;
     private ProgressBar kanjiProgress;
     private Label kanjiProgressLabel;
-    private final Controller controller;
     private Button addKanjiToDue;
     private NetworkLearningView networkLearningView;
     private SelectKanjiLearningView selectKanjiLearningView;
@@ -49,7 +49,7 @@ public class KanjiMenuLearningView extends View {
         Button dailyKanjiButton = new Button(LangController.getText("DailyKanjiButton"));
         dailyKanjiButton.getStyleClass().add("menuButton");
         dailyKanjiButton.setOnAction(e -> {
-            if(kanjiSessionManager == null) {
+            if (kanjiSessionManager == null) {
                 kanjiSessionManager = new KanjiSessionManager(scene);
             }
 
@@ -61,10 +61,10 @@ public class KanjiMenuLearningView extends View {
         Button selectKanjiButton = new Button(LangController.getText("SelectKanji"));
         selectKanjiButton.getStyleClass().add("menuButton");
         selectKanjiButton.setOnAction(e -> {
-            if(kanjiSessionManager == null) {
+            if (kanjiSessionManager == null) {
                 kanjiSessionManager = new KanjiSessionManager(scene);
             }
-            if(selectKanjiLearningView == null) {
+            if (selectKanjiLearningView == null) {
                 selectKanjiLearningView = new SelectKanjiLearningView(scene, kanjiSessionManager);
             }
 
@@ -94,7 +94,7 @@ public class KanjiMenuLearningView extends View {
         kanjiProgress.setProgress(0);
         kanjiProgress.setPrefSize(200, 25);
         kanjiProgress.setOnMouseClicked(event -> {
-            if(event.getButton() == MouseButton.MIDDLE){
+            if (event.getButton() == MouseButton.MIDDLE) {
                 KanjiCheatView kanjiCheatView = new KanjiCheatView(scene);
                 kanjiCheatView.display(this);
             }
@@ -112,7 +112,7 @@ public class KanjiMenuLearningView extends View {
         mobileLink.getStyleClass().add("settingsButton");
         mobileLink.setGraphic(mobileImageView);
         mobileLink.setOnAction(e -> {
-            if(networkLearningView == null) {
+            if (networkLearningView == null) {
                 networkLearningView = new NetworkLearningView(scene);
             }
             networkLearningView.display(this);
@@ -165,7 +165,7 @@ public class KanjiMenuLearningView extends View {
         addKanjiToDue.setVisible(controller.getDueKanjiCount() != controller.getDueTotalKanjiCount());
     }
 
-    public void setProgress(double progress){
+    public void setProgress(double progress) {
         Timeline timeline = new Timeline(
                 new KeyFrame(
                         Duration.ZERO, // Start at 0 seconds

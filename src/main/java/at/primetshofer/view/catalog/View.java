@@ -11,7 +11,8 @@ public abstract class View {
     protected BorderPane bp;
     protected ObjectProperty<View> origin;
 
-    protected View(){}
+    protected View() {
+    }
 
     public View(Scene scene) {
         this.scene = scene;
@@ -21,8 +22,8 @@ public abstract class View {
 
     protected abstract void initView();
 
-    public void display(View origin){
-        if(origin != null){
+    public void display(View origin) {
+        if (origin != null) {
             this.origin.set(origin);
         }
         scene.setRoot(bp);

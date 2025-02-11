@@ -8,7 +8,7 @@ import javafx.scene.Scene;
 
 import java.util.List;
 
-public class QuestionSessionManager extends LearnSessionManager{
+public class QuestionSessionManager extends LearnSessionManager {
 
     public QuestionSessionManager(Scene scene) {
         super(scene);

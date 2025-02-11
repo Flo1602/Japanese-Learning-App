@@ -37,9 +37,9 @@ public abstract class MatchLearnView extends LearnView {
 
     private ToggleButton leftSelection = null;
     private ToggleButton rightSelection = null;
-    private BooleanProperty disableButton;
+    private final BooleanProperty disableButton;
 
-    private Controller controller;
+    private final Controller controller;
     private int errors = 0;
     private boolean getDetailedResults = false;
 
@@ -64,7 +64,7 @@ public abstract class MatchLearnView extends LearnView {
         for (int i = 0; i < keyList.size(); i++) {
             ToggleButton leftButton = new ToggleButton(keyList.get(i));
             leftButton.disableProperty().bind(disableButton);
-            if(ttsOnly){
+            if (ttsOnly) {
                 leftButton.setText("");
                 ImageView audioImageView = new ImageView(audioImage);
                 audioImageView.setFitHeight(35);
@@ -75,7 +75,7 @@ public abstract class MatchLearnView extends LearnView {
             leftButton.getStyleClass().add("matchButton");
             int finalI = i;
             leftButton.setOnAction(event -> {
-                if(ttsPaths != null && ttsPaths.containsKey(keyList.get(finalI))){
+                if (ttsPaths != null && ttsPaths.containsKey(keyList.get(finalI))) {
                     controller.playAudio(ttsPaths.get(keyList.get(finalI)));
                 }
                 if (leftButton.isSelected()) {
@@ -91,7 +91,7 @@ public abstract class MatchLearnView extends LearnView {
             });
 
             leftButton.setOnMouseClicked(event -> {
-                if(event.getButton().equals(MouseButton.SECONDARY) && getDetailedResults){
+                if (event.getButton().equals(MouseButton.SECONDARY) && getDetailedResults) {
                     leftSelection = null;
                     leftButton.setSelected(false);
                     applyIncorrectAnimation(leftButton, true);
@@ -108,7 +108,7 @@ public abstract class MatchLearnView extends LearnView {
             rightButton.setUserData(valueList.get(i));
             rightButton.getStyleClass().add("matchButton");
             rightButton.setOnAction(event -> {
-                if(ttsPaths != null && ttsPaths.containsKey(valueList.get(finalI))){
+                if (ttsPaths != null && ttsPaths.containsKey(valueList.get(finalI))) {
                     controller.playAudio(ttsPaths.get(valueList.get(finalI)));
                 }
                 if (rightButton.isSelected()) {
@@ -170,7 +170,7 @@ public abstract class MatchLearnView extends LearnView {
         translateTransition.setByX(10);
         translateTransition.setCycleCount(6);
         translateTransition.setAutoReverse(true);
-        if(disableAfter){
+        if (disableAfter) {
             translateTransition.setOnFinished(event -> {
                 btn.disableProperty().unbind();
                 btn.setDisable(true);
@@ -188,7 +188,7 @@ public abstract class MatchLearnView extends LearnView {
             if (matchPairs.get((String) leftSelection.getUserData()).equals(rightSelection.getUserData())) {
                 applyCorrectAnimation(leftSelection);
                 applyCorrectAnimation(rightSelection);
-                if(!results.containsKey((String) leftSelection.getUserData())){
+                if (!results.containsKey((String) leftSelection.getUserData())) {
                     results.put((String) leftSelection.getUserData(), true);
                     results.put((String) rightSelection.getUserData(), true);
                 }
@@ -215,17 +215,17 @@ public abstract class MatchLearnView extends LearnView {
 
     @Override
     public void checkComplete() {
-        if (matchPairs.isEmpty()){
+        if (matchPairs.isEmpty()) {
             disableButton.set(true);
-            if(getDetailedResults){
+            if (getDetailedResults) {
                 super.finished(true, results);
             } else {
                 super.finished(true);
             }
         }
-        if(errors >= MAX_ERRORS){
+        if (errors >= MAX_ERRORS) {
             disableButton.set(true);
-            if(getDetailedResults){
+            if (getDetailedResults) {
                 super.finished(false, results);
             } else {
                 super.finished(false);

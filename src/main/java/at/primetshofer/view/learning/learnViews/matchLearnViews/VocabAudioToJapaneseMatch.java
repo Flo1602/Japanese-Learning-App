@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class VocabAudioToJapaneseMatch extends MatchLearnView{
+public class VocabAudioToJapaneseMatch extends MatchLearnView {
 
-    private List<Word> words;
+    private final List<Word> words;
 
     public VocabAudioToJapaneseMatch(LearnSessionManager learnSessionManager, List<Word> words) {
         super(learnSessionManager);

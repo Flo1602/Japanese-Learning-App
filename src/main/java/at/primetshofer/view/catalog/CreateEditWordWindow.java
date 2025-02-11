@@ -30,7 +30,7 @@ public class CreateEditWordWindow extends PopUp {
 
     @Override
     protected void initView() {
-        if(word == null) {
+        if (word == null) {
             word = new Word();
             create = true;
         }
@@ -88,16 +88,16 @@ public class CreateEditWordWindow extends PopUp {
 
             word.setJapanese(japaneseField.getText());
 
-            new Thread(() ->{
+            new Thread(() -> {
                 try {
                     File audioFile = null;
 
-                    if(!useVV.isSelected()) {
+                    if (!useVV.isSelected()) {
                         audioFile = JishoAudioFetcher.fetchAudioURL(word.getJapanese(), word.getId());
                     }
 
                     if (audioFile == null) {
-                        String ttsString = (word.getKana() == null)? word.getJapanese() : word.getKana();
+                        String ttsString = (word.getKana() == null) ? word.getJapanese() : word.getKana();
                         try {
                             audioFile = TTS.getTts().synthesizeAudio(ttsString, "audio/words/" + word.getId() + ".wav");
                         } catch (IOException | InterruptedException ex) {
@@ -106,9 +106,9 @@ public class CreateEditWordWindow extends PopUp {
                     } else {
                         String mp3Path = audioFile.getAbsolutePath();
                         audioFile = new File(audioFile.getAbsolutePath().replaceFirst("[.][^.]+$", ".wav"));
-                        String command = "ffmpeg/ffmpeg.exe -y -i \"" + mp3Path + "\" \"" + audioFile.getAbsolutePath() +"\"";
+                        String command = "ffmpeg/ffmpeg.exe -y -i \"" + mp3Path + "\" \"" + audioFile.getAbsolutePath() + "\"";
 
-                        Runtime run  = Runtime.getRuntime();
+                        Runtime run = Runtime.getRuntime();
                         try {
                             Process proc = run.exec(command);
 
@@ -164,7 +164,7 @@ public class CreateEditWordWindow extends PopUp {
         buttonHbox.setAlignment(Pos.CENTER);
         buttonHbox.setPadding(new Insets(10, 0, 10, 0));
 
-        if(!create) {
+        if (!create) {
             buttonHbox.getChildren().add(delete);
         }
 

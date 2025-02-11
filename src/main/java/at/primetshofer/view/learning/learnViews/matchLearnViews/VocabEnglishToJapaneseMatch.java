@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class VocabEnglishToJapaneseMatch extends MatchLearnView{
+public class VocabEnglishToJapaneseMatch extends MatchLearnView {
 
-    private List<Word> words;
+    private final List<Word> words;
     private boolean reverse;
 
     public VocabEnglishToJapaneseMatch(LearnSessionManager learnSessionManager, List<Word> words) {
@@ -27,7 +27,7 @@ public class VocabEnglishToJapaneseMatch extends MatchLearnView{
         for (Word word : words) {
             String english = ViewUtils.removeParenthesesContent(word.getEnglish()).split(",")[0];
             String japanese = ViewUtils.removeParenthesesContent(word.getJapanese()).split(",")[0];
-            if(reverse){
+            if (reverse) {
                 wordPairs.put(japanese, english);
             } else {
                 wordPairs.put(english, japanese);

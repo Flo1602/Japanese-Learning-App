@@ -1,7 +1,8 @@
 package at.primetshofer.model.entities;
 
 import at.primetshofer.model.util.Stylesheet;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
 @Entity
 public class Settings {

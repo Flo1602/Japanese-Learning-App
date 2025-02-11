@@ -6,7 +6,6 @@ import at.primetshofer.model.Polygon;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.paint.Color;
-import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;

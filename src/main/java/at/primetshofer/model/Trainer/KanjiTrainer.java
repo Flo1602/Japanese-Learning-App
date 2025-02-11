@@ -29,7 +29,14 @@ public class KanjiTrainer {
         tmpDueIncrease = 0;
     }
 
-    public void updateKanjiList(){
+    public static KanjiTrainer getInstance() {
+        if (instance == null) {
+            instance = new KanjiTrainer();
+        }
+        return instance;
+    }
+
+    public void updateKanjiList() {
         dueKanjiList = new ArrayList<>();
         tmpDueKanjiList = new ArrayList<>();
 
@@ -39,7 +46,7 @@ public class KanjiTrainer {
         Query query = entityManager.createQuery(jpql);
         long kanjiCount = (long) query.getSingleResult();
 
-        if(allKanjiList == null || kanjiCount != allKanjiList.size()){
+        if (allKanjiList == null || kanjiCount != allKanjiList.size()) {
             allKanjiList = entityManager.createQuery("SELECT k FROM Kanji k", Kanji.class).getResultList();
 
             sortKanjiList(allKanjiList);
@@ -61,7 +68,7 @@ public class KanjiTrainer {
             int daysGoal = getIntervalDays(getDynamicMaxPoints(kanji));
             daysGoal--;
 
-            if(getTodayProgress(kanji, now.toLocalDate()) == null){
+            if (getTodayProgress(kanji, now.toLocalDate()) == null) {
                 daysGoal = 0;
             }
 
@@ -70,12 +77,12 @@ public class KanjiTrainer {
             if (!reviewTime.toLocalDate().isAfter(now.toLocalDate().plusDays(daysGoal))) {
                 dueTotal++;
 
-                if(todayDueMax < maxKanji || (lastProgress != null && isToday(lastProgress.getLearned()))){
+                if (todayDueMax < maxKanji || (lastProgress != null && isToday(lastProgress.getLearned()))) {
                     todayDueMax++;
                     dueCurrent++;
 
                     dueKanjiList.add(kanji);
-                } else if(extraKanjiRemaining > 0){
+                } else if (extraKanjiRemaining > 0) {
                     extraKanjiRemaining--;
 
                     todayDueMax++;
@@ -84,7 +91,7 @@ public class KanjiTrainer {
                     dueKanjiList.add(kanji);
                     tmpDueKanjiList.add(kanji);
                 }
-            } else if(lastProgress != null && isToday(getLastProgress(kanji).getLearned())){
+            } else if (lastProgress != null && isToday(getLastProgress(kanji).getLearned())) {
                 todayDueMax++;
             }
         }
@@ -131,35 +138,28 @@ public class KanjiTrainer {
         return dueTotal;
     }
 
-    private void updateDueCurrent(Kanji kanji){
+    private void updateDueCurrent(Kanji kanji) {
         LocalDateTime now = LocalDateTime.now();
 
         LocalDateTime reviewTime = nextReviewCache.getOrDefault(kanji, now);
         int daysGoal = getIntervalDays(getDynamicMaxPoints(kanji));
 
         daysGoal--;
-        if(getTodayProgress(kanji, now.toLocalDate()) == null){
+        if (getTodayProgress(kanji, now.toLocalDate()) == null) {
             daysGoal = 0;
         }
         if (reviewTime.toLocalDate().isAfter(now.toLocalDate().plusDays(daysGoal))) {
-            if(dueCurrent > 0){
+            if (dueCurrent > 0) {
                 dueCurrent--;
             }
-            if(dueTotal > 0){
+            if (dueTotal > 0) {
                 dueTotal--;
             }
         }
-        if(tmpDueKanjiList.contains(kanji)){
+        if (tmpDueKanjiList.contains(kanji)) {
             tmpDueIncrease--;
             tmpDueKanjiList.remove(kanji);
         }
-    }
-
-    public static KanjiTrainer getInstance() {
-        if(instance == null) {
-            instance = new KanjiTrainer();
-        }
-        return instance;
     }
 
     private int getIntervalDays(int points) {
@@ -199,8 +199,8 @@ public class KanjiTrainer {
         }
         daysSinceFirstLearned /= 4;
 
-        int dynamicMax = (int)Math.min((daysSinceFirstLearned + reviewCount) * 20, 600);
-        if(dynamicMax < 0){
+        int dynamicMax = (int) Math.min((daysSinceFirstLearned + reviewCount) * 20, 600);
+        if (dynamicMax < 0) {
             dynamicMax = 600;
         }
         if (dynamicMax < 50) {
@@ -224,7 +224,7 @@ public class KanjiTrainer {
         nextReviewCache.put(kanji, nextReviewDate);
     }
 
-    private Kanji calcNextLearningKanji(){
+    private Kanji calcNextLearningKanji() {
         LocalDateTime now = LocalDateTime.now();
 
         // Separate never-learned and learned Kanji
@@ -281,7 +281,7 @@ public class KanjiTrainer {
             LocalDateTime reviewTime = nextReviewCache.get(k);
             int daysGoal = getIntervalDays(getDynamicMaxPoints(k));
             daysGoal--;
-            if(getTodayProgress(k, now.toLocalDate()) == null){
+            if (getTodayProgress(k, now.toLocalDate()) == null) {
                 daysGoal = 0;
             }
             if (reviewTime.isBefore(now.plusDays(daysGoal))) {
@@ -324,7 +324,7 @@ public class KanjiTrainer {
         LocalDateTime reviewTime = nextReviewCache.getOrDefault(kanji, now);
         int daysGoal = getIntervalDays(getDynamicMaxPoints(kanji));
         daysGoal--;
-        if(getTodayProgress(kanji, now.toLocalDate()) == null){
+        if (getTodayProgress(kanji, now.toLocalDate()) == null) {
             daysGoal = 0;
         }
         if (reviewTime.toLocalDate().isAfter(now.toLocalDate()) && !reviewTime.isBefore(now.plusDays(daysGoal))) {
@@ -377,7 +377,7 @@ public class KanjiTrainer {
     }
 
     private KanjiProgress getLastProgress(Kanji kanji) {
-        if(kanji.getProgresses().isEmpty()){
+        if (kanji.getProgresses().isEmpty()) {
             return null;
         }
         return kanji.getProgresses().get(kanji.getProgresses().size() - 1);
@@ -402,7 +402,7 @@ public class KanjiTrainer {
 
         long daysSinceFirstLearned = 0;
 
-        if(!kanji.getProgresses().isEmpty()){
+        if (!kanji.getProgresses().isEmpty()) {
             KanjiProgress firstProgress = kanji.getProgresses().getFirst();
             daysSinceFirstLearned = ChronoUnit.DAYS.between(firstProgress.getLearned().toLocalDate(), LocalDate.now());
         }
@@ -413,16 +413,16 @@ public class KanjiTrainer {
         daysSinceFirstLearned /= 2;
 
         double incrementFactor = 1.0 + ((reviewCount + daysSinceFirstLearned) * 0.3);
-        if(reviewCount == 0 || reviewCount == 1) {
+        if (reviewCount == 0 || reviewCount == 1) {
             incrementFactor = 0.5;
         }
-        if(incrementFactor > 20){
+        if (incrementFactor > 20) {
             incrementFactor = 20;
         }
         return (int) Math.round(baseIncrement * incrementFactor);
     }
 
-    public List<Kanji> getRandomKanji(int number){
+    public List<Kanji> getRandomKanji(int number) {
         List<Kanji> kanjis = new ArrayList<>();
 
         int half = number / 2;
@@ -446,7 +446,7 @@ public class KanjiTrainer {
             Kanji kanji = fromList.get(random.nextInt(fromList.size()));
             int tries = 0;
 
-            while ((toList.contains(kanji) || kanji.equals(currentKanji) ) && tries < 10) {
+            while ((toList.contains(kanji) || kanji.equals(currentKanji)) && tries < 10) {
                 kanji = fromList.get(random.nextInt(fromList.size()));
                 tries++;
             }

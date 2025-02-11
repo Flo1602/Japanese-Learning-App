@@ -13,7 +13,10 @@ import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -22,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class QuestionListView extends View{
+public class QuestionListView extends View {
 
     private int scrollPage = 0;
     private ChangeListener scrollPageListener;
@@ -57,7 +60,7 @@ public class QuestionListView extends View{
         searchLabel.getStyleClass().add("normalText");
 
         searchField = new TextField();
-        if(search != null){
+        if (search != null) {
             searchField.setText(search);
             searchField.setDisable(true);
         }
@@ -97,7 +100,7 @@ public class QuestionListView extends View{
         buttons.setSpacing(40);
         buttons.setPadding(new Insets(20, 0, 20, 0));
 
-        if(word == null){
+        if (word == null) {
             buttons.setVisible(false);
         }
 
@@ -113,10 +116,10 @@ public class QuestionListView extends View{
         bp.setRight(spacer);
     }
 
-    private void populateQuestionList(){
+    private void populateQuestionList() {
         scrollPage = 0;
         String search = searchField.getText();
-        if(scrollPageListener != null){
+        if (scrollPageListener != null) {
             questionList.vvalueProperty().removeListener(scrollPageListener);
         }
         VBox vb = new VBox();
@@ -132,7 +135,7 @@ public class QuestionListView extends View{
             vb.getChildren().add(card.getCard());
         }
 
-        List<Question> nextNewQuestions = fetchWords(em, 5 * (scrollPage+1), 50, search);
+        List<Question> nextNewQuestions = fetchWords(em, 5 * (scrollPage + 1), 50, search);
         List<Question> prevNewQuestions = fetchWords(em, 5 * (scrollPage), 50, search);
         AtomicBoolean listsUpdated = new AtomicBoolean(true);
 
@@ -193,11 +196,11 @@ public class QuestionListView extends View{
         // Check if searchString is provided and add conditions to the query
         if (searchString != null && !searchString.trim().isEmpty()) {
             searchString = searchString.toLowerCase();
-            queryString.append(" WHERE LOWER(q.japanese) LIKE \'%" + searchString + "%\'")
-                    .append(" OR LOWER(q.question) LIKE \'%" + searchString + "%\'")
-                    .append(" OR LOWER(w.japanese) LIKE \'%" + searchString + "%\'")
-                    .append(" OR LOWER(w.english) LIKE \'%" + searchString + "%\'");
-        } else if(word != null){
+            queryString.append(" WHERE LOWER(q.japanese) LIKE '%" + searchString + "%'")
+                    .append(" OR LOWER(q.question) LIKE '%" + searchString + "%'")
+                    .append(" OR LOWER(w.japanese) LIKE '%" + searchString + "%'")
+                    .append(" OR LOWER(w.english) LIKE '%" + searchString + "%'");
+        } else if (word != null) {
             queryString.append(" WHERE q.word.id = " + word.getId());
         }
 
@@ -213,12 +216,12 @@ public class QuestionListView extends View{
     private void updateQuestionLists(EntityManager em, List<Question> nextNewQuestions, List<Question> prevNewQuestions, AtomicBoolean listsUpdated, String search) {
         final int scrollPageFinal = scrollPage;
         new Thread(() -> {
-            synchronized (nextNewQuestions){
+            synchronized (nextNewQuestions) {
                 nextNewQuestions.clear();
-                nextNewQuestions.addAll(fetchWords(em, 5 * (scrollPageFinal+1), 50, search));
-                if(scrollPageFinal>0){
+                nextNewQuestions.addAll(fetchWords(em, 5 * (scrollPageFinal + 1), 50, search));
+                if (scrollPageFinal > 0) {
                     prevNewQuestions.clear();
-                    prevNewQuestions.addAll(fetchWords(em, 5 * (scrollPageFinal-1), 50, search));
+                    prevNewQuestions.addAll(fetchWords(em, 5 * (scrollPageFinal - 1), 50, search));
                 }
                 listsUpdated.set(true);
             }
@@ -233,8 +236,8 @@ public class QuestionListView extends View{
 
     private class QuestionCard {
 
-        private Label japanese;
-        private Label question;
+        private final Label japanese;
+        private final Label question;
         private int id;
 
         private QuestionCard(Question question) {
@@ -243,7 +246,7 @@ public class QuestionListView extends View{
             this.id = question.getId();
         }
 
-        private StackPane getCard(){
+        private StackPane getCard() {
             StackPane card = new StackPane();
             card.setPadding(new Insets(15));
             card.setPrefWidth(900);
@@ -271,7 +274,7 @@ public class QuestionListView extends View{
             Button audioButton = new Button();
             audioButton.setStyle("-fx-background-radius: 20; -fx-font-size: 16pt; -fx-background-color: transparent;");
             audioButton.setGraphic(audioImageView);
-            audioButton.setOnAction(e ->{
+            audioButton.setOnAction(e -> {
                 Question question = HibernateUtil.getEntityManager().find(Question.class, id);
                 Controller.getInstance().playAudio(question.getTtsPath());
             });
@@ -285,7 +288,7 @@ public class QuestionListView extends View{
             Button editButton = new Button();
             editButton.setStyle("-fx-background-radius: 20; -fx-font-size: 16pt; -fx-background-color: transparent;");
             editButton.setGraphic(editImageView);
-            editButton.setOnAction(event ->{
+            editButton.setOnAction(event -> {
                 Question question = HibernateUtil.getEntityManager().find(Question.class, id);
                 Word word = HibernateUtil.getEntityManager().find(Word.class, question.getWord().getId());
                 CreateEditQuestionWindow window = new CreateEditQuestionWindow(word);
