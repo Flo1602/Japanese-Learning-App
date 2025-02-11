@@ -14,7 +14,9 @@ public class WordProgress {
     @JoinColumn(name = "wordProgress_id")
     private Word word;
     private LocalDateTime learned;
-    private boolean correct;
+    private int points;
+    private int negativePoints;
+    private int compressedEntries;
 
     public int getId() {
         return id;
@@ -40,11 +42,27 @@ public class WordProgress {
         this.learned = learned;
     }
 
-    public boolean isCorrect() {
-        return correct;
+    public int getPoints() {
+        return points;
     }
 
-    public void setCorrect(boolean correct) {
-        this.correct = correct;
+    public void setPoints(int points) {
+        this.points = points;
+    }
+
+    public int getCompressedEntries() {
+        return compressedEntries;
+    }
+
+    public void setCompressedEntries(int compressedEntries) {
+        this.compressedEntries = compressedEntries;
+    }
+
+    public int getNegativePoints() {
+        return negativePoints;
+    }
+
+    public void setNegativePoints(int negativePoints) {
+        this.negativePoints = negativePoints;
     }
 }

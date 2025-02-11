@@ -1,7 +1,10 @@
 package at.primetshofer.view.learning.learnViews;
 
 import at.primetshofer.view.learning.learnSessionManagers.LearnSessionManager;
+import at.primetshofer.view.learning.learnSessionManagers.WordSessionManager;
 import javafx.scene.layout.Pane;
+
+import java.util.Map;
 
 public abstract class LearnView {
 
@@ -22,6 +25,14 @@ public abstract class LearnView {
 
     protected void finished(boolean success, String message) {
         learnSessionManager.learnViewFinished(success, message);
+    }
+
+    protected void finished(boolean success, Map<String, Boolean> results) {
+        if(learnSessionManager instanceof WordSessionManager){
+            ((WordSessionManager)learnSessionManager).learnViewFinished(success, results);
+        } else {
+            learnSessionManager.learnViewFinished(success);
+        }
     }
 
     public abstract void checkComplete();

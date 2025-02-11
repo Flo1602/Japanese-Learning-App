@@ -1,4 +1,4 @@
-package at.primetshofer.view.learning;
+package at.primetshofer.view.learning.menu;
 
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.entities.Kanji;
@@ -20,9 +20,9 @@ import javafx.scene.layout.Region;
 
 import java.time.LocalDate;
 
-public class CheatView extends View {
+public class KanjiCheatView extends View {
 
-    public CheatView(Scene scene) {
+    public KanjiCheatView(Scene scene) {
         super(scene);
     }
 

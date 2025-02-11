@@ -74,8 +74,19 @@ public class Main extends Application {
         MainMenuView mainMenu = new MainMenuView(scene);
         mainMenu.display(null);
 
-        ViewUtils.applyStyleSheet();
-        TTS.updateSpeakerId();
+        new Thread(() ->{
+
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            ViewUtils.applyStyleSheet();
+            TTS.updateSpeakerId();
+        }).start();
+
+        ViewUtils.applyStyleSheetDefault();
 
         stage.setTitle("Japanese Learning App");
         stage.setScene(scene);

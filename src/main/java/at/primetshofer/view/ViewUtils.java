@@ -41,6 +41,10 @@ public class ViewUtils {
         Application.setUserAgentStylesheet(theme.getUserAgentStylesheet());
     }
 
+    public static void applyStyleSheetDefault(){
+        Application.setUserAgentStylesheet(new CupertinoDark().getUserAgentStylesheet());
+    }
+
     public static HBox getBackButtonBox(ObjectProperty<View> origin){
         Image backImage = new Image("back.png");
 

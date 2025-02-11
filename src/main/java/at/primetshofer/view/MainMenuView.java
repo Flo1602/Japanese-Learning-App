@@ -5,7 +5,7 @@ import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.services.LoadLearningDataService;
 import at.primetshofer.view.catalog.*;
-import at.primetshofer.view.learning.LearningMenuView;
+import at.primetshofer.view.learning.menu.LearningMenuView;
 import javafx.concurrent.Worker;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -38,6 +38,8 @@ public class MainMenuView extends View {
             event.getSource().getException().printStackTrace();
             ViewUtils.showAlert(Alert.AlertType.ERROR, "Error while loading Learning Data!", "FATAL ERROR");
         });
+
+        loadLearningDataService.setOnSucceeded(null);
     }
 
     protected void initView(){

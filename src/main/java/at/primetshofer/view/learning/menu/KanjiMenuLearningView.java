@@ -1,11 +1,10 @@
-package at.primetshofer.view.learning;
+package at.primetshofer.view.learning.menu;
 
-import at.primetshofer.model.AudioRecorder;
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.ViewUtils;
 import at.primetshofer.view.catalog.View;
-import at.primetshofer.view.learning.learnSessionManagers.*;
+import at.primetshofer.view.learning.learnSessionManagers.KanjiSessionManager;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -24,17 +23,17 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
-public class LearningMenuView extends View {
+public class KanjiMenuLearningView extends View {
 
     private ProgressBar kanjiProgress;
     private Label kanjiProgressLabel;
-    private Controller controller;
+    private final Controller controller;
     private Button addKanjiToDue;
     private NetworkLearningView networkLearningView;
     private SelectKanjiLearningView selectKanjiLearningView;
     private KanjiSessionManager kanjiSessionManager;
 
-    public LearningMenuView(Scene scene) {
+    public KanjiMenuLearningView(Scene scene) {
         super(scene);
         controller = Controller.getInstance();
     }
@@ -43,45 +42,12 @@ public class LearningMenuView extends View {
     protected void initView() {
         bp = new BorderPane();
 
-        Label headline = new Label(LangController.getText("LearningHeading"));
+        Label headline = new Label(LangController.getText("KanjiButton"));
         headline.getStyleClass().add("headline");
         BorderPane.setAlignment(headline, Pos.CENTER);
 
-        Button wordsButton = new Button(LangController.getText("WordsButton"));
-        wordsButton.getStyleClass().add("smallMenuButton");
-        wordsButton.setOnAction(e -> {
-            WordSessionManager wordSessionManager = new WordSessionManager(scene);
-            wordSessionManager.initView();
-            wordSessionManager.display(this);
-        });
-
-        Button questionButton = new Button("Questions");
-        questionButton.getStyleClass().add("smallMenuButton");
-        questionButton.setOnAction(e -> {
-            QuestionSessionManager questionSessionManager = new QuestionSessionManager(scene);
-            questionSessionManager.initView();
-            questionSessionManager.display(this);
-        });
-
-        Button sentenceButton = new Button("Sentences");
-        sentenceButton.getStyleClass().add("smallMenuButton");
-        sentenceButton.setOnAction(e -> {
-            SentenceSessionManager sentenceSessionManager = new SentenceSessionManager(scene);
-            sentenceSessionManager.initView();
-            sentenceSessionManager.display(this);
-        });
-
-        Button speakingButton = new Button("Word Defense");
-        speakingButton.getStyleClass().add("smallMenuButton");
-        speakingButton.setOnAction(e -> {
-            WordDefenseSessionManager wordDefenseSessionManager = new WordDefenseSessionManager(scene);
-            wordDefenseSessionManager.initSessionManager();
-            wordDefenseSessionManager.initView();
-            wordDefenseSessionManager.display(this);
-        });
-
         Button dailyKanjiButton = new Button(LangController.getText("DailyKanjiButton"));
-        dailyKanjiButton.getStyleClass().add("smallMenuButton");
+        dailyKanjiButton.getStyleClass().add("menuButton");
         dailyKanjiButton.setOnAction(e -> {
             if(kanjiSessionManager == null) {
                 kanjiSessionManager = new KanjiSessionManager(scene);
@@ -93,7 +59,7 @@ public class LearningMenuView extends View {
         });
 
         Button selectKanjiButton = new Button(LangController.getText("SelectKanji"));
-        selectKanjiButton.getStyleClass().add("smallMenuButton");
+        selectKanjiButton.getStyleClass().add("menuButton");
         selectKanjiButton.setOnAction(e -> {
             if(kanjiSessionManager == null) {
                 kanjiSessionManager = new KanjiSessionManager(scene);
@@ -105,13 +71,9 @@ public class LearningMenuView extends View {
             selectKanjiLearningView.display(this);
         });
 
-        HBox kanjiLearningButtons = new HBox(dailyKanjiButton, selectKanjiButton);
-        kanjiLearningButtons.setSpacing(25);
-        kanjiLearningButtons.setAlignment(Pos.CENTER);
-
         VBox vb = new VBox();
         vb.getStyleClass().add("menuVBox");
-        vb.getChildren().addAll(wordsButton, questionButton, sentenceButton, speakingButton, kanjiLearningButtons);
+        vb.getChildren().addAll(dailyKanjiButton, selectKanjiButton);
         BorderPane.setAlignment(vb, Pos.CENTER);
 
         HBox hb = ViewUtils.getBackButtonBox(origin);
@@ -133,8 +95,8 @@ public class LearningMenuView extends View {
         kanjiProgress.setPrefSize(200, 25);
         kanjiProgress.setOnMouseClicked(event -> {
             if(event.getButton() == MouseButton.MIDDLE){
-                CheatView cheatView = new CheatView(scene);
-                cheatView.display(this);
+                KanjiCheatView kanjiCheatView = new KanjiCheatView(scene);
+                kanjiCheatView.display(this);
             }
         });
 
@@ -181,8 +143,8 @@ public class LearningMenuView extends View {
 
         task.setOnSucceeded(event -> updateProgress());
         task.setOnFailed(event -> {
-           event.getSource().getException().printStackTrace();
-           ViewUtils.showAlert(Alert.AlertType.ERROR, "Error while updating Progresses!", "FATAL ERROR!");
+            event.getSource().getException().printStackTrace();
+            ViewUtils.showAlert(Alert.AlertType.ERROR, "Error while updating Progresses!", "FATAL ERROR!");
         });
 
         new Thread(task).start();
@@ -191,8 +153,6 @@ public class LearningMenuView extends View {
     @Override
     public void display(View origin) {
         super.display(origin);
-
-        AudioRecorder.stopRecordingThread();
 
         updateProgress();
     }

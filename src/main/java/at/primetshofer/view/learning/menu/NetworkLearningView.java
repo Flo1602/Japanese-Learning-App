@@ -1,4 +1,4 @@
-package at.primetshofer.view.learning;
+package at.primetshofer.view.learning.menu;
 
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.services.NetworkLearningService;

@@ -2,9 +2,9 @@ package at.primetshofer.view.learning.learnSessionManagers;
 
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.util.LangController;
-import at.primetshofer.view.catalog.View;
 import at.primetshofer.view.ViewUtils;
-import at.primetshofer.view.learning.SessionCompletedView;
+import at.primetshofer.view.catalog.View;
+import at.primetshofer.view.learning.menu.SessionCompletedView;
 import at.primetshofer.view.learning.learnViews.KanjiTracerLearnView;
 import at.primetshofer.view.learning.learnViews.LearnView;
 import at.primetshofer.view.learning.learnViews.WordDefense;
@@ -26,10 +26,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 import java.time.LocalTime;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class LearnSessionManager {
@@ -168,7 +165,7 @@ public abstract class LearnSessionManager {
     }
 
     public void learnViewFinished(boolean success) {
-        learnViewFinished(success, null);
+        learnViewFinished(success, (String) null);
     }
 
     public void learnViewFinished(boolean success, String message) {

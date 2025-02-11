@@ -13,6 +13,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -32,12 +33,15 @@ public abstract class MatchLearnView extends LearnView {
     private Map<String, String> ttsPaths;
     private boolean ttsOnly;
 
+    private Map<String, Boolean> results;
+
     private ToggleButton leftSelection = null;
     private ToggleButton rightSelection = null;
     private BooleanProperty disableButton;
 
     private Controller controller;
     private int errors = 0;
+    private boolean getDetailedResults = false;
 
     public MatchLearnView(LearnSessionManager learnSessionManager) {
         super(learnSessionManager, false);
@@ -47,6 +51,7 @@ public abstract class MatchLearnView extends LearnView {
 
     @Override
     public Pane initView() {
+        results = new HashMap<>();
         ArrayList<String> keyList = new ArrayList<>(matchPairs.keySet());
         ArrayList<String> valueList = new ArrayList<>(matchPairs.values());
         Collections.shuffle(keyList);
@@ -82,6 +87,19 @@ public abstract class MatchLearnView extends LearnView {
                     checkSelection();
                 } else {
                     leftSelection = null;
+                }
+            });
+
+            leftButton.setOnMouseClicked(event -> {
+                if(event.getButton().equals(MouseButton.SECONDARY) && getDetailedResults){
+                    leftSelection = null;
+                    leftButton.setSelected(false);
+                    applyIncorrectAnimation(leftButton, true);
+                    results.put((String) leftButton.getUserData(), false);
+
+                    matchPairs.remove((String) leftButton.getUserData());
+
+                    checkComplete();
                 }
             });
 
@@ -145,14 +163,23 @@ public abstract class MatchLearnView extends LearnView {
         fadeTransition.play();
     }
 
-    private void applyIncorrectAnimation(ToggleButton btn) {
+    private void applyIncorrectAnimation(ToggleButton btn, boolean disableAfter) {
         btn.getStyleClass().add("wrongAnswerButton");
         TranslateTransition translateTransition = new TranslateTransition(Duration.millis(50), btn);
         translateTransition.setFromX(0);
         translateTransition.setByX(10);
         translateTransition.setCycleCount(6);
         translateTransition.setAutoReverse(true);
-        translateTransition.setOnFinished(event -> btn.getStyleClass().remove("wrongAnswerButton"));
+        if(disableAfter){
+            translateTransition.setOnFinished(event -> {
+                btn.disableProperty().unbind();
+                btn.setDisable(true);
+                btn.getStyleClass().remove("wrongAnswerButton");
+            });
+        } else {
+            translateTransition.setOnFinished(event -> btn.getStyleClass().remove("wrongAnswerButton"));
+        }
+
         translateTransition.play();
     }
 
@@ -161,12 +188,18 @@ public abstract class MatchLearnView extends LearnView {
             if (matchPairs.get((String) leftSelection.getUserData()).equals(rightSelection.getUserData())) {
                 applyCorrectAnimation(leftSelection);
                 applyCorrectAnimation(rightSelection);
+                if(!results.containsKey((String) leftSelection.getUserData())){
+                    results.put((String) leftSelection.getUserData(), true);
+                    results.put((String) rightSelection.getUserData(), true);
+                }
 
                 matchPairs.remove((String) leftSelection.getUserData());
             } else {
                 errors++;
-                applyIncorrectAnimation(leftSelection);
-                applyIncorrectAnimation(rightSelection);
+                applyIncorrectAnimation(leftSelection, false);
+                applyIncorrectAnimation(rightSelection, false);
+                results.put((String) leftSelection.getUserData(), false);
+                results.put((String) rightSelection.getUserData(), false);
             }
             unselectButtons();
             checkComplete();
@@ -183,11 +216,20 @@ public abstract class MatchLearnView extends LearnView {
     @Override
     public void checkComplete() {
         if (matchPairs.isEmpty()){
-            super.finished(true);
+            disableButton.set(true);
+            if(getDetailedResults){
+                super.finished(true, results);
+            } else {
+                super.finished(true);
+            }
         }
         if(errors >= MAX_ERRORS){
             disableButton.set(true);
-            super.finished(false);
+            if(getDetailedResults){
+                super.finished(false, results);
+            } else {
+                super.finished(false);
+            }
         }
     }
 
@@ -207,5 +249,9 @@ public abstract class MatchLearnView extends LearnView {
         disableButton.set(false);
         errors = 0;
         return initView();
+    }
+
+    public void setGetDetailedResults(boolean getDetailedResults) {
+        this.getDetailedResults = getDetailedResults;
     }
 }
