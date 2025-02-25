@@ -215,6 +215,7 @@ public class Controller {
         try {
             Media media = new Media(new File(path).toURI().toString());
             mediaPlayer = new MediaPlayer(media);
+            mediaPlayer.setVolume(200);
             mediaPlayer.play();
         } catch (Exception ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);

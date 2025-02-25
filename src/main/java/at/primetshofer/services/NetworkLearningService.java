@@ -81,6 +81,20 @@ public class NetworkLearningService extends Service<Void> {
         }
     }
 
+    public void fakeUDPBroadcast() {
+        try {
+            String replyMessage = "Server-Running";
+            byte[] replyBuffer = replyMessage.getBytes();
+            InetAddress senderAddress = InetAddress.getByName("10.0.1.2");
+
+            DatagramPacket replyPacket = new DatagramPacket(replyBuffer, replyBuffer.length, senderAddress, UDP_PORT);
+
+            datagramSocket.send(replyPacket);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void startUDPListener() {
         try {
             if (datagramSocket != null && !datagramSocket.isClosed()) {

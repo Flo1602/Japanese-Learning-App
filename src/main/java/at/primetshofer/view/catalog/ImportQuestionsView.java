@@ -190,7 +190,7 @@ public class ImportQuestionsView extends View {
                     String ttsString = question.getJapanese();
 
                     File file = TTS.getTts().synthesizeAudio(ttsString, "audio/questions/" + question.getId() + ".wav");
-                    question.setTtsPath(file.getAbsolutePath());
+                    question.setTtsPath(file.getPath());
                     em.merge(question);
                     progress.set(progress.get() + progressValue);
                 }

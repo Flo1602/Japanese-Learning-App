@@ -117,7 +117,7 @@ public class CreateEditQuestionWindow extends PopUp {
                     String ttsString = question.getJapanese();
 
                     File file = TTS.getTts().synthesizeAudio(ttsString, "audio/questions/" + question.getId() + ".wav");
-                    question.setTtsPath(file.getAbsolutePath());
+                    question.setTtsPath(file.getPath());
 
                     parseTableData(em);
 

@@ -121,7 +121,7 @@ public class CreateEditWordWindow extends PopUp {
                         }
                     }
 
-                    word.setTtsPath(audioFile.getAbsolutePath());
+                    word.setTtsPath(audioFile.getPath());
                     em.merge(word);
 
                 } catch (Exception ex) {

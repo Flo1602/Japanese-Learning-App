@@ -104,7 +104,7 @@ public class AnkiParser {
                 String ttsString = (word.getKana() == null) ? word.getJapanese() : word.getKana();
 
                 File file = tts.synthesizeAudio(ttsString, "audio/words/" + dbWord.getId() + ".wav");
-                dbWord.setTtsPath(file.getAbsolutePath());
+                dbWord.setTtsPath(file.getPath());
                 dbWord.connectKanji();
                 em.merge(dbWord);
 

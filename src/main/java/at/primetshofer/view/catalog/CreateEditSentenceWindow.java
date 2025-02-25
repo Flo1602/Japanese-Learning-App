@@ -93,7 +93,7 @@ public class CreateEditSentenceWindow extends PopUp {
                     String ttsString = sentence.getJapanese();
 
                     File file = TTS.getTts().synthesizeAudio(ttsString, "audio/sentences/" + sentence.getId() + ".wav");
-                    sentence.setTtsPath(file.getAbsolutePath());
+                    sentence.setTtsPath(file.getPath());
                     sentence = em.merge(sentence);
 
                     HibernateUtil.commitTransaction();

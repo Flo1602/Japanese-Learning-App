@@ -2,6 +2,7 @@ package at.primetshofer;
 
 import at.primetshofer.model.AudioRecorder;
 import at.primetshofer.model.TTS;
+import at.primetshofer.model.util.DatabaseBackupManager;
 import at.primetshofer.model.util.HibernateUtil;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.MainMenuView;
@@ -37,6 +38,9 @@ public class Main extends Application {
                 updateMessage(LangController.getText("SplashScreenMessage"));
 
                 initializeHibernate();
+
+                DatabaseBackupManager.checkAndBackup(HibernateUtil.getEntityManager());
+
                 return null;
             }
         };
