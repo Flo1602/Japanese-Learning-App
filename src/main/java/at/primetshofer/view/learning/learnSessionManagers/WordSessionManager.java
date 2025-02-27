@@ -58,13 +58,13 @@ public class WordSessionManager extends LearnSessionManager {
         if (currentCounter <= 6) {
             MatchLearnView learnView = null;
 
-            switch (rand.nextInt((listening) ? 2 : 3)) {
+            switch (rand.nextInt((listening) ? 3 : 4)) {
                 case 0 -> learnView = new VocabEnglishToJapaneseMatch(this, getFiveWords());
-                case 1 -> {
+                case 1, 2 -> {
                     learnView = new VocabEnglishToJapaneseMatch(this, getFiveWords());
                     ((VocabEnglishToJapaneseMatch) learnView).setReverse(true);
                 }
-                case 2 -> {
+                case 3 -> {
                     learnView = new VocabAudioToEnglishMatch(this, getFiveWords());
                     listening = true;
                 }
