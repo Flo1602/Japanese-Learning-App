@@ -4,10 +4,9 @@ import at.primetshofer.model.AudioRecorder;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.ViewUtils;
 import at.primetshofer.view.catalog.View;
-import at.primetshofer.view.learning.learnSessionManagers.QuestionSessionManager;
-import at.primetshofer.view.learning.learnSessionManagers.SentenceSessionManager;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -37,17 +36,19 @@ public class LearningMenuView extends View {
         Button questionButton = new Button("Questions");
         questionButton.getStyleClass().add("smallMenuButton");
         questionButton.setOnAction(e -> {
-            QuestionSessionManager questionSessionManager = new QuestionSessionManager(scene);
-            questionSessionManager.initView();
-            questionSessionManager.display(this);
+            //QuestionSessionManager questionSessionManager = new QuestionSessionManager(scene);
+            //questionSessionManager.initView();
+            //questionSessionManager.display(this);
+            ViewUtils.showAlert(Alert.AlertType.WARNING, "This learning-mode is not fully implemented yet!", "NOT AVAILABLE");
         });
 
         Button sentenceButton = new Button("Sentences");
         sentenceButton.getStyleClass().add("smallMenuButton");
         sentenceButton.setOnAction(e -> {
-            SentenceSessionManager sentenceSessionManager = new SentenceSessionManager(scene);
-            sentenceSessionManager.initView();
-            sentenceSessionManager.display(this);
+            //SentenceSessionManager sentenceSessionManager = new SentenceSessionManager(scene);
+            //sentenceSessionManager.initView();
+            //sentenceSessionManager.display(this);
+            ViewUtils.showAlert(Alert.AlertType.WARNING, "This learning-mode is not fully implemented yet!", "NOT AVAILABLE");
         });
 
         Button vocabButton = new Button(LangController.getText("VocabButton"));
