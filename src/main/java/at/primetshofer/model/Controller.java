@@ -116,6 +116,7 @@ public class Controller {
                 settings.setId(SETTING_ID);
                 settings.setNewWords(20);
                 settings.setMaxDailyKanji(20);
+                settings.setMaxDailyWords(50);
                 settings.setStyleSheet(Stylesheet.CUPERTINO_DARK);
                 settings.setVoiceId(0);
 

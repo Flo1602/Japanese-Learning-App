@@ -61,8 +61,8 @@ public class AnkiParser {
                 String[] fieldArray = fields.split("\u001F");
                 Word word = new Word();
 
-                if (fieldArray.length > 3 && !fieldArray[3].isBlank() && !fieldArray[2].isBlank() && !fieldArray[1].isBlank()) {
-                    word.setJapaneseIgnoreKanji(fieldArray[1]);
+                if (fieldArray.length > 3 && !fieldArray[3].isBlank() && !fieldArray[2].isBlank() && !fieldArray[0].isBlank()) {
+                    word.setJapaneseIgnoreKanji(fieldArray[0]);
                     word.setKana(fieldArray[2]);
                     word.setEnglish(fieldArray[3]);
                     words.add(word);
@@ -86,7 +86,7 @@ public class AnkiParser {
             extractApkg(apkgPath, outputDir);
 
             // Step 2: Parse the SQLite database
-            String dbPath = outputDir + "/collection.anki2";
+            String dbPath = outputDir + "/collection.anki21";
             List<Word> words = parseDatabase(dbPath);
             deleteDirectory(new File(outputDir));
 

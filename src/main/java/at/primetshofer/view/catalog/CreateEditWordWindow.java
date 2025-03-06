@@ -104,9 +104,9 @@ public class CreateEditWordWindow extends PopUp {
                             throw new RuntimeException(ex);
                         }
                     } else {
-                        String mp3Path = audioFile.getAbsolutePath();
-                        audioFile = new File(audioFile.getAbsolutePath().replaceFirst("[.][^.]+$", ".wav"));
-                        String command = "ffmpeg/ffmpeg.exe -y -i \"" + mp3Path + "\" \"" + audioFile.getAbsolutePath() + "\"";
+                        String mp3Path = audioFile.getPath();
+                        audioFile = new File(audioFile.getPath().replaceFirst("[.][^.]+$", ".wav"));
+                        String command = "ffmpeg/ffmpeg.exe -y -i \"" + mp3Path + "\" \"" + audioFile.getPath() + "\"";
 
                         Runtime run = Runtime.getRuntime();
                         try {
