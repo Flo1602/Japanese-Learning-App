@@ -1,7 +1,6 @@
 package at.primetshofer.view.learning.learnViews.matchLearnViews;
 
 import at.primetshofer.model.entities.Word;
-import at.primetshofer.view.ViewUtils;
 import at.primetshofer.view.learning.learnSessionManagers.LearnSessionManager;
 import javafx.scene.layout.Pane;
 
@@ -23,7 +22,7 @@ public class VocabAudioToJapaneseMatch extends MatchLearnView {
         Map<String, String> wordPairs = new HashMap<>();
         Map<String, String> ttsPaths = new HashMap<>();
         for (Word word : words) {
-            String japanese = ViewUtils.removeParenthesesContent(word.getJapanese()).split(",")[0];
+            String japanese = word.getJapanese();
             String id = word.getId() + "";
             wordPairs.put(id, japanese);
             ttsPaths.put(id, word.getTtsPath());

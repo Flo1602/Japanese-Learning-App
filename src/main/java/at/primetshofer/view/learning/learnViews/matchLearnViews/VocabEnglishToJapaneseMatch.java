@@ -1,7 +1,6 @@
 package at.primetshofer.view.learning.learnViews.matchLearnViews;
 
 import at.primetshofer.model.entities.Word;
-import at.primetshofer.view.ViewUtils;
 import at.primetshofer.view.learning.learnSessionManagers.LearnSessionManager;
 import javafx.scene.layout.Pane;
 
@@ -25,8 +24,8 @@ public class VocabEnglishToJapaneseMatch extends MatchLearnView {
         Map<String, String> wordPairs = new HashMap<>();
         Map<String, String> ttsPaths = new HashMap<>();
         for (Word word : words) {
-            String english = ViewUtils.removeParenthesesContent(word.getEnglish()).split(",")[0];
-            String japanese = ViewUtils.removeParenthesesContent(word.getJapanese()).split(",")[0];
+            String english = word.getEnglish();
+            String japanese = word.getJapanese();
             if (reverse) {
                 wordPairs.put(japanese, english);
             } else {

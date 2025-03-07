@@ -11,6 +11,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -89,6 +90,9 @@ public abstract class MatchLearnView extends LearnView {
                     leftSelection = null;
                 }
             });
+            Tooltip tooltip = new Tooltip(keyList.get(i));
+            tooltip.setStyle("-fx-font-size: 16pt");
+            Tooltip.install(leftButton, tooltip);
 
             leftButton.setOnMouseClicked(event -> {
                 if (event.getButton().equals(MouseButton.SECONDARY) && getDetailedResults) {
@@ -107,6 +111,9 @@ public abstract class MatchLearnView extends LearnView {
             rightButton.disableProperty().bind(disableButton);
             rightButton.setUserData(valueList.get(i));
             rightButton.getStyleClass().add("matchButton");
+            Tooltip tooltip2 = new Tooltip(valueList.get(i));
+            tooltip2.setStyle("-fx-font-size: 12pt");
+            Tooltip.install(rightButton, tooltip2);
             rightButton.setOnAction(event -> {
                 if (ttsPaths != null && ttsPaths.containsKey(valueList.get(finalI))) {
                     controller.playAudio(ttsPaths.get(valueList.get(finalI)));
