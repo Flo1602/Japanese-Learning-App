@@ -81,26 +81,30 @@ public class Controller {
     private static void compressWordProgress(Word word) {
         List<WordProgress> wordProgressList = word.getProgresses();
         if (wordProgressList == null || wordProgressList.size() <= 3) {
-            return; // No compression needed
+            return;
         }
 
-        List<WordProgress> compressedList = new ArrayList<>();
-
-        // Add the first entry
-        compressedList.add(wordProgressList.getFirst());
-
-        // Compress middle entries
+        WordProgress firstEntry = wordProgressList.get(0);
         WordProgress middleCompressed = wordProgressList.get(wordProgressList.size() - 2);
-        middleCompressed.setCompressedEntries(wordProgressList.size() - 2);
-        middleCompressed.setLearned(wordProgressList.get(wordProgressList.size() - 2).getLearned()); // Use the timestamp of the second last entry
-        middleCompressed.setPoints(wordProgressList.subList(1, wordProgressList.size() - 2)
-                .stream()
-                .mapToInt(WordProgress::getPoints)
-                .sum());
-        compressedList.add(middleCompressed);
+        WordProgress lastEntry = wordProgressList.get(wordProgressList.size() - 1);
 
-        // Add the last entry
-        compressedList.add(wordProgressList.getLast());
+        int totalPoints = 0;
+        int totalRealMiddleEntries = 0;
+
+        for (int i = 1; i < wordProgressList.size() - 1; i++) {
+            WordProgress p = wordProgressList.get(i);
+            totalPoints += p.getPoints();
+            totalRealMiddleEntries += (p.getCompressedEntries());
+        }
+
+        middleCompressed.setPoints(totalPoints);
+
+        middleCompressed.setCompressedEntries(totalRealMiddleEntries);
+
+        List<WordProgress> compressedList = new ArrayList<>();
+        compressedList.add(firstEntry);
+        compressedList.add(middleCompressed);
+        compressedList.add(lastEntry);
 
         word.setProgresses(compressedList);
     }
