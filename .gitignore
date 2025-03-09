@@ -4,6 +4,7 @@ target/
 !**/src/test/**/target/
 
 ### IntelliJ IDEA ###
+.idea/misc.xml
 .idea/modules.xml
 .idea/jarRepositories.xml
 .idea/compiler.xml
@@ -44,3 +45,18 @@ build/
 /DB_Backup/
 /dependency-reduced-pom.xml
 /.idea/inspectionProfiles/Project_Default.xml
+
+### Logging ###
+
+# Ignore log files
+application.log
+hibernate.log
+
+# Ignore rotated log files
+application.log.*
+hibernate.log.*
+
+# Ignore log directory (if logs are stored in a folder)
+logs/
+logs/*.log
+logs/*.log.*
