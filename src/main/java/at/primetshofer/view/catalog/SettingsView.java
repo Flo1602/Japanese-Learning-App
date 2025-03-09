@@ -16,11 +16,13 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 
 public class SettingsView extends View {
 
+    private static final Logger logger = Logger.getLogger(SettingsView.class);
 
     private TextField voiceIdInput;
     private TextField newWordsInput;
@@ -68,7 +70,10 @@ public class SettingsView extends View {
                     Media media = new Media(file.toURI().toString());
                     MediaPlayer mediaPlayer = new MediaPlayer(media);
                     mediaPlayer.play();
-                } catch (Exception e) {
+                } catch (Exception ex) {
+                    logger.error("TTS error", ex);
+
+                    // TODO: use ViewUtils and Langfile
                     Platform.runLater(() -> {
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("Error");
@@ -163,6 +168,9 @@ public class SettingsView extends View {
 
                 origin.get().popToView();
             } catch (NumberFormatException ex) {
+                logger.error("User input was invalid", ex);
+
+                // TODO: use ViewUtils and Langfile
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
                 alert.setContentText("Please enter a valid number!");

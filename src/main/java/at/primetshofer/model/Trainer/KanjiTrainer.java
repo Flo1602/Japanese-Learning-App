@@ -1,11 +1,13 @@
 package at.primetshofer.model.Trainer;
 
+import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.entities.Kanji;
 import at.primetshofer.model.entities.KanjiProgress;
 import at.primetshofer.model.util.HibernateUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+import org.apache.log4j.Logger;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,6 +15,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class KanjiTrainer {
+
+    private final static Logger logger = Logger.getLogger(KanjiTrainer.class);
 
     private static KanjiTrainer instance;
     private List<Kanji> dueKanjiList;
@@ -264,14 +268,12 @@ public class KanjiTrainer {
 
         if (!dueKanji.isEmpty()) {
             Collections.shuffle(dueKanji);
-            System.out.println("from due");
             return dueKanji.get(0);
         }
 
         // 2. No strictly due Kanji -> try never learned Kanji
         if (!neverLearned.isEmpty()) {
             Collections.shuffle(neverLearned);
-            System.out.println("from empty");
             return neverLearned.get(0);
         }
 
@@ -290,14 +292,12 @@ public class KanjiTrainer {
         }
         if (!soonDueKanji.isEmpty()) {
             Collections.shuffle(soonDueKanji);
-            System.out.println("from soon");
             return soonDueKanji.get(0);
         }
 
         // 4. Any Kanji at random if no other condition met
         if (!allKanjiList.isEmpty()) {
             int rand = new Random().nextInt(allKanjiList.size());
-            System.out.println("random");
             return allKanjiList.get(rand);
         }
 
@@ -327,8 +327,9 @@ public class KanjiTrainer {
         if (getTodayProgress(kanji, now.toLocalDate()) == null) {
             daysGoal = 0;
         }
+
         if (reviewTime.toLocalDate().isAfter(now.toLocalDate()) && !reviewTime.isBefore(now.plusDays(daysGoal))) {
-            System.out.println("no progress");
+            logger.info("No progress made for kanji: '" + kanji.getSymbol() + "'");
             return kanji;
         }
 
@@ -342,7 +343,7 @@ public class KanjiTrainer {
             newPoints = dynamicMaxPoints;
         }
 
-        System.out.println("progress: " + newPoints);
+        logger.info("Progress made for kanji '" + kanji.getSymbol() + "': " + newPoints + "pts");
 
         if (todayProgress != null) {
             // Update the existing today's progress entry

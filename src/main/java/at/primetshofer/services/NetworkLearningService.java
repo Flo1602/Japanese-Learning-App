@@ -1,6 +1,7 @@
 package at.primetshofer.services;
 
 import at.primetshofer.logic.provider.file.UnicodeFilenameFileProvider;
+import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.dto.DTOConverter;
 import at.primetshofer.model.dto.JsonSerializer;
@@ -13,6 +14,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +25,8 @@ import java.nio.file.Files;
 import java.util.List;
 
 public class NetworkLearningService extends Service<Void> {
+
+    private static final Logger logger = Logger.getLogger(NetworkLearningService.class);
 
     private static final int UDP_BROADCAST_PORT = 9875;
     private static final int UDP_PORT = 9876;
@@ -63,9 +67,10 @@ public class NetworkLearningService extends Service<Void> {
 
         try {
             serverSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            ViewUtils.showAlert(Alert.AlertType.ERROR, e.getMessage(), "Network Error!");
+        } catch (IOException ex) {
+            logger.error("Failed to close server socket", ex);
+            // TODO use lang
+            ViewUtils.showAlert(Alert.AlertType.ERROR, ex.getMessage(), "Network Error!");
         }
 
         return super.cancel();
@@ -90,8 +95,9 @@ public class NetworkLearningService extends Service<Void> {
             DatagramPacket replyPacket = new DatagramPacket(replyBuffer, replyBuffer.length, senderAddress, UDP_PORT);
 
             datagramSocket.send(replyPacket);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (IOException ex) {
+            logger.error("Failed to fake UDP broadcast", ex);
+            throw new RuntimeException(ex);
         }
     }
 
@@ -121,10 +127,11 @@ public class NetworkLearningService extends Service<Void> {
                     datagramSocket.send(replyPacket);
                 }
             }
-        } catch (Exception e) {
-            if (!e.getMessage().equals("Socket closed")) {
-                e.printStackTrace();
-                ViewUtils.showAlert(Alert.AlertType.ERROR, e.getMessage(), "Network Error!");
+        } catch (Exception ex) {
+            if (!ex.getMessage().equals("Socket closed")) {
+                logger.error("Unexpected exception was thrown while starting UDP listener", ex);
+                // TODO use lang
+                ViewUtils.showAlert(Alert.AlertType.ERROR, ex.getMessage(), "Network Error!");
             }
         } finally {
             if (datagramSocket != null && !datagramSocket.isClosed()) {
@@ -136,7 +143,7 @@ public class NetworkLearningService extends Service<Void> {
     private void startTCPServer() {
         try (ServerSocket serverSocket = new ServerSocket(TCP_PORT)) {
             this.serverSocket = serverSocket;
-            System.out.println("Server started. Waiting for connections...");
+            logger.info("TCP Server started on port '" + TCP_PORT + "'. Waiting for connections...");
 
             boolean firstConnection = true;
 
@@ -157,7 +164,8 @@ public class NetworkLearningService extends Service<Void> {
                             }
                         }
                     }
-                    System.out.println("Received command: " + command);
+
+                    logger.debug("Received command: " + command);
 
                     if (firstConnection) {
                         if (command.equals("CONNECT")) {
@@ -211,7 +219,7 @@ public class NetworkLearningService extends Service<Void> {
                             if (word != null) {
                                 objectOutput.writeObject(JsonSerializer.toJson(DTOConverter.kanjisToDTO(word.getKanjis())));
                             } else {
-                                System.err.println("Word not found!");
+                                logger.error("Word not found");
                             }
 
                             break;
@@ -254,7 +262,7 @@ public class NetworkLearningService extends Service<Void> {
                         case "EXIT":
                             deviceConnected.set(false);
                             firstConnection = true;
-                            System.out.println("Client requested disconnection.");
+                            logger.info("Client requested disconnection.");
                             break;
 
                         default:
@@ -265,17 +273,19 @@ public class NetworkLearningService extends Service<Void> {
                         objectOutput.writeObject("CLOSE");
                     }
 
-                } catch (Exception e) {
-                    if (!e.getMessage().equals("Socket closed") && !e.getMessage().equals("Socket is closed")) {
-                        e.printStackTrace();
-                        ViewUtils.showAlert(Alert.AlertType.ERROR, e.getMessage(), "Network Error!");
+                } catch (Exception ex) {
+                    if (!ex.getMessage().equals("Socket closed") && !ex.getMessage().equals("Socket is closed")) {
+                        logger.error("Unexpected exception was thrown during communication", ex);
+                        // TODO use lang
+                        ViewUtils.showAlert(Alert.AlertType.ERROR, ex.getMessage(), "Network Error!");
                     }
                     deviceConnected.set(false);
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            ViewUtils.showAlert(Alert.AlertType.ERROR, e.getMessage(), "Network Error!");
+        } catch (IOException ex) {
+            logger.error("Failed to start TCP server", ex);
+            // TODO use lang
+            ViewUtils.showAlert(Alert.AlertType.ERROR, ex.getMessage(), "Network Error!");
             deviceConnected.set(false);
         }
     }

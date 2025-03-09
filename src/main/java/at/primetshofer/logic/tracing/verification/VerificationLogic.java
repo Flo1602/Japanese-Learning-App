@@ -13,11 +13,14 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.PixelReader;
 import javafx.scene.paint.Color;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class VerificationLogic implements ITraceVerificationLogic {
+
+    private static final Logger logger = Logger.getLogger(VerificationLogic.class);
 
     private static final Color BASE_COLOR = Color.WHITE;
     private static final Double MAX_GRADIENT_HUE = 270.0D;
@@ -134,19 +137,15 @@ public class VerificationLogic implements ITraceVerificationLogic {
 
         double clampedWrongSimilarity = Math.max(0.0D, Math.min(1.0D, minWrongSimilarity));
 
-        if (this.options.debug()) {
-            System.out.println("\nSUMMARY:");
-            System.out.println("\tMin. result from:\t" + invalidator + " similarity");
-            System.out.println("\tMin. result:\t\t" + minWrongSimilarity);
-            System.out.println("\tClamped result:\t\t" + clampedWrongSimilarity);
-        }
+        logger.debug("\nSUMMARY:");
+        logger.debug("\tMin. result from:\t" + invalidator + " similarity");
+        logger.debug("\tMin. result:\t\t" + minWrongSimilarity);
+        logger.debug("\tClamped result:\t\t" + clampedWrongSimilarity);
 
         VerifyResult verifyResult = this.getVerifyResult(clampedWrongSimilarity);
 
-        if (options.debug()) {
-            System.out.println("\tCurrent try:\t\t" + this.currentTry + " / " + this.options.maxTries());
-            System.out.println("\tResult:\t\t\t\t" + verifyResult);
-        }
+        logger.debug("\tCurrent try:\t\t" + this.currentTry + " / " + this.options.maxTries());
+        logger.debug("\tResult:\t\t\t\t" + verifyResult);
 
         return verifyResult;
     }
@@ -203,12 +202,10 @@ public class VerificationLogic implements ITraceVerificationLogic {
 
         double result = 1.0 - (totalAngularDiff / samplesTaken);
 
-        if (this.options.debug()) {
-            System.out.println("\nANGULAR SIMILARITY:");
-            System.out.println("\tExpected samples:\t" + sampleSize);
-            System.out.println("\tActual samples:\t\t" + samplesTaken);
-            System.out.println("\tResult:\t\t\t\t" + result);
-        }
+        logger.debug("\nANGULAR SIMILARITY:");
+        logger.debug("\tExpected samples:\t" + sampleSize);
+        logger.debug("\tActual samples:\t\t" + samplesTaken);
+        logger.debug("\tResult:\t\t\t\t" + result);
 
         return result;
     }
@@ -217,16 +214,14 @@ public class VerificationLogic implements ITraceVerificationLogic {
         double verticesCountDiff = Math.abs(source.getVerticesCount() - toVerify.getVerticesCount());
         double result = 1.0D - Math.pow(verticesCountDiff / source.getVerticesCount(), 1.0 / this.options.lengthCorrectnessExp());
 
-        if (this.options.debug()) {
-            System.out.println("\nLENGTH SIMILARITY:");
-            System.out.println("\tSource vertices:\t" + source.getVerticesCount());
-            System.out.println("\tTo verify vertices:\t" + toVerify.getVerticesCount());
-            System.out.println("\tVertices diff:\t\t" + verticesCountDiff);
-            double baseDiff = 1.0D - verticesCountDiff / source.getVerticesCount();
-            System.out.println("\tBase diff:\t\t\t" + baseDiff);
-            System.out.println("\tDiff factor:\t\t" + result / baseDiff);
-            System.out.println("\tResult:\t\t\t\t" + result);
-        }
+        logger.debug("\nLENGTH SIMILARITY:");
+        logger.debug("\tSource vertices:\t" + source.getVerticesCount());
+        logger.debug("\tTo verify vertices:\t" + toVerify.getVerticesCount());
+        logger.debug("\tVertices diff:\t\t" + verticesCountDiff);
+        double baseDiff = 1.0D - verticesCountDiff / source.getVerticesCount();
+        logger.debug("\tBase diff:\t\t\t" + baseDiff);
+        logger.debug("\tDiff factor:\t\t" + result / baseDiff);
+        logger.debug("\tResult:\t\t\t\t" + result);
 
         return result;
     }
@@ -264,19 +259,16 @@ public class VerificationLogic implements ITraceVerificationLogic {
             }
         }
 
-        if (this.options.debug()) {
-            System.out.println("\nIMAGE SIMILARITY:");
-            System.out.println("\tTotal color diff:\t" + totalColorDiff);
-            System.out.println("\tCompared Pixels:\t" + comparedPixels);
-        }
+        logger.debug("\nIMAGE SIMILARITY:");
+        logger.debug("\tTotal color diff:\t" + totalColorDiff);
+        logger.debug("\tCompared Pixels:\t" + comparedPixels);
 
         double result = 1.0D;
 
         if (comparedPixels != 0)
             result = 1.0D - totalColorDiff / comparedPixels;
 
-        if (options.debug())
-            System.out.println("\tResult:\t\t\t\t" + result);
+        logger.debug("\tResult:\t\t\t\t" + result);
 
         return result;
     }

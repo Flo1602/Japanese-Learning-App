@@ -1,5 +1,6 @@
 package at.primetshofer.view.learning.learnViews;
 
+import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import at.primetshofer.model.AudioRecorder;
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.KanaToRomajiConverter;
@@ -26,6 +27,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.util.Duration;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +36,7 @@ import java.util.Random;
 
 public class WordDefense extends LearnView {
 
+    private static final Logger logger = Logger.getLogger(WordDefense.class);
     private static final String SPEAKING_PATH = "audio/system/recording.wav";
     private ChangeListener<Boolean> listener;
     private final List<Word> words;
@@ -199,13 +202,13 @@ public class WordDefense extends LearnView {
 
                             String attackerRomaji = KanaToRomajiConverter.hiraganaToRomaji(attackerKana);
 
-                            System.out.println(romaji);
+                            logger.info("Romaji: " + romaji);
 
                             double similarity = StringSimilarity.calculateSimilarity(shot, attacker.getText());
                             double similarity2 = StringSimilarity.calculateSimilarity(romaji, attackerRomaji);
                             double similarity3 = StringSimilarity.calculateSimilarity(shot, attackerKana);
 
-                            System.out.println(similarity + " " + similarity2 + " " + similarity3);
+                            logger.info("Similarity 1: " + similarity + ", Similarity 2: " + similarity2 + ", Similarity 3:" + similarity3);
 
                             if (similarity >= 50 || similarity2 >= 50 || similarity3 >= 50) {
                                 if (destroyAttacker(attacker)) {

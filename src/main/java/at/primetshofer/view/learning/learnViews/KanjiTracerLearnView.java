@@ -114,10 +114,6 @@ public class KanjiTracerLearnView extends LearnView implements ITraceLogic.ITrac
         this.top.getChildren().addAll(audioButton, this.topText);
         this.rootView.setTop(this.top);
 
-        this.hintCanvas.setOnMousePressed(mouseEvent -> {
-            System.out.println(mouseEvent.getButton());
-        });
-
         return this.rootView;
     }
 

@@ -1,11 +1,13 @@
 package at.primetshofer.model;
 
+import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.HibernateUtil;
 import jakarta.persistence.EntityManager;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.scene.control.Alert;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,6 +24,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class AnkiParser {
+
+    private static final Logger logger = Logger.getLogger(AnkiParser.class);
 
     public static void extractApkg(String apkgPath, String outputDir) throws Exception {
         ZipFile zipFile = new ZipFile(apkgPath);
@@ -48,7 +52,7 @@ public class AnkiParser {
     private static List<Word> parseDatabase(String dbPath) {
         List<Word> words = new ArrayList<>();
         try {
-            System.out.println("jdbc:sqlite:" + dbPath);
+            logger.debug("JDBC connection string: 'jdbc:sqlite:" + dbPath + "'");
             Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
             Statement statement = connection.createStatement();
 
@@ -71,8 +75,8 @@ public class AnkiParser {
             }
 
             connection.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            logger.error("Failed to parse database", ex);
         }
 
         return words;
@@ -104,7 +108,7 @@ public class AnkiParser {
             // Step 2: Parse the SQLite database
             String dbPath = getDBPath(outputDir);
 
-            System.out.println(dbPath);
+            logger.debug("Anki DB path: '" + dbPath + "'");
 
             List<Word> words = parseDatabase(dbPath);
             deleteDirectory(new File(outputDir));
@@ -132,9 +136,11 @@ public class AnkiParser {
                 Platform.runLater(() -> finished.set(finished.get() + progressValue));
             }
 
-        } catch (Exception e) {
+        } catch (Exception ex) {
+            logger.error("Error while parsing file or TTS not reachable", ex);
+
             Platform.runLater(() -> {
-                e.printStackTrace();
+                // TODO: use ViewUtils and Langfile
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
                 alert.setContentText("Error Parsing File or TTS not reachable!");
@@ -166,7 +172,7 @@ public class AnkiParser {
                 throw new IOException("Failed to delete directory: " + directory);
             }
         } else {
-            System.out.println("Directory does not exist.");
+            logger.error("Directory '" + directory + "' does not exist.");
         }
     }
 }

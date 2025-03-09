@@ -18,11 +18,13 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 
 public class CreateEditSentenceWindow extends PopUp {
 
+    private static final Logger logger = Logger.getLogger(CreateEditSentenceWindow.class);
     private Sentence sentence;
     private Word word;
     private boolean create;
@@ -30,6 +32,7 @@ public class CreateEditSentenceWindow extends PopUp {
 
     public CreateEditSentenceWindow(Word word) {
         super();
+        // TODO use lang
         setTitle("Sentence Editor");
         setStageSize(700, 600);
         this.word = word;
@@ -102,8 +105,10 @@ public class CreateEditSentenceWindow extends PopUp {
                     parseTableData(em);
 
                 } catch (Exception ex) {
+                    logger.error("TTS API not available", ex);
+
                     Platform.runLater(() -> {
-                        ex.printStackTrace();
+                        // TODO: use ViewUtils and lang
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("Error");
                         alert.setContentText("TTS API not available!");

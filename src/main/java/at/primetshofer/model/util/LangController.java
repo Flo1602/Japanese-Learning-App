@@ -1,10 +1,15 @@
 package at.primetshofer.model.util;
 
+import at.primetshofer.logic.tracing.verification.VerificationLogic;
+import org.apache.log4j.Logger;
+
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public class LangController {
+
+    private static final Logger logger = Logger.getLogger(LangController.class);
 
     static final String BASENAME = "lang";
 
@@ -23,7 +28,7 @@ public class LangController {
                 langController = ResourceBundle.getBundle(BASENAME, new Locale("en"));
                 langController.getString("validFile");
             } catch (MissingResourceException ex) {
-                ex.printStackTrace();
+                logger.error("Failed to load language resource file", ex);
             }
         }
     }

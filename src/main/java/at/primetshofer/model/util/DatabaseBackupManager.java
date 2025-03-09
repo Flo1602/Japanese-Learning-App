@@ -1,6 +1,8 @@
 package at.primetshofer.model.util;
 
+import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import jakarta.persistence.EntityManager;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -11,23 +13,25 @@ import java.util.*;
 
 public class DatabaseBackupManager {
 
+    private final static Logger logger = Logger.getLogger(DatabaseBackupManager.class);
+
     private static final String BACKUP_DIR = "DB_Backup";
 
     public static void checkAndBackup(EntityManager em) {
         // Ensure backup directory exists
         File backupDir = new File(BACKUP_DIR);
         if (!backupDir.exists() && !backupDir.mkdirs()) {
-            System.err.println("Could not create backup directory: " + BACKUP_DIR);
+            logger.error("Could not create backup directory: '" + BACKUP_DIR + "'");
             return;
         }
 
         LocalDate today = LocalDate.now();
-        String backupFileName = "backup-" + today.toString() + ".zip";
+        String backupFileName = "backup-" + today + ".zip";
         File backupFile = new File(backupDir, backupFileName);
 
         // Check if today's backup exists
         if (backupFile.exists()) {
-            System.out.println("Backup already exists for today: " + backupFile.getName());
+            logger.warn("Backup already exists for today: '" + backupFile.getName() + "'");
         } else {
             performBackup(em, backupFile.getAbsolutePath());
         }
@@ -44,10 +48,10 @@ public class DatabaseBackupManager {
             em.getTransaction().begin();
             em.createNativeQuery(backupSql).executeUpdate();
             em.getTransaction().commit();
-            System.out.println("Backup created: " + backupFilePath);
-        } catch (Exception e) {
+            logger.info("Backup created: '" + backupFilePath + "'");
+        } catch (Exception ex) {
             em.getTransaction().rollback();
-            System.err.println("Backup failed: " + e.getMessage());
+            logger.error("Backup failed: '" + backupFilePath + "'", ex);
         }
     }
 
@@ -68,7 +72,7 @@ public class DatabaseBackupManager {
                 LocalDate backupDate = LocalDate.parse(dateStr);
                 entries.add(new BackupEntry(backupDate, file));
             } catch (DateTimeParseException ex) {
-                System.err.println("Skipping file with invalid date format: " + name);
+                logger.error("Skipping file with invalid date format: '" + name + "'");
             }
         }
 
@@ -117,9 +121,9 @@ public class DatabaseBackupManager {
         // Delete the backups that are no longer needed.
         for (File file : filesToDelete) {
             if (file.delete()) {
-                System.out.println("Deleted old backup: " + file.getName());
+                logger.info("Deleted old backup: '" + file.getName() + "'");
             } else {
-                System.err.println("Failed to delete old backup: " + file.getName());
+                logger.error("Failed to delete old backup: '" + file.getName() + "'");
             }
         }
     }

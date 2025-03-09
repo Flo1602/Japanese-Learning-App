@@ -1,5 +1,8 @@
 package at.primetshofer.model;
 
+import at.primetshofer.logic.tracing.verification.VerificationLogic;
+import org.apache.log4j.Logger;
+
 import javax.sound.sampled.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -7,6 +10,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class AudioRecorder {
+
+    private static final Logger logger = Logger.getLogger(AudioRecorder.class);
 
     public static final int SAMPLE_RATE = 8000;
     public static final int SAMPLE_SIZE_IN_BITS = 16;
@@ -23,7 +28,7 @@ public class AudioRecorder {
             DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
 
             if (!AudioSystem.isLineSupported(info)) {
-                System.err.println("Mikrofon wird nicht unterstützt.");
+                logger.error("Mircophone is not supported");
                 return;
             }
 
@@ -47,7 +52,7 @@ public class AudioRecorder {
             recordingThread.setDaemon(false);
             recordingThread.start();
         } catch (LineUnavailableException ex) {
-            ex.printStackTrace();
+            logger.error("Failed to start recording", ex);
         }
     }
 
@@ -76,7 +81,7 @@ public class AudioRecorder {
             byteArrayOutputStream.close();
             recordingStarted = false;
         } catch (IOException ex) {
-            ex.printStackTrace();
+            logger.error("Failed to stop recording", ex);
         }
     }
 

@@ -4,6 +4,7 @@ import at.primetshofer.model.entities.Kanji;
 import at.primetshofer.model.util.HibernateUtil;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.ViewUtils;
+import at.primetshofer.view.catalog.CreateEditWordWindow;
 import at.primetshofer.view.catalog.View;
 import at.primetshofer.view.learning.learnSessionManagers.KanjiSessionManager;
 import jakarta.persistence.NoResultException;
@@ -16,8 +17,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import org.apache.log4j.Logger;
 
 public class SelectKanjiLearningView extends View {
+
+    private static final Logger logger = Logger.getLogger(SelectKanjiLearningView.class);
 
     private final KanjiSessionManager kanjiSessionManager;
 
@@ -81,6 +85,8 @@ public class SelectKanjiLearningView extends View {
                     .setParameter("symbol", symbol)
                     .getSingleResult();
         } catch (NoResultException ex) {
+            logger.error("No Kanji found for symbol: " + symbol, ex);
+            // TODO: use lang
             ViewUtils.showAlert(Alert.AlertType.WARNING, "No Kanji found for symbol: " + symbol, "Unable to add progress!");
         }
 

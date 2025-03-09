@@ -3,6 +3,7 @@ package at.primetshofer.view;
 import at.primetshofer.model.AudioRecorder;
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.util.Stylesheet;
+import at.primetshofer.view.catalog.CreateEditWordWindow;
 import at.primetshofer.view.catalog.View;
 import atlantafx.base.theme.*;
 import com.atilika.kuromoji.ipadic.Token;
@@ -18,12 +19,15 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class ViewUtils {
+
+    private static final Logger logger = Logger.getLogger(ViewUtils.class);
 
     public static void applyStyleSheet() {
         Theme theme;
@@ -116,7 +120,9 @@ public class ViewUtils {
             ObjectMapper mapper = new ObjectMapper();
             mapper.readTree(json); // Validate JSON
             return json; // If valid, return as-is
-        } catch (JsonProcessingException e) {
+        } catch (JsonProcessingException ex) {
+            logger.warn("JSON could not be parsed, trying to repair it: '" + json + "'", ex);
+
             // Step 2: If the JSON array is malformed, try to repair it
             List<String> validObjects = extractValidObjects(json);
             if (validObjects.isEmpty()) {
