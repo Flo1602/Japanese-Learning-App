@@ -4,6 +4,7 @@ import at.primetshofer.logic.parser.ISVGPathParser;
 import at.primetshofer.logic.provider.file.IFileProvider;
 import at.primetshofer.model.Point;
 import at.primetshofer.model.Polygon;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,6 +13,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SVGPolygonProvider implements IPolygonProvider {
+
+    private static final Logger logger = Logger.getLogger(SVGPolygonProvider.class);
 
     private final IFileProvider fileProvider;
     private final ISVGPathParser svgParser;
@@ -74,8 +77,8 @@ public class SVGPolygonProvider implements IPolygonProvider {
                     add(poly, cmd.x, cmd.y);
                     break;
                 default:
-                    System.err.println("Our deepest apologies, but " + cmd.command + " commands (" + cmd.code + ") are not yet supported.");
-                    System.exit(2);
+                    logger.error("Our deepest apologies, but " + cmd.command + " commands (" + cmd.code + ") are not yet supported.");
+                    return null;
             }
             prev = cmd;
         }
@@ -173,7 +176,7 @@ public class SVGPolygonProvider implements IPolygonProvider {
 
             int remaining = params.size() - i;
             if (remaining < paramCount) {
-                System.err.println("Invalid parameter count for command: " + commandChar);
+                logger.error("Invalid parameter count for command: " + commandChar);
                 break;
             }
 
@@ -207,7 +210,7 @@ public class SVGPolygonProvider implements IPolygonProvider {
                     // No parameters
                     break;
                 default:
-                    System.err.println("Command not supported: " + code);
+                    logger.error("Command not supported: " + code);
             }
             cmd.code = code;
             cmd.command = commandChar;
@@ -304,7 +307,7 @@ public class SVGPolygonProvider implements IPolygonProvider {
                     cmd.y = currentY;
                     break;
                 default:
-                    System.err.println("Command not supported in makeAbsolute: " + cmd.code);
+                    logger.error("Command not supported in makeAbsolute: " + cmd.code);
             }
             cmd.code = cmd.code.toUpperCase();
         }

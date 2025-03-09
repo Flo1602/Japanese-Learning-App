@@ -1,5 +1,6 @@
 package at.primetshofer.model;
 
+import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import at.primetshofer.model.Trainer.KanjiTrainer;
 import at.primetshofer.model.Trainer.VocabTrainer;
 import at.primetshofer.model.entities.*;
@@ -13,6 +14,7 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 
 public class Controller {
 
+    private static final Logger logger = Logger.getLogger(Controller.class);
     private static final int SETTING_ID = 0;
 
     private static Controller instance;
@@ -203,8 +206,8 @@ public class Controller {
                 Files.lines(base.toPath()).forEach(line -> {
                     try {
                         writer.write(line + "\n");
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } catch (IOException ex) {
+                        logger.error("Failed to write toa  tmp CSV file while getting word list as CSV", ex);
                     }
                 });
             }
@@ -223,6 +226,8 @@ public class Controller {
             mediaPlayer.setVolume(200);
             mediaPlayer.play();
         } catch (Exception ex) {
+            logger.error("Audio '" + path + "' not found");
+            // TODO: use ViewUtils and Langfile
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setContentText("Audio not found!");

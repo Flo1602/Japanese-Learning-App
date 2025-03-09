@@ -1,11 +1,13 @@
 package at.primetshofer.model.Trainer;
 
+import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.entities.WordProgress;
 import at.primetshofer.model.util.HibernateUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+import org.apache.log4j.Logger;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,6 +15,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class VocabTrainer {
+
+    private final static Logger logger = Logger.getLogger(VocabTrainer.class);
 
     private static VocabTrainer instance;
     private List<Word> dueWordList;
@@ -261,13 +265,11 @@ public class VocabTrainer {
 
         Collections.shuffle(dueWords);
         while (!dueWords.isEmpty() && words.size() < count) {
-            System.out.println("from due");
             words.add(dueWords.removeFirst());
         }
 
         Collections.shuffle(neverLearned);
         while (!neverLearned.isEmpty() && words.size() < count) {
-            System.out.println("from empty");
             words.add(neverLearned.removeFirst());
         }
 
@@ -290,7 +292,6 @@ public class VocabTrainer {
 
         Collections.shuffle(soonDueWord);
         while (!soonDueWord.isEmpty() && words.size() < count) {
-            System.out.println("from soon");
             words.add(soonDueWord.removeFirst());
         }
 
@@ -302,7 +303,6 @@ public class VocabTrainer {
         Random random = new Random();
         while (!allWordList.isEmpty() && words.size() < count && tries > 0) {
             int rand = random.nextInt(allWordList.size());
-            System.out.println("random");
             Word word = allWordList.get(rand);
             if (!words.contains(word)) {
                 words.add(word);
@@ -333,7 +333,7 @@ public class VocabTrainer {
             daysGoal = 0;
         }
         if (reviewTime.toLocalDate().isAfter(now.toLocalDate()) && !reviewTime.isBefore(now.plusDays(daysGoal))) {
-            System.out.println("no progress");
+            logger.info("No progress made for word: '" + word.getEnglish() + "'");
             return word;
         }
 
@@ -348,7 +348,7 @@ public class VocabTrainer {
             newPoints = dynamicMaxPoints;
         }
 
-        System.out.println("progress: " + newPoints);
+        logger.info("Progress made for kanji '" + word.getEnglish() + "': " + newPoints + "pts");
 
         if (todayProgress != null) {
             // Update the existing today's progress entry

@@ -25,6 +25,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +33,7 @@ import java.util.List;
 
 public class ImportQuestionsView extends View {
 
+    private static final Logger logger = Logger.getLogger(ImportQuestionsView.class);
     private Word word;
     private final Controller controller;
     private List<Word> words;
@@ -99,8 +101,10 @@ public class ImportQuestionsView extends View {
                         }).start();
                     });
                 } catch (IOException ex) {
+                    logger.error("Error while creating CSV", ex);
+
                     Platform.runLater(() -> {
-                        ex.printStackTrace();
+                        // TODO use viewutils and lang
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("Error");
                         alert.setContentText("Error while creating CSV!");
@@ -160,7 +164,9 @@ public class ImportQuestionsView extends View {
         try {
             questions = objectMapper.readValue(ViewUtils.fixJson(jsonInput.getText()), Question[].class);
         } catch (JsonProcessingException ex) {
-            ex.printStackTrace();
+            logger.error("Error while parsing Json", ex);
+
+            // TODO: use ViewUtils and Langfile
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setContentText("Error while parsing Json!");
@@ -196,8 +202,10 @@ public class ImportQuestionsView extends View {
                 }
 
             } catch (Exception ex) {
+                logger.error("TTS API not available", ex);
+
                 Platform.runLater(() -> {
-                    ex.printStackTrace();
+                    // TODO: use viewutils and lang
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Error");
                     alert.setContentText("TTS API not available!");

@@ -3,7 +3,10 @@ package at.primetshofer.view.learning.menu;
 import at.primetshofer.model.AudioRecorder;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.ViewUtils;
+import at.primetshofer.view.catalog.CreateEditWordWindow;
 import at.primetshofer.view.catalog.View;
+import at.primetshofer.view.learning.learnSessionManagers.QuestionSessionManager;
+import at.primetshofer.view.learning.learnSessionManagers.SentenceSessionManager;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -15,8 +18,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import org.apache.log4j.Logger;
 
 public class LearningMenuView extends View {
+
+    private static final Logger logger = Logger.getLogger(LearningMenuView.class);
 
     private KanjiMenuLearningView kanjiMenuLearningView;
     private WordMenuLearningView wordMenuLearningView;
@@ -32,22 +38,26 @@ public class LearningMenuView extends View {
         Label headline = new Label(LangController.getText("LearningHeading"));
         headline.getStyleClass().add("headline");
         BorderPane.setAlignment(headline, Pos.CENTER);
-
+        // TODO use lang
         Button questionButton = new Button("Questions");
         questionButton.getStyleClass().add("smallMenuButton");
         questionButton.setOnAction(e -> {
             //QuestionSessionManager questionSessionManager = new QuestionSessionManager(scene);
             //questionSessionManager.initView();
             //questionSessionManager.display(this);
+            logger.warn(QuestionSessionManager.class.getName() + " is not fully implemented yet");
+            // TODO: use lang
             ViewUtils.showAlert(Alert.AlertType.WARNING, "This learning-mode is not fully implemented yet!", "NOT AVAILABLE");
         });
-
+        // TODO: use lang
         Button sentenceButton = new Button("Sentences");
         sentenceButton.getStyleClass().add("smallMenuButton");
         sentenceButton.setOnAction(e -> {
             //SentenceSessionManager sentenceSessionManager = new SentenceSessionManager(scene);
             //sentenceSessionManager.initView();
             //sentenceSessionManager.display(this);
+            logger.warn(SentenceSessionManager.class.getName() + " is not fully implemented yet");
+            // TODO: use lang
             ViewUtils.showAlert(Alert.AlertType.WARNING, "This learning-mode is not fully implemented yet!", "NOT AVAILABLE");
         });
 

@@ -7,6 +7,7 @@ import at.primetshofer.model.util.HibernateUtil;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.MainMenuView;
 import at.primetshofer.view.ViewUtils;
+import at.primetshofer.view.catalog.CreateEditWordWindow;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -15,8 +16,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import org.apache.log4j.Logger;
 
 public class Main extends Application {
+
+    private static final Logger logger = Logger.getLogger(Main.class);
 
     public static Stage primaryStage;
 
@@ -58,8 +62,11 @@ public class Main extends Application {
     private void initializeHibernate() {
         try {
             HibernateUtil.getEntityManager();
-        } catch (Exception e) {
+        } catch (Exception ex) {
+            logger.fatal("DB connection Failed. \nMake sure that no other instances of the program are running", ex);
+
             Platform.runLater(() -> {
+                // TODO use viewutils and lang
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
                 alert.setContentText("DB connection Failed! \nMake sure that no other instances of the program are running!");

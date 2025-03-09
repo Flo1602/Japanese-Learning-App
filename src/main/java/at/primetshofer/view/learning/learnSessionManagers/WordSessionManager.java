@@ -6,10 +6,13 @@ import at.primetshofer.view.learning.learnViews.matchLearnViews.MatchLearnView;
 import at.primetshofer.view.learning.learnViews.matchLearnViews.VocabAudioToEnglishMatch;
 import at.primetshofer.view.learning.learnViews.matchLearnViews.VocabEnglishToJapaneseMatch;
 import javafx.scene.Scene;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 
 public class WordSessionManager extends LearnSessionManager {
+
+    private static final Logger logger = Logger.getLogger(WordSessionManager.class);
 
     private static final int WORDS_PER_SESSION = 15;
 
@@ -36,7 +39,7 @@ public class WordSessionManager extends LearnSessionManager {
 
         this.words = Controller.getInstance().getNextLearningWords(WORDS_PER_SESSION);
 
-        System.out.println("Words: " + words.size());
+        logger.info("Words: " + words.size());
 
         Collections.shuffle(words);
 
@@ -111,7 +114,6 @@ public class WordSessionManager extends LearnSessionManager {
     protected void updateProgresses(int percent) {
         Controller controller = Controller.getInstance();
         results.forEach((key, value) -> {
-            System.out.print(key.getEnglish() + ": ");
             double wordResult = 0;
             for (Boolean b : value) {
                 if (b) {
@@ -125,17 +127,20 @@ public class WordSessionManager extends LearnSessionManager {
             }
 
             controller.addWordProgress(key, (int) wordResult);
-            System.out.println(wordResult + "%");
+            logger.info("Updated word progress for word: '" + key.getEnglish() + "': " + wordResult + "%");
         });
     }
 
     public void learnViewFinished(boolean success, Map<String, Boolean> results) {
         results.forEach((key, value) -> {
             int id = -1;
+
             try {
                 id = Integer.parseInt(key);
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException ex) {
+                logger.error("Failed to parse id for word, id: " + key, ex);
             }
+
             for (Word word : words) {
                 if (word.getJapanese().equals(key) || word.getId() == id) {
                     this.results.get(word).add(value);

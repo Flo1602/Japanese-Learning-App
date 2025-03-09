@@ -23,6 +23,7 @@ public class SplashScreen {
         VBox splashLayout = new VBox(10);
         splashLayout.setStyle("-fx-padding: 20; -fx-alignment: center;");
 
+        // TODO use lang
         loadingLabel = new Label("Loading...");
         loadingLabel.getStyleClass().add("smallText");
         progressBar = new ProgressBar();

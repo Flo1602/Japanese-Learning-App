@@ -3,6 +3,7 @@ package at.primetshofer.view.learning.menu;
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.ViewUtils;
+import at.primetshofer.view.catalog.CreateEditWordWindow;
 import at.primetshofer.view.catalog.View;
 import at.primetshofer.view.learning.learnSessionManagers.WordDefenseSessionManager;
 import at.primetshofer.view.learning.learnSessionManagers.WordSessionManager;
@@ -23,8 +24,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import org.apache.log4j.Logger;
 
 public class WordMenuLearningView extends View {
+
+    private static final Logger logger = Logger.getLogger(WordMenuLearningView.class);
 
     private final Controller controller;
     private ProgressBar wordProgress;
@@ -122,7 +126,8 @@ public class WordMenuLearningView extends View {
 
         task.setOnSucceeded(event -> updateProgress());
         task.setOnFailed(event -> {
-            event.getSource().getException().printStackTrace();
+            logger.fatal("Error while updating progresses", event.getSource().getException());
+            // TODO: use lang
             ViewUtils.showAlert(Alert.AlertType.ERROR, "Error while updating Progresses!", "FATAL ERROR!");
         });
 

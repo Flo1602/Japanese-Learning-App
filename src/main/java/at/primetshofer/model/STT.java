@@ -1,7 +1,9 @@
 package at.primetshofer.model;
 
+import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import org.apache.log4j.Logger;
 import org.vosk.LibVosk;
 import org.vosk.LogLevel;
 import org.vosk.Model;
@@ -13,6 +15,7 @@ import java.io.File;
 
 public class STT {
 
+    private static final Logger logger = Logger.getLogger(STT.class);
     private static STT stt = null;
     private final BooleanProperty sttCompleted;
     private String transcript;
@@ -53,13 +56,11 @@ public class STT {
             recognizer.close();
             model.close();
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            transcript = "";
+        } catch (Exception ex) {
+            logger.error("Failed to convert audio to text", ex);
         } finally {
             sttCompleted.set(true);
         }
-
     }
 
     public String getTranscript() {

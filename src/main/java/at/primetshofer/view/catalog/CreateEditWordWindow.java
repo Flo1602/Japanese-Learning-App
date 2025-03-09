@@ -1,5 +1,6 @@
 package at.primetshofer.view.catalog;
 
+import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import at.primetshofer.model.TTS;
 import at.primetshofer.model.entities.Kanji;
 import at.primetshofer.model.entities.Word;
@@ -13,18 +14,20 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
 
 public class CreateEditWordWindow extends PopUp {
 
+    private static final Logger logger = Logger.getLogger(CreateEditWordWindow.class);
     private Word word;
     private boolean create;
 
     public CreateEditWordWindow() {
         super();
-
+        // TODO use lang
         setTitle("Word Editor");
     }
 
@@ -125,8 +128,10 @@ public class CreateEditWordWindow extends PopUp {
                     em.merge(word);
 
                 } catch (Exception ex) {
+                    logger.error("TTS API not available", ex);
+
                     Platform.runLater(() -> {
-                        ex.printStackTrace();
+                        // TODO: use ViewUtil and lang
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("Error");
                         alert.setContentText("TTS API not available!");

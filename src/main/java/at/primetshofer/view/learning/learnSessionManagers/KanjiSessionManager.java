@@ -25,10 +25,13 @@ import at.primetshofer.view.learning.learnViews.sentenceLearnViews.WordBuilderVi
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.paint.Color;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 
 public class KanjiSessionManager extends LearnSessionManager {
+
+    private static final Logger logger = Logger.getLogger(KanjiSessionManager.class);
 
     private final int EASY_CAP = 3;
     private final int MID_CAP = 6;
@@ -118,11 +121,13 @@ public class KanjiSessionManager extends LearnSessionManager {
     }
 
     private void calcDifficulty() {
-        difficulty = 0;
-        for (KanjiProgress progress : kanji.getProgresses()) {
-            difficulty += progress.getCompressedEntries();
+        this.difficulty = 0;
+
+        for (KanjiProgress progress : this.kanji.getProgresses()) {
+            this.difficulty += progress.getCompressedEntries();
         }
-        System.out.println("difficulty: " + difficulty);
+
+        logger.info("Difficulty: " + this.difficulty);
     }
 
     private void initLogic() {
@@ -154,13 +159,13 @@ public class KanjiSessionManager extends LearnSessionManager {
                 debug
         );
 
-        traceLogic = buildLogic(verificationOptions);
+        this.traceLogic = buildLogic(verificationOptions);
         IPolygonDrawer hintLineDrawer = new SmoothPolygonDrawer(traceOptions.lineWidth(), traceOptions.hintColor());
         IPolygonDrawer correctingLineDrawer = new SmoothPolygonDrawer(traceOptions.lineWidth(), traceOptions.drawingColor());
-        kanjiTracerLearnView = new KanjiTracerLearnView(
+        this.kanjiTracerLearnView = new KanjiTracerLearnView(
                 this,
                 traceOptions,
-                traceLogic,
+                this.traceLogic,
                 hintLineDrawer,
                 correctingLineDrawer,
                 debug
@@ -172,6 +177,8 @@ public class KanjiSessionManager extends LearnSessionManager {
         kanjiTracerLearnView.initView();
 
         if (kanji.getWords().isEmpty()) {
+            logger.warn("No words for current kanji found");
+            // TODO use lang
             ViewUtils.showAlert(Alert.AlertType.ERROR, "No words for current Kanji found!", "No words for: " + kanji.getSymbol());
             return;
         }

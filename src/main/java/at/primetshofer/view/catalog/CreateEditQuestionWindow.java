@@ -1,5 +1,6 @@
 package at.primetshofer.view.catalog;
 
+import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import at.primetshofer.model.TTS;
 import at.primetshofer.model.entities.Question;
 import at.primetshofer.model.entities.Word;
@@ -17,12 +18,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.util.Objects;
 
 public class CreateEditQuestionWindow extends PopUp {
 
+    private static final Logger logger = Logger.getLogger(CreateEditQuestionWindow.class);
     private Question question;
     private Word word;
     private boolean create;
@@ -30,6 +33,7 @@ public class CreateEditQuestionWindow extends PopUp {
 
     public CreateEditQuestionWindow(Word word) {
         super();
+        // TODO use lang
         setTitle("Question Editor");
         setStageSize(700, 600);
         this.word = word;
@@ -123,8 +127,10 @@ public class CreateEditQuestionWindow extends PopUp {
 
                     question = em.merge(question);
                 } catch (Exception ex) {
+                    logger.error("Failed to create / save TTS for question: '" + this.question.getQuestion() + "'");
+
                     Platform.runLater(() -> {
-                        ex.printStackTrace();
+                        // TODO: use ViewUtils and lang
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("Error");
                         alert.setContentText("TTS API not available!");

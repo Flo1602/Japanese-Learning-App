@@ -1,5 +1,7 @@
 package at.primetshofer.model.util;
 
+import at.primetshofer.logic.tracing.verification.VerificationLogic;
+import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -11,12 +13,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class JishoAudioFetcher {
-
+    private static final Logger logger = Logger.getLogger(JishoAudioFetcher.class);
     private static final String JISHO_URL = "https://jisho.org/search/";
 
     public static File fetchAudioURL(String japanese, int id) {
+        String searchUrl = JISHO_URL + japanese;
+
         try {
-            String searchUrl = JISHO_URL + japanese;
             Document doc = Jsoup.connect(searchUrl).get();
 
             for (Element audioElement : doc.select("audio")) {
@@ -32,8 +35,8 @@ public class JishoAudioFetcher {
                     }
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            logger.error("Failed to fetch Jisho audio URL '" + searchUrl + "'", ex);
         }
         return null;
     }
@@ -54,9 +57,10 @@ public class JishoAudioFetcher {
                 }
             }
             return audioFile;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            logger.error("Failed to download Jisho audio file from URL '" + audioUrl + "'", ex);
         }
+
         return null;
     }
 }

@@ -1,5 +1,6 @@
 package at.primetshofer.view;
 
+import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.LangController;
@@ -17,11 +18,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.apache.log4j.Logger;
 
 import java.util.List;
 
 public class MainMenuView extends View {
 
+    private static final Logger logger = Logger.getLogger(MainMenuView.class);
     private SettingsView settingsView;
     private CatalogView catalogView;
     private LearningMenuView learningMenuView;
@@ -35,7 +38,8 @@ public class MainMenuView extends View {
         needLearningDataUpdate = true;
 
         loadLearningDataService.setOnFailed(event -> {
-            event.getSource().getException().printStackTrace();
+            logger.fatal("Error while loading learning data", event.getSource().getException());
+            // TODO: use lang
             ViewUtils.showAlert(Alert.AlertType.ERROR, "Error while loading Learning Data!", "FATAL ERROR");
         });
 
@@ -66,6 +70,7 @@ public class MainMenuView extends View {
         Button exit = new Button(LangController.getText("ExitButton"));
         exit.getStyleClass().add("menuButton");
         exit.setOnAction(e -> {
+            logger.info("Closing application");
             System.exit(0);
         });
 
