@@ -78,6 +78,9 @@ public class Main extends Application {
         MainMenuView mainMenu = new MainMenuView(scene);
         mainMenu.display(null);
 
+        ViewUtils.applyStyleSheet();
+        TTS.updateSpeakerId();
+
         new Thread(() -> {
 
             try {

@@ -103,7 +103,9 @@ public class WordListView extends View {
             if (selectedFile != null) {
                 DoubleProperty progressProperty = new SimpleDoubleProperty(0);
 
-                new Thread(() -> AnkiParser.importAnki(selectedFile.getPath(), progressProperty)).start();
+                Thread thread = new Thread(() -> AnkiParser.importAnki(selectedFile.getPath(), progressProperty));
+                thread.setDaemon(true);
+                thread.start();
 
                 LoadingView loadingView = new LoadingView(scene);
                 loadingView.bindProgress(progressProperty);

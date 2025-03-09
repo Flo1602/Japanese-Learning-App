@@ -78,6 +78,22 @@ public class AnkiParser {
         return words;
     }
 
+    private static String getDBPath(String dir){
+        File directory = new File(dir);
+
+        if(directory.exists() && directory.isDirectory()){
+            File[] files = directory.listFiles();
+
+            for (File file : files) {
+                if(file.getName().matches(".*?\\.anki2.+")){
+                    return file.getAbsolutePath();
+                }
+            }
+        }
+
+        return null;
+    }
+
     public static void importAnki(String apkgPath, DoubleProperty finished) {
         try {
             String outputDir = "./tmp";
@@ -86,7 +102,10 @@ public class AnkiParser {
             extractApkg(apkgPath, outputDir);
 
             // Step 2: Parse the SQLite database
-            String dbPath = outputDir + "/collection.anki21";
+            String dbPath = getDBPath(outputDir);
+
+            System.out.println(dbPath);
+
             List<Word> words = parseDatabase(dbPath);
             deleteDirectory(new File(outputDir));
 
@@ -110,9 +129,7 @@ public class AnkiParser {
 
                 HibernateUtil.commitTransaction();
 
-                Platform.runLater(() -> {
-                    finished.set(finished.get() + progressValue);
-                });
+                Platform.runLater(() -> finished.set(finished.get() + progressValue));
             }
 
         } catch (Exception e) {
