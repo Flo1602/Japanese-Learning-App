@@ -138,7 +138,7 @@ public class WordSessionManager extends LearnSessionManager {
             try {
                 id = Integer.parseInt(key);
             } catch (NumberFormatException ex) {
-                logger.error("Failed to parse id for word, id: " + key, ex);
+                //logger.info("Failed to parse id for word, id: " + key);
             }
 
             for (Word word : words) {

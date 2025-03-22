@@ -1,6 +1,5 @@
 package at.primetshofer.model;
 
-import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import at.primetshofer.model.Trainer.KanjiTrainer;
 import at.primetshofer.model.Trainer.VocabTrainer;
 import at.primetshofer.model.entities.*;
@@ -21,6 +20,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -348,5 +348,9 @@ public class Controller {
         }
 
         return randomWords;
+    }
+
+    public void addDurationToStats(Duration duration) {
+        StatsManager.addDurationToday(duration);
     }
 }

@@ -25,7 +25,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +54,7 @@ public abstract class LearnSessionManager {
     private ProgressBar progressBar;
     private final Controller controller;
 
-    private LocalTime startTIme;
+    private LocalDateTime startTIme;
     private List<Boolean> successList;
     private Queue<LearnView> wrongList;
     private int maxViews;
@@ -250,7 +250,7 @@ public abstract class LearnSessionManager {
             return;
         }
 
-        java.time.Duration duration = java.time.Duration.between(startTIme, LocalTime.now());
+        java.time.Duration duration = java.time.Duration.between(startTIme, LocalDateTime.now());
 
         double percent = 0;
         double percentValue = 100.0 / successList.size();
@@ -270,6 +270,8 @@ public abstract class LearnSessionManager {
         SessionCompletedView sessionCompletedView = new SessionCompletedView(scene, duration, (int) percent);
         sessionCompletedView.display(origin.get());
         controller.playAudio(FINISHED_AUDIO);
+
+        new Thread(() -> controller.addDurationToStats(duration)).start();
     }
 
     protected abstract void updateProgresses(int percent);
@@ -279,7 +281,7 @@ public abstract class LearnSessionManager {
             this.origin.set(origin);
         }
         scene.setRoot(bp);
-        startTIme = LocalTime.now();
+        startTIme = LocalDateTime.now();
         startLearning();
     }
 

@@ -3,7 +3,6 @@ package at.primetshofer.view.learning.menu;
 import at.primetshofer.model.AudioRecorder;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.ViewUtils;
-import at.primetshofer.view.catalog.CreateEditWordWindow;
 import at.primetshofer.view.catalog.View;
 import at.primetshofer.view.learning.learnSessionManagers.QuestionSessionManager;
 import at.primetshofer.view.learning.learnSessionManagers.SentenceSessionManager;
@@ -16,7 +15,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import org.apache.log4j.Logger;
 
@@ -105,11 +103,25 @@ public class LearningMenuView extends View {
         bp.setCenter(vb);
         bp.setBottom(bottom);
 
-        Region spacer = new Region();
+        Image settingsImage = new Image("stats.png");
 
-        hb.widthProperty().addListener((observableValue, oldValue, newValue) -> spacer.setPrefWidth(newValue.doubleValue()));
+        ImageView settingsImageView = new ImageView(settingsImage);
+        settingsImageView.setFitHeight(50);
+        settingsImageView.setFitWidth(50);
 
-        bp.setRight(spacer);
+        Button settings = new Button();
+        settings.getStyleClass().add("settingsButton");
+        settings.setGraphic(settingsImageView);
+        settings.setOnAction(e -> {
+            StatsView statsView = new StatsView(scene);
+            statsView.display(this);
+        });
+
+        HBox statsBox = new HBox(settings);
+        statsBox.getStyleClass().add("container");
+        statsBox.setAlignment(Pos.BOTTOM_CENTER);
+
+        bp.setRight(statsBox);
     }
 
     @Override

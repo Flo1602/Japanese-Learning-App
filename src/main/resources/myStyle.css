@@ -56,6 +56,12 @@
     -fx-alignment: center;
 }
 
+.statsHB {
+    -fx-spacing: 10em;
+    -fx-alignment: center;
+    -fx-max-width: 800px;
+}
+
 .wordListButton {
     -fx-font-size: 20pt;
 }
