@@ -17,6 +17,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -318,6 +319,10 @@ public class KanjiTracerLearnView extends LearnView implements ITraceLogic.ITrac
 
         this.topText.setText(text);
         this.top.setVisible(true);
+
+        Tooltip tooltip = new Tooltip(this.wordWithKanji.getEnglish());
+        tooltip.setStyle("-fx-font-size: 16pt");
+        Tooltip.install(this.topText, tooltip);
 
         playWordWithKanjiTTS();
     }
