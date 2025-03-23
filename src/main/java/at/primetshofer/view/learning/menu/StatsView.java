@@ -51,6 +51,12 @@ public class StatsView extends View {
         LearnTimeStats today = StatsManager.getTodayStats();
         List<LearnTimeStats> allStats = StatsManager.getAllTimeStats();
 
+        if(today == null){
+            today = new LearnTimeStats();
+            today.setDuration(Duration.ZERO);
+            today.setExercisesCount(0);
+        }
+
         VBox statsBox = new VBox();
         statsBox.setAlignment(Pos.CENTER);
         statsBox.setSpacing(25);
