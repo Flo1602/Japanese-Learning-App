@@ -1,7 +1,6 @@
 package at.primetshofer.services;
 
 import at.primetshofer.logic.provider.file.UnicodeFilenameFileProvider;
-import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.dto.DTOConverter;
 import at.primetshofer.model.dto.JsonSerializer;
@@ -22,6 +21,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.*;
 import java.nio.file.Files;
+import java.time.Duration;
 import java.util.List;
 
 public class NetworkLearningService extends Service<Void> {
@@ -256,6 +256,11 @@ public class NetworkLearningService extends Service<Void> {
                             controller.updateKanjiList();
 
                             objectOutput.writeObject("SUCCESS");
+
+                            break;
+
+                        case "ADD_TIME_STATS":
+                            controller.addDurationToStats(Duration.ofMillis(Long.parseLong(value)));
 
                             break;
 
