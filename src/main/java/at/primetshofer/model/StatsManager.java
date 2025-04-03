@@ -3,6 +3,8 @@ package at.primetshofer.model;
 import at.primetshofer.model.entities.LearnTimeStats;
 import at.primetshofer.model.util.HibernateUtil;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.TypedQuery;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -57,5 +59,19 @@ public class StatsManager {
         checkEntityManager();
         String jpql = "SELECT COUNT(w) FROM Word w";
         return (Long) entityManager.createQuery(jpql).getSingleResult();
+    }
+
+    public static LearnTimeStats getStatsForDay(LocalDate day) {
+        TypedQuery<LearnTimeStats> query = entityManager.createQuery(
+                "SELECT l FROM LearnTimeStats l WHERE l.date = :date",
+                LearnTimeStats.class
+        );
+        query.setParameter("date", day);
+
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 }

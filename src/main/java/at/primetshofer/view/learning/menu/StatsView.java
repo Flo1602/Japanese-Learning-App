@@ -8,16 +8,19 @@ import at.primetshofer.view.catalog.View;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.chart.*;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import org.apache.log4j.Logger;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.List;
 
 public class StatsView extends View {
 
-    private static final Logger logger = Logger.getLogger(KanjiCheatView.class);
+    private static final Logger logger = Logger.getLogger(StatsView.class);
 
     public StatsView(Scene scene) {
         super(scene);
@@ -32,14 +35,11 @@ public class StatsView extends View {
         BorderPane.setAlignment(headline, Pos.CENTER);
 
         HBox hb = ViewUtils.getBackButtonBox(origin);
-
         bp.setTop(headline);
         bp.setLeft(hb);
 
         Region spacer = new Region();
-
         hb.widthProperty().addListener((observableValue, oldValue, newValue) -> spacer.setPrefWidth(newValue.doubleValue()));
-
         bp.setRight(spacer);
 
         new Thread(this::loadStats).start();
@@ -51,7 +51,7 @@ public class StatsView extends View {
         LearnTimeStats today = StatsManager.getTodayStats();
         List<LearnTimeStats> allStats = StatsManager.getAllTimeStats();
 
-        if(today == null){
+        if (today == null) {
             today = new LearnTimeStats();
             today.setDuration(Duration.ZERO);
             today.setExercisesCount(0);
@@ -61,9 +61,92 @@ public class StatsView extends View {
         statsBox.setAlignment(Pos.CENTER);
         statsBox.setSpacing(25);
 
-        statsBox.getChildren().addAll(getTotalKanjiBox(totalKanji), getTotalWordBox(totalWord), getTodayTime(today), getAllTime(allStats), getTodayExercises(today), getAllExercises(allStats));
+        // Add the standard stats boxes
+        statsBox.getChildren().addAll(
+                getTotalKanjiBox(totalKanji),
+                getTotalWordBox(totalWord),
+                getTodayTime(today),
+                getAllTime(allStats),
+                getTodayExercises(today),
+                getAllExercises(allStats)
+        );
 
-        Platform.runLater(() -> bp.setCenter(statsBox));
+        // Add the new chart for last week's learned hours
+        BarChart<String, Number> lastWeekChart = createLastWeekChart();
+        statsBox.getChildren().add(lastWeekChart);
+
+        statsBox.getChildren().add(createCumulativeChart(allStats));
+
+        ScrollPane sp = new ScrollPane();
+        sp.setContent(statsBox);
+        sp.setFitToWidth(true);
+        sp.setMaxHeight(500);
+
+        Platform.runLater(() -> bp.setCenter(sp));
+    }
+
+    private BarChart<String, Number> createLastWeekChart() {
+        CategoryAxis xAxis = new CategoryAxis();
+
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel(LangController.getText("LearnedHours"));
+
+        BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
+        barChart.setTitle(LangController.getText("LastWeekLearnedHours"));
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+
+        LocalDate today = LocalDate.now();
+        for (int i = 6; i >= 0; i--) {
+            LocalDate day = today.minusDays(i);
+            LearnTimeStats stats = StatsManager.getStatsForDay(day);
+            Duration duration = (stats != null) ? stats.getDuration() : Duration.ZERO;
+            double hours = duration.toMinutes() / 60.0;
+            String dayLabel = day.getDayOfWeek().toString().substring(0, 3);
+            series.getData().add(new XYChart.Data<>(dayLabel, hours));
+        }
+        barChart.getData().add(series);
+        barChart.setLegendVisible(false);
+        return barChart;
+    }
+
+    private LineChart<String, Number> createCumulativeChart(List<LearnTimeStats> allStats) {
+        // Set up the axes
+        CategoryAxis xAxis = new CategoryAxis();
+
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel(LangController.getText("CumulativeLearnedHours"));
+
+        // Create the LineChart
+        LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
+        lineChart.setTitle(LangController.getText("CumulativeLearnTimeOverLast30Days"));
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+
+        LocalDate today = LocalDate.now();
+        Duration cumulativeDuration = Duration.ZERO;
+
+        // Iterate over the past 30 days (including today)
+        for (int i = 29; i >= 0; i--) {
+            LocalDate day = today.minusDays(i);
+            // Sum all durations for this specific day from the provided list
+            Duration dayDuration = Duration.ZERO;
+            for (LearnTimeStats stat : allStats) {
+                // Assuming each stat has a getDate() method returning a LocalDate
+                if (stat.getDate().equals(day)) {
+                    dayDuration = dayDuration.plus(stat.getDuration());
+                }
+            }
+            // Add the day's duration to the cumulative total
+            cumulativeDuration = cumulativeDuration.plus(dayDuration);
+            // Convert cumulative duration to hours (as a fractional number)
+            double cumulativeHours = cumulativeDuration.toMinutes() / 60.0;
+            series.getData().add(new XYChart.Data<>(day.toString(), cumulativeHours));
+        }
+
+        lineChart.getData().add(series);
+        lineChart.setLegendVisible(false);
+        return lineChart;
     }
 
     private HBox getAllExercises(List<LearnTimeStats> allStats) {
