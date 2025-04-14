@@ -50,7 +50,7 @@ public class KanjiTrainer {
         long kanjiCount = (long) query.getSingleResult();
 
         if (allKanjiList == null || kanjiCount != allKanjiList.size()) {
-            allKanjiList = entityManager.createQuery("SELECT k FROM Kanji k inner join fetch k.progresses", Kanji.class).getResultList();
+            allKanjiList = entityManager.createQuery("SELECT k FROM Kanji k left join fetch k.progresses", Kanji.class).getResultList();
 
             sortKanjiList(allKanjiList);
         }

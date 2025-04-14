@@ -13,6 +13,7 @@ public class LangController {
     static final String BASENAME = "lang";
 
     private static ResourceBundle langController;
+    private static ResourceBundle fallback;
 
     public final static Locale[] supportedLocales = {
             Locale.ENGLISH,
@@ -26,11 +27,12 @@ public class LangController {
 
     public static void initBundle(Locale lang) {
         try {
+            fallback = ResourceBundle.getBundle(BASENAME, Locale.ENGLISH);
             langController = ResourceBundle.getBundle(BASENAME, lang);
             langController.getString("validFile");
         } catch (MissingResourceException e) {
             try {
-                langController = ResourceBundle.getBundle(BASENAME, new Locale("en"));
+                langController = ResourceBundle.getBundle(BASENAME, Locale.ENGLISH);
                 langController.getString("validFile");
             } catch (MissingResourceException ex) {
                 logger.error("Failed to load language resource file", ex);
@@ -39,7 +41,17 @@ public class LangController {
     }
 
     public static String getText(String id) {
-        return langController.getString(id);
+        try {
+            return langController.getString(id);
+        } catch (MissingResourceException e) {
+            logger.warn("Failed to load text from resource file, trying again with fallback! Text ID: " + id);
+            try {
+                return fallback.getString(id);
+            } catch (MissingResourceException ex) {
+                logger.error("Failed to load language resource file", ex);
+                return "-";
+            }
+        }
     }
 
     public static ResourceBundle getBundle() {

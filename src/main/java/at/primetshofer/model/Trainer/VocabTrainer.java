@@ -49,7 +49,7 @@ public class VocabTrainer {
         long wordCount = (long) query.getSingleResult();
 
         if (allWordList == null || wordCount != allWordList.size()) {
-            allWordList = entityManager.createQuery("SELECT w FROM Word w inner join fetch w.progresses", Word.class).getResultList();
+            allWordList = entityManager.createQuery("SELECT w FROM Word w left join fetch w.progresses", Word.class).getResultList();
 
             sortWordList(allWordList);
         }
