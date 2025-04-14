@@ -1,5 +1,6 @@
 package at.primetshofer;
 
+import at.primetshofer.model.util.LangController;
 import atlantafx.base.theme.CupertinoDark;
 import javafx.concurrent.Task;
 import javafx.scene.Scene;
@@ -23,8 +24,7 @@ public class SplashScreen {
         VBox splashLayout = new VBox(10);
         splashLayout.setStyle("-fx-padding: 20; -fx-alignment: center;");
 
-        // TODO use lang
-        loadingLabel = new Label("Loading...");
+        loadingLabel = new Label(LangController.getText("LoadingText"));
         loadingLabel.getStyleClass().add("smallText");
         progressBar = new ProgressBar();
         progressBar.setPrefWidth(200);

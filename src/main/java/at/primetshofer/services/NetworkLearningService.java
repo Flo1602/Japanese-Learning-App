@@ -7,6 +7,7 @@ import at.primetshofer.model.dto.JsonSerializer;
 import at.primetshofer.model.entities.Kanji;
 import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.HibernateUtil;
+import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.ViewUtils;
 import jakarta.persistence.EntityManager;
 import javafx.beans.property.BooleanProperty;
@@ -69,8 +70,7 @@ public class NetworkLearningService extends Service<Void> {
             serverSocket.close();
         } catch (IOException ex) {
             logger.error("Failed to close server socket", ex);
-            // TODO use lang
-            ViewUtils.showAlert(Alert.AlertType.ERROR, ex.getMessage(), "Network Error!");
+            ViewUtils.showAlert(Alert.AlertType.ERROR, ex.getMessage(), LangController.getText("NetworkError"));
         }
 
         return super.cancel();
@@ -130,8 +130,7 @@ public class NetworkLearningService extends Service<Void> {
         } catch (Exception ex) {
             if (!ex.getMessage().equals("Socket closed")) {
                 logger.error("Unexpected exception was thrown while starting UDP listener", ex);
-                // TODO use lang
-                ViewUtils.showAlert(Alert.AlertType.ERROR, ex.getMessage(), "Network Error!");
+                ViewUtils.showAlert(Alert.AlertType.ERROR, ex.getMessage(), LangController.getText("NetworkError"));
             }
         } finally {
             if (datagramSocket != null && !datagramSocket.isClosed()) {
@@ -281,16 +280,14 @@ public class NetworkLearningService extends Service<Void> {
                 } catch (Exception ex) {
                     if (!ex.getMessage().equals("Socket closed") && !ex.getMessage().equals("Socket is closed")) {
                         logger.error("Unexpected exception was thrown during communication", ex);
-                        // TODO use lang
-                        ViewUtils.showAlert(Alert.AlertType.ERROR, ex.getMessage(), "Network Error!");
+                        ViewUtils.showAlert(Alert.AlertType.ERROR, ex.getMessage(), LangController.getText("NetworkError"));
                     }
                     deviceConnected.set(false);
                 }
             }
         } catch (IOException ex) {
             logger.error("Failed to start TCP server", ex);
-            // TODO use lang
-            ViewUtils.showAlert(Alert.AlertType.ERROR, ex.getMessage(), "Network Error!");
+            ViewUtils.showAlert(Alert.AlertType.ERROR, ex.getMessage(), LangController.getText("NetworkError"));
             deviceConnected.set(false);
         }
     }

@@ -1,5 +1,6 @@
 package at.primetshofer.view.catalog;
 
+import at.primetshofer.model.Controller;
 import at.primetshofer.model.entities.Kanji;
 import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.HibernateUtil;
@@ -202,11 +203,13 @@ public class KanjiListView extends View {
         private final Label symbol;
         private final Label words;
         private int id;
+        private boolean hasWords;
 
         private KanjiCard(Kanji kanji) {
             this.id = kanji.getId();
             this.symbol = new Label(kanji.getSymbol());
             this.words = new Label(kanjiWordListToString(kanji));
+            this.hasWords = !kanji.getWords().isEmpty();
         }
 
         private StackPane getCard() {
@@ -227,16 +230,28 @@ public class KanjiListView extends View {
             labels.setAlignment(Pos.CENTER_LEFT);
             labels.setPadding(new Insets(0, 0, 0, 50));
 
+            HBox controls = new HBox();
+            controls.setPadding(new Insets(0, 50, 0, 0));
+            controls.setAlignment(Pos.CENTER);
+            controls.setSpacing(10);
+
+            if(!hasWords) {
+                Button deleteButton = new Button(LangController.getText("DeleteButton"));
+                deleteButton.setStyle("-fx-background-radius: 20; -fx-font-size: 16pt");
+                deleteButton.setOnAction(event ->{
+                    Controller.getInstance().deleteKanjiByID(id);
+                    populateKanjiList();
+                });
+                controls.getChildren().add(deleteButton);
+            }
+
             Button wordsButton = new Button(LangController.getText("WordsButton"));
             wordsButton.setStyle("-fx-background-radius: 20; -fx-font-size: 16pt");
             wordsButton.setOnAction(event -> {
                 WordListView wordListView = new WordListView(scene, symbol.getText());
                 wordListView.display(KanjiListView.this);
             });
-
-            HBox controls = new HBox(wordsButton);
-            controls.setPadding(new Insets(0, 50, 0, 0));
-            controls.setAlignment(Pos.CENTER);
+            controls.getChildren().add(wordsButton);
 
             BorderPane content = new BorderPane();
             content.setLeft(labels);

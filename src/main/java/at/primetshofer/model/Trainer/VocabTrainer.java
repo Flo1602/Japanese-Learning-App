@@ -1,6 +1,5 @@
 package at.primetshofer.model.Trainer;
 
-import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.entities.WordProgress;
@@ -50,7 +49,7 @@ public class VocabTrainer {
         long wordCount = (long) query.getSingleResult();
 
         if (allWordList == null || wordCount != allWordList.size()) {
-            allWordList = entityManager.createQuery("SELECT w FROM Word w", Word.class).getResultList();
+            allWordList = entityManager.createQuery("SELECT w FROM Word w inner join fetch w.progresses", Word.class).getResultList();
 
             sortWordList(allWordList);
         }

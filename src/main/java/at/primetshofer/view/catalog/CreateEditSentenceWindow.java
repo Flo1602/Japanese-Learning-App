@@ -6,6 +6,7 @@ import at.primetshofer.model.entities.SentenceWord;
 import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.HibernateUtil;
 import at.primetshofer.model.util.LangController;
+import at.primetshofer.view.ViewUtils;
 import jakarta.persistence.EntityManager;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -32,8 +33,7 @@ public class CreateEditSentenceWindow extends PopUp {
 
     public CreateEditSentenceWindow(Word word) {
         super();
-        // TODO use lang
-        setTitle("Sentence Editor");
+        setTitle(LangController.getText("SentenceEditorTitle"));
         setStageSize(700, 600);
         this.word = word;
     }
@@ -107,13 +107,9 @@ public class CreateEditSentenceWindow extends PopUp {
                 } catch (Exception ex) {
                     logger.error("TTS API not available", ex);
 
-                    Platform.runLater(() -> {
-                        // TODO: use ViewUtils and lang
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Error");
-                        alert.setContentText("TTS API not available!");
-                        alert.showAndWait();
-                    });
+                    ViewUtils.showAlert(Alert.AlertType.ERROR,
+                            LangController.getText("TTSNotAvailableError"),
+                            LangController.getText("ErrorText"));
                 } finally {
                     HibernateUtil.commitTransaction();
 

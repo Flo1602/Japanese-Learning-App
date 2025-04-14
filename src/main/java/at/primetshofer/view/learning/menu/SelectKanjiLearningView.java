@@ -86,8 +86,9 @@ public class SelectKanjiLearningView extends View {
                     .getSingleResult();
         } catch (NoResultException ex) {
             logger.error("No Kanji found for symbol: " + symbol, ex);
-            // TODO: use lang
-            ViewUtils.showAlert(Alert.AlertType.WARNING, "No Kanji found for symbol: " + symbol, "Unable to add progress!");
+            ViewUtils.showAlert(Alert.AlertType.WARNING,
+                    LangController.getText("NoWordsForSymbolError") + " " + symbol,
+                    LangController.getText("UnableToAddProgressError"));
         }
 
         return kanji1;

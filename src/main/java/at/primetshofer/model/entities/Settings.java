@@ -4,6 +4,8 @@ import at.primetshofer.model.util.Stylesheet;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
+import java.util.Locale;
+
 @Entity
 public class Settings {
 
@@ -14,6 +16,7 @@ public class Settings {
     private int maxDailyKanji;
     private int maxDailyWords;
     private Stylesheet styleSheet;
+    private Locale locale;
 
     public Stylesheet getStyleSheet() {
         return styleSheet;
@@ -61,5 +64,13 @@ public class Settings {
 
     public void setMaxDailyWords(int maxDailyWords) {
         this.maxDailyWords = maxDailyWords;
+    }
+
+    public Locale getLocale() {
+        return locale;
+    }
+
+    public void setLocale(Locale locale) {
+        this.locale = locale;
     }
 }

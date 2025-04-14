@@ -2,10 +2,14 @@ package at.primetshofer.view.learning.menu;
 
 import at.primetshofer.model.AudioRecorder;
 import at.primetshofer.model.util.LangController;
+import at.primetshofer.services.LoadLearningDataService;
+import at.primetshofer.view.MainMenuView;
 import at.primetshofer.view.ViewUtils;
+import at.primetshofer.view.catalog.LoadingView;
 import at.primetshofer.view.catalog.View;
 import at.primetshofer.view.learning.learnSessionManagers.QuestionSessionManager;
 import at.primetshofer.view.learning.learnSessionManagers.SentenceSessionManager;
+import javafx.concurrent.Worker;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -24,9 +28,21 @@ public class LearningMenuView extends View {
 
     private KanjiMenuLearningView kanjiMenuLearningView;
     private WordMenuLearningView wordMenuLearningView;
+    private final LoadLearningDataService loadLearningDataService;
 
     public LearningMenuView(Scene scene) {
         super(scene);
+
+        loadLearningDataService = new LoadLearningDataService();
+
+        loadLearningDataService.setOnFailed(event -> {
+            logger.fatal("Error while loading learning data", event.getSource().getException());
+            ViewUtils.showAlert(Alert.AlertType.ERROR,
+                    LangController.getText("LearningDataLoadError"),
+                    LangController.getText("FatalError"));
+        });
+
+        loadLearningDataService.setOnSucceeded(null);
     }
 
     @Override
@@ -36,27 +52,27 @@ public class LearningMenuView extends View {
         Label headline = new Label(LangController.getText("LearningHeading"));
         headline.getStyleClass().add("headline");
         BorderPane.setAlignment(headline, Pos.CENTER);
-        // TODO use lang
-        Button questionButton = new Button("Questions");
+        Button questionButton = new Button(LangController.getText("QuestionsButton"));
         questionButton.getStyleClass().add("smallMenuButton");
         questionButton.setOnAction(e -> {
             //QuestionSessionManager questionSessionManager = new QuestionSessionManager(scene);
             //questionSessionManager.initView();
             //questionSessionManager.display(this);
             logger.warn(QuestionSessionManager.class.getName() + " is not fully implemented yet");
-            // TODO: use lang
-            ViewUtils.showAlert(Alert.AlertType.WARNING, "This learning-mode is not fully implemented yet!", "NOT AVAILABLE");
+            ViewUtils.showAlert(Alert.AlertType.WARNING,
+                    LangController.getText("LearningModeNotImpl"),
+                    LangController.getText("NotAvailableError"));
         });
-        // TODO: use lang
-        Button sentenceButton = new Button("Sentences");
+        Button sentenceButton = new Button(LangController.getText("SentencesButton"));
         sentenceButton.getStyleClass().add("smallMenuButton");
         sentenceButton.setOnAction(e -> {
             //SentenceSessionManager sentenceSessionManager = new SentenceSessionManager(scene);
             //sentenceSessionManager.initView();
             //sentenceSessionManager.display(this);
             logger.warn(SentenceSessionManager.class.getName() + " is not fully implemented yet");
-            // TODO: use lang
-            ViewUtils.showAlert(Alert.AlertType.WARNING, "This learning-mode is not fully implemented yet!", "NOT AVAILABLE");
+            ViewUtils.showAlert(Alert.AlertType.WARNING,
+                    LangController.getText("LearningModeNotImpl"),
+                    LangController.getText("NotAvailableError"));
         });
 
         Button vocabButton = new Button(LangController.getText("VocabButton"));
@@ -67,7 +83,7 @@ public class LearningMenuView extends View {
                 wordMenuLearningView.initView();
             }
 
-            wordMenuLearningView.display(this);
+            showLearningSubMenu(wordMenuLearningView);
         });
 
         Button kanjiButton = new Button(LangController.getText("KanjiButton"));
@@ -78,7 +94,7 @@ public class LearningMenuView extends View {
                 kanjiMenuLearningView.initView();
             }
 
-            kanjiMenuLearningView.display(this);
+            showLearningSubMenu(kanjiMenuLearningView);
         });
 
         VBox vb = new VBox();
@@ -124,10 +140,47 @@ public class LearningMenuView extends View {
         bp.setRight(statsBox);
     }
 
+    private void showLearningSubMenu(View view) {
+        if (view == null) {
+            logger.error("Cannot show Null View!");
+            throw new RuntimeException("Cannot show Null View!");
+        }
+
+        if (loadLearningDataService.getState() == Worker.State.SUCCEEDED) {
+            view.display(this);
+        } else {
+            LoadingView loadingView = new LoadingView(scene);
+            loadingView.setProgress(-1);
+            loadingView.display(this);
+
+            if (loadLearningDataService.getState() == Worker.State.CANCELLED || loadLearningDataService.getState() == Worker.State.FAILED) {
+                loadLearningDataService.reset();
+                loadLearningDataService.start();
+            }
+
+            if (loadLearningDataService.getState() == Worker.State.RUNNING) {
+                loadLearningDataService.setOnSucceeded(event -> {
+                    view.display(this);
+                    loadLearningDataService.setOnSucceeded(null);
+                });
+            } else {
+                view.display(this);
+            }
+        }
+    }
+
     @Override
     public void display(View origin) {
         super.display(origin);
 
         AudioRecorder.stopRecordingThread();
+
+        if(origin instanceof MainMenuView){
+            if (loadLearningDataService.getState() == Worker.State.RUNNING) {
+                loadLearningDataService.cancel();
+            }
+            loadLearningDataService.reset();
+            loadLearningDataService.start();
+        }
     }
 }

@@ -1,6 +1,5 @@
 package at.primetshofer.model.Trainer;
 
-import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.entities.Kanji;
 import at.primetshofer.model.entities.KanjiProgress;
@@ -51,7 +50,7 @@ public class KanjiTrainer {
         long kanjiCount = (long) query.getSingleResult();
 
         if (allKanjiList == null || kanjiCount != allKanjiList.size()) {
-            allKanjiList = entityManager.createQuery("SELECT k FROM Kanji k", Kanji.class).getResultList();
+            allKanjiList = entityManager.createQuery("SELECT k FROM Kanji k inner join fetch k.progresses", Kanji.class).getResultList();
 
             sortKanjiList(allKanjiList);
         }

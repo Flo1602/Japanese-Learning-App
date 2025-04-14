@@ -4,7 +4,9 @@ import at.primetshofer.model.Trainer.KanjiTrainer;
 import at.primetshofer.model.Trainer.VocabTrainer;
 import at.primetshofer.model.entities.*;
 import at.primetshofer.model.util.HibernateUtil;
+import at.primetshofer.model.util.LangController;
 import at.primetshofer.model.util.Stylesheet;
+import at.primetshofer.view.ViewUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import javafx.application.Platform;
@@ -126,12 +128,17 @@ public class Controller {
                 settings.setMaxDailyWords(50);
                 settings.setStyleSheet(Stylesheet.CUPERTINO_DARK);
                 settings.setVoiceId(0);
+                settings.setLocale(Locale.ENGLISH);
 
                 HibernateUtil.startTransaction();
                 entityManager.persist(settings);
                 HibernateUtil.commitTransaction();
 
                 settings = getSettings();
+            }
+
+            if(settings.getLocale() == null){
+                settings.setLocale(Locale.ENGLISH);
             }
         }
 
@@ -227,11 +234,9 @@ public class Controller {
             mediaPlayer.play();
         } catch (Exception ex) {
             logger.error("Audio '" + path + "' not found");
-            // TODO: use ViewUtils and Langfile
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setContentText("Audio not found!");
-            alert.showAndWait();
+            ViewUtils.showAlert(Alert.AlertType.ERROR,
+                    LangController.getText("AudioNotFoundError"),
+                    LangController.getText("ErrorText"));
         }
     }
 
@@ -352,5 +357,18 @@ public class Controller {
 
     public void addDurationToStats(Duration duration) {
         StatsManager.addDurationToday(duration);
+    }
+
+    public void deleteKanjiByID(int kanjiID) {
+        try {
+            HibernateUtil.startTransaction();
+            em.remove(em.find(Kanji.class, kanjiID));
+            HibernateUtil.commitTransaction();
+        } catch (Exception ex) {
+            logger.error("Could not delete Kanji with ID: " + kanjiID, ex);
+            ViewUtils.showAlert(Alert.AlertType.ERROR,
+                    LangController.getText("CouldNotDeleteKanjiError") + kanjiID,
+                    LangController.getText("ErrorText"));
+        }
     }
 }

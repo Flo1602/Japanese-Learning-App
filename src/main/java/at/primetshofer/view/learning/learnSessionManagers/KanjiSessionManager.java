@@ -16,6 +16,7 @@ import at.primetshofer.model.Polygon;
 import at.primetshofer.model.entities.Kanji;
 import at.primetshofer.model.entities.KanjiProgress;
 import at.primetshofer.model.entities.Word;
+import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.ViewUtils;
 import at.primetshofer.view.learning.learnViews.KanjiTracerLearnView;
 import at.primetshofer.view.learning.learnViews.WordKanjiSelectLearnView;
@@ -178,8 +179,9 @@ public class KanjiSessionManager extends LearnSessionManager {
 
         if (kanji.getWords().isEmpty()) {
             logger.warn("No words for current kanji found");
-            // TODO use lang
-            ViewUtils.showAlert(Alert.AlertType.ERROR, "No words for current Kanji found!", "No words for: " + kanji.getSymbol());
+            ViewUtils.showAlert(Alert.AlertType.ERROR,
+                    LangController.getText("NoWordsForKanjiError"),
+                    LangController.getText("NoWordsForText") + " " + kanji.getSymbol());
             return;
         }
 

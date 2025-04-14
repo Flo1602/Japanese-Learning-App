@@ -127,8 +127,9 @@ public class WordMenuLearningView extends View {
         task.setOnSucceeded(event -> updateProgress());
         task.setOnFailed(event -> {
             logger.fatal("Error while updating progresses", event.getSource().getException());
-            // TODO: use lang
-            ViewUtils.showAlert(Alert.AlertType.ERROR, "Error while updating Progresses!", "FATAL ERROR!");
+            ViewUtils.showAlert(Alert.AlertType.ERROR,
+                    LangController.getText("UpdatingProgressesError"),
+                    LangController.getText("FatalError"));
         });
 
         new Thread(task).start();

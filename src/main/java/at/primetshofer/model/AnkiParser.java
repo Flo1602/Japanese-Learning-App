@@ -1,8 +1,9 @@
 package at.primetshofer.model;
 
-import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.HibernateUtil;
+import at.primetshofer.model.util.LangController;
+import at.primetshofer.view.ViewUtils;
 import jakarta.persistence.EntityManager;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
@@ -139,13 +140,9 @@ public class AnkiParser {
         } catch (Exception ex) {
             logger.error("Error while parsing file or TTS not reachable", ex);
 
-            Platform.runLater(() -> {
-                // TODO: use ViewUtils and Langfile
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setContentText("Error Parsing File or TTS not reachable!");
-                alert.showAndWait();
-            });
+            ViewUtils.showAlert(Alert.AlertType.ERROR,
+                    LangController.getText("AnkiParseError"),
+                    LangController.getText("ErrorText"));
         }
 
         finished.set(1);

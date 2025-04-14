@@ -1,11 +1,11 @@
 package at.primetshofer.view.catalog;
 
-import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import at.primetshofer.model.TTS;
 import at.primetshofer.model.entities.Question;
 import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.HibernateUtil;
 import at.primetshofer.model.util.LangController;
+import at.primetshofer.view.ViewUtils;
 import jakarta.persistence.EntityManager;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -33,8 +33,7 @@ public class CreateEditQuestionWindow extends PopUp {
 
     public CreateEditQuestionWindow(Word word) {
         super();
-        // TODO use lang
-        setTitle("Question Editor");
+        setTitle(LangController.getText("QuestionEditorTitle"));
         setStageSize(700, 600);
         this.word = word;
     }
@@ -129,13 +128,9 @@ public class CreateEditQuestionWindow extends PopUp {
                 } catch (Exception ex) {
                     logger.error("Failed to create / save TTS for question: '" + this.question.getQuestion() + "'");
 
-                    Platform.runLater(() -> {
-                        // TODO: use ViewUtils and lang
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Error");
-                        alert.setContentText("TTS API not available!");
-                        alert.showAndWait();
-                    });
+                    ViewUtils.showAlert(Alert.AlertType.ERROR,
+                            LangController.getText("TTSNotAvailableError"),
+                            LangController.getText("ErrorText"));
                 } finally {
                     HibernateUtil.commitTransaction();
 

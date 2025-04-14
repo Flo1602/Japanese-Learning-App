@@ -6,7 +6,6 @@ import at.primetshofer.model.entities.Settings;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.model.util.Stylesheet;
 import at.primetshofer.view.ViewUtils;
-import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -16,9 +15,11 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.util.StringConverter;
 import org.apache.log4j.Logger;
 
 import java.io.File;
+import java.util.Locale;
 
 public class SettingsView extends View {
 
@@ -29,6 +30,7 @@ public class SettingsView extends View {
     private TextField maxDailyKanjiInput;
     private TextField maxDailyWordsInput;
     private ComboBox<Stylesheet> styleSheetComboBox;
+    private ComboBox<Locale> languageComboBox;
 
     public SettingsView(Scene scene) {
         super(scene);
@@ -73,13 +75,9 @@ public class SettingsView extends View {
                 } catch (Exception ex) {
                     logger.error("TTS error", ex);
 
-                    // TODO: use ViewUtils and Langfile
-                    Platform.runLater(() -> {
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Error");
-                        alert.setContentText("TTS error!");
-                        alert.showAndWait();
-                    });
+                    ViewUtils.showAlert(Alert.AlertType.ERROR,
+                            LangController.getText("TTSNotAvailableError"),
+                            LangController.getText("ErrorText"));
                 }
             }).start();
         });
@@ -144,7 +142,18 @@ public class SettingsView extends View {
         HBox styleSheetSetting = new HBox(styleSheetLabel, styleSheetComboBox);
         styleSheetSetting.getStyleClass().add("settingsHB");
 
-        vb.getChildren().addAll(voiceIdSetting, maxDailyKanjiSetting, maxDailyWordsSetting, styleSheetSetting);
+        Label languageLabel = new Label(LangController.getText("languageLabel"));
+        languageLabel.getStyleClass().add("normalText");
+
+        languageComboBox = new ComboBox<>();
+        languageComboBox.getItems().addAll(LangController.supportedLocales);
+
+        addCellFactoryForLanguageComboBox();
+
+        HBox languageSetting = new HBox(languageLabel, languageComboBox);
+        languageSetting.getStyleClass().add("settingsHB");
+
+        vb.getChildren().addAll(voiceIdSetting, maxDailyKanjiSetting, maxDailyWordsSetting, styleSheetSetting, languageSetting);
         vb.setAlignment(Pos.CENTER);
         vb.getStyleClass().add("menuVBox");
 
@@ -155,11 +164,18 @@ public class SettingsView extends View {
             Settings settings = controller.getSettings();
 
             try {
+                if(settings.getLocale() != languageComboBox.getValue()){
+                    ViewUtils.showAlert(Alert.AlertType.WARNING,
+                            LangController.getText("RestartNeededForLanguageChange"),
+                            LangController.getText("WarningText"));
+                }
+
                 settings.setVoiceId(Integer.parseInt(voiceIdInput.getText()));
                 settings.setNewWords(Integer.parseInt(newWordsInput.getText()));
                 settings.setStyleSheet(styleSheetComboBox.getValue());
                 settings.setMaxDailyKanji(Integer.parseInt(maxDailyKanjiInput.getText()));
                 settings.setMaxDailyWords(Integer.parseInt(maxDailyWordsInput.getText()));
+                settings.setLocale(languageComboBox.getValue());
 
                 controller.saveSettings();
 
@@ -170,11 +186,9 @@ public class SettingsView extends View {
             } catch (NumberFormatException ex) {
                 logger.error("User input was invalid", ex);
 
-                // TODO: use ViewUtils and Langfile
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setContentText("Please enter a valid number!");
-                alert.showAndWait();
+                ViewUtils.showAlert(Alert.AlertType.ERROR,
+                        LangController.getText("EnterValidNumberText"),
+                        LangController.getText("ErrorText"));
             }
         });
         BorderPane.setAlignment(save, Pos.CENTER);
@@ -189,6 +203,30 @@ public class SettingsView extends View {
         hb.widthProperty().addListener((observableValue, oldValue, newValue) -> spacer.setPrefWidth(newValue.doubleValue()));
 
         bp.setRight(spacer);
+    }
+
+    private void addCellFactoryForLanguageComboBox() {
+        languageComboBox.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(Locale locale) {
+                if (locale == null) return "";
+                return locale.getDisplayLanguage(locale); // "Deutsch", "English", "日本語", etc.
+            }
+
+            @Override
+            public Locale fromString(String string) {
+                // Optional: implement if you want to support parsing back from String
+                return null;
+            }
+        });
+
+        languageComboBox.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(Locale locale, boolean empty) {
+                super.updateItem(locale, empty);
+                setText(empty || locale == null ? null : locale.getDisplayLanguage(locale));
+            }
+        });
     }
 
     @Override
@@ -209,6 +247,9 @@ public class SettingsView extends View {
         }
         if (maxDailyWordsInput != null) {
             maxDailyWordsInput.setText(settings.getMaxDailyWords() + "");
+        }
+        if (languageComboBox != null) {
+            languageComboBox.setValue(settings.getLocale());
         }
 
         super.display(origin);

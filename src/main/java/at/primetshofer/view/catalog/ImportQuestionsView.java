@@ -103,13 +103,9 @@ public class ImportQuestionsView extends View {
                 } catch (IOException ex) {
                     logger.error("Error while creating CSV", ex);
 
-                    Platform.runLater(() -> {
-                        // TODO use viewutils and lang
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Error");
-                        alert.setContentText("Error while creating CSV!");
-                        alert.showAndWait();
-                    });
+                    ViewUtils.showAlert(Alert.AlertType.ERROR,
+                            LangController.getText("CSVCreationError"),
+                            LangController.getText("ErrorText"));
                 }
             }).start();
         });
@@ -166,11 +162,9 @@ public class ImportQuestionsView extends View {
         } catch (JsonProcessingException ex) {
             logger.error("Error while parsing Json", ex);
 
-            // TODO: use ViewUtils and Langfile
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setContentText("Error while parsing Json!");
-            alert.showAndWait();
+            ViewUtils.showAlert(Alert.AlertType.ERROR,
+                    LangController.getText("JsonParseError"),
+                    LangController.getText("ErrorText"));
             return;
         }
 
@@ -204,13 +198,9 @@ public class ImportQuestionsView extends View {
             } catch (Exception ex) {
                 logger.error("TTS API not available", ex);
 
-                Platform.runLater(() -> {
-                    // TODO: use viewutils and lang
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Error");
-                    alert.setContentText("TTS API not available!");
-                    alert.showAndWait();
-                });
+                ViewUtils.showAlert(Alert.AlertType.ERROR,
+                        LangController.getText("TTSNotAvailableError"),
+                        LangController.getText("ErrorText"));
             } finally {
                 HibernateUtil.commitTransaction();
                 progress.setValue(1.0);

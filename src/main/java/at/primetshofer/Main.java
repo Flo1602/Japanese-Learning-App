@@ -1,15 +1,14 @@
 package at.primetshofer;
 
 import at.primetshofer.model.AudioRecorder;
+import at.primetshofer.model.Controller;
 import at.primetshofer.model.TTS;
 import at.primetshofer.model.util.DatabaseBackupManager;
 import at.primetshofer.model.util.HibernateUtil;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.MainMenuView;
 import at.primetshofer.view.ViewUtils;
-import at.primetshofer.view.catalog.CreateEditWordWindow;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -52,6 +51,16 @@ public class Main extends Application {
         splashScreen.bindProgress(initializationTask);
 
         initializationTask.setOnSucceeded(e -> {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
+
+            ViewUtils.applyStyleSheet();
+            TTS.updateSpeakerId();
+            LangController.initBundle(Controller.getInstance().getSettings().getLocale());
+
             splashScreen.close();
             showMainStage(stage);
         });
@@ -65,14 +74,10 @@ public class Main extends Application {
         } catch (Exception ex) {
             logger.fatal("DB connection Failed. \nMake sure that no other instances of the program are running", ex);
 
-            Platform.runLater(() -> {
-                // TODO use viewutils and lang
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setContentText("DB connection Failed! \nMake sure that no other instances of the program are running!");
-                alert.showAndWait();
-                System.exit(100);
-            });
+            ViewUtils.showAlert(Alert.AlertType.ERROR,
+                    LangController.getText("DBConnectionFailed"),
+                    LangController.getText("ErrorText"));
+            System.exit(100);
         }
     }
 
@@ -88,18 +93,6 @@ public class Main extends Application {
         ViewUtils.applyStyleSheet();
         TTS.updateSpeakerId();
 
-        new Thread(() -> {
-
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-
-            ViewUtils.applyStyleSheet();
-            TTS.updateSpeakerId();
-        }).start();
-
         ViewUtils.applyStyleSheetDefault();
 
         stage.setTitle("Japanese Learning App");
@@ -107,7 +100,11 @@ public class Main extends Application {
         stage.getIcons().add(new Image("icon.png"));
         stage.show();
 
-        stage.setOnCloseRequest(event -> AudioRecorder.stopRecording(null));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            AudioRecorder.stopRecording(null);
+            HibernateUtil.shutdown();
+            logger.info("Shutdown Successful");
+        }));
 
         primaryStage = stage;
     }

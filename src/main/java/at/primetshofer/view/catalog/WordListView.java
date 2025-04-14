@@ -92,11 +92,10 @@ public class WordListView extends View {
         importButton.getStyleClass().add("wordListButton");
         importButton.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
-            // TODO use lang
-            fileChooser.setTitle("Open File");
+            fileChooser.setTitle(LangController.getText("OpenFileTitle"));
 
             fileChooser.getExtensionFilters().addAll(
-                    new FileChooser.ExtensionFilter("Anki File", "*.apkg") // TODO use lang for desc
+                    new FileChooser.ExtensionFilter(LangController.getText("AnkiFileDesc"), "*.apkg")
             );
 
             File selectedFile = fileChooser.showOpenDialog(Main.primaryStage);

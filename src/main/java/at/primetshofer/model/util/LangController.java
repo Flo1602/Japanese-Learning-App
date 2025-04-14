@@ -1,6 +1,5 @@
 package at.primetshofer.model.util;
 
-import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import org.apache.log4j.Logger;
 
 import java.util.Locale;
@@ -14,6 +13,12 @@ public class LangController {
     static final String BASENAME = "lang";
 
     private static ResourceBundle langController;
+
+    public final static Locale[] supportedLocales = {
+            Locale.ENGLISH,
+            Locale.GERMAN,
+            Locale.JAPANESE
+    };
 
     static {
         LangController.initBundle(Locale.ENGLISH);

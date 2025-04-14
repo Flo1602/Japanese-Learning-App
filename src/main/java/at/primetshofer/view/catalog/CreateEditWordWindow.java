@@ -1,12 +1,12 @@
 package at.primetshofer.view.catalog;
 
-import at.primetshofer.logic.tracing.verification.VerificationLogic;
 import at.primetshofer.model.TTS;
 import at.primetshofer.model.entities.Kanji;
 import at.primetshofer.model.entities.Word;
 import at.primetshofer.model.util.HibernateUtil;
 import at.primetshofer.model.util.JishoAudioFetcher;
 import at.primetshofer.model.util.LangController;
+import at.primetshofer.view.ViewUtils;
 import jakarta.persistence.EntityManager;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -27,8 +27,7 @@ public class CreateEditWordWindow extends PopUp {
 
     public CreateEditWordWindow() {
         super();
-        // TODO use lang
-        setTitle("Word Editor");
+        setTitle(LangController.getText("WordEditorTitle"));
     }
 
     @Override
@@ -130,13 +129,9 @@ public class CreateEditWordWindow extends PopUp {
                 } catch (Exception ex) {
                     logger.error("TTS API not available", ex);
 
-                    Platform.runLater(() -> {
-                        // TODO: use ViewUtil and lang
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Error");
-                        alert.setContentText("TTS API not available!");
-                        alert.showAndWait();
-                    });
+                    ViewUtils.showAlert(Alert.AlertType.ERROR,
+                            LangController.getText("TTSNotAvailableError"),
+                            LangController.getText("ErrorText"));
                 } finally {
                     HibernateUtil.commitTransaction();
 

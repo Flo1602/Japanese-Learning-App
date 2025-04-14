@@ -3,7 +3,6 @@ package at.primetshofer.view.learning.menu;
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.ViewUtils;
-import at.primetshofer.view.catalog.CreateEditWordWindow;
 import at.primetshofer.view.catalog.View;
 import at.primetshofer.view.learning.learnSessionManagers.KanjiSessionManager;
 import javafx.animation.KeyFrame;
@@ -148,8 +147,9 @@ public class KanjiMenuLearningView extends View {
         task.setOnSucceeded(event -> updateProgress());
         task.setOnFailed(event -> {
             logger.fatal("Error while updating progresses", event.getSource().getException());
-            // TODO: use lang
-            ViewUtils.showAlert(Alert.AlertType.ERROR, "Error while updating Progresses!", "FATAL ERROR!");
+            ViewUtils.showAlert(Alert.AlertType.ERROR,
+                    LangController.getText("UpdatingProgressesError"),
+                    LangController.getText("FatalError"));
         });
 
         new Thread(task).start();
