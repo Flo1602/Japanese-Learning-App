@@ -95,7 +95,7 @@ public class CreateEditSentenceWindow extends PopUp {
                 try {
                     String ttsString = sentence.getJapanese();
 
-                    File file = TTS.getTts().synthesizeAudio(ttsString, "audio/sentences/" + sentence.getId() + ".wav");
+                    File file = TTS.getTts().synthesizeAudio(ttsString, "audio/sentences/" + sentence.getId() + ".wav", 0.8);
                     sentence.setTtsPath(file.getPath());
                     sentence = em.merge(sentence);
 

@@ -198,7 +198,7 @@ public class ImportSentencesView extends View {
                 for (Sentence sentence : finalSentences) {
                     String ttsString = sentence.getJapanese();
 
-                    File file = TTS.getTts().synthesizeAudio(ttsString, "audio/sentences/" + sentence.getId() + ".wav");
+                    File file = TTS.getTts().synthesizeAudio(ttsString, "audio/sentences/" + sentence.getId() + ".wav", 0.8);
                     sentence.setTtsPath(file.getPath());
                     em.merge(sentence);
                     progress.set(progress.get() + progressValue);

@@ -164,7 +164,7 @@ public class SettingsView extends View {
             Settings settings = controller.getSettings();
 
             try {
-                if(settings.getLocale() != languageComboBox.getValue()){
+                if(!settings.getLocale().equals(languageComboBox.getValue())){
                     ViewUtils.showAlert(Alert.AlertType.WARNING,
                             LangController.getText("RestartNeededForLanguageChange"),
                             LangController.getText("WarningText"));

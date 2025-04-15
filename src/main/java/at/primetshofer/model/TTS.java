@@ -1,5 +1,7 @@
 package at.primetshofer.model;
 
+import org.json.JSONObject;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -38,6 +40,10 @@ public class TTS {
     }
 
     public File synthesizeAudio(String text, String savePath) throws IOException, InterruptedException {
+        return synthesizeAudio(text, savePath, 1.0);
+    }
+
+    public File synthesizeAudio(String text, String savePath, double speedScale) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
 
         // Step 1: Generate audio query
@@ -53,12 +59,18 @@ public class TTS {
             throw new RuntimeException("Failed to get audio query: " + queryResponse.body());
         }
 
+        // Step 1.5: Modify the audio query JSON to slow down speech.
+        // Here we set the "speedScale" parameter to 0.7 for slower speech.
+        JSONObject jsonQuery = new JSONObject(queryResponse.body());
+        jsonQuery.put("speedScale", speedScale);  // Adjust the value as needed for slower speed.
+        String modifiedAudioQuery = jsonQuery.toString();
+
         // Step 2: Synthesize audio using the generated query
         URI synthesisUri = URI.create(VOICEVOX_BASE_URL + "/synthesis?speaker=" + speakerId);
         HttpRequest synthesisRequest = HttpRequest.newBuilder()
                 .uri(synthesisUri)
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(queryResponse.body()))
+                .POST(HttpRequest.BodyPublishers.ofString(modifiedAudioQuery))
                 .build();
 
         HttpResponse<InputStream> synthesisResponse = client.send(synthesisRequest, HttpResponse.BodyHandlers.ofInputStream());
