@@ -10,6 +10,7 @@ import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.MainMenuView;
 import at.primetshofer.view.ViewUtils;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -77,10 +78,14 @@ public class Main extends Application {
         } catch (Exception ex) {
             logger.fatal("DB connection Failed. \nMake sure that no other instances of the program are running", ex);
 
-            ViewUtils.showAlert(Alert.AlertType.ERROR,
-                    LangController.getText("DBConnectionFailed"),
-                    LangController.getText("ErrorText"));
-            System.exit(100);
+            Platform.runLater(() ->{
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("ErrorText");
+                alert.setContentText("DBConnectionFailed");
+                alert.showAndWait();
+
+                System.exit(100);
+            });
         }
     }
 
