@@ -1,8 +1,10 @@
 package at.primetshofer.view.catalog;
 
+import at.primetshofer.model.Controller;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 
 public abstract class View {
@@ -17,6 +19,13 @@ public abstract class View {
     public View(Scene scene) {
         this.scene = scene;
         origin = new SimpleObjectProperty<>();
+
+        scene.setOnKeyPressed(event -> {
+            if(event.getCode() == KeyCode.ESCAPE) {
+                Controller.getInstance().stopAudio();
+            }
+        });
+
         initView();
     }
 

@@ -35,7 +35,7 @@ public class Controller {
 
     private Settings settings;
     private final EntityManager em;
-    private MediaPlayer mediaPlayer;
+    private Stack<MediaPlayer> mediaPlayers;
     private final KanjiTrainer kanjiTrainer;
     private final VocabTrainer vocabTrainer;
 
@@ -43,6 +43,7 @@ public class Controller {
         em = HibernateUtil.getEntityManager();
         kanjiTrainer = KanjiTrainer.getInstance();
         vocabTrainer = VocabTrainer.getInstance();
+        mediaPlayers = new Stack<>();
     }
 
     public static Controller getInstance() {
@@ -229,8 +230,9 @@ public class Controller {
     public void playAudio(String path) {
         try {
             Media media = new Media(new File(path).toURI().toString());
-            mediaPlayer = new MediaPlayer(media);
+            MediaPlayer mediaPlayer = new MediaPlayer(media);
             mediaPlayer.setVolume(200);
+            this.mediaPlayers.push(mediaPlayer);
             mediaPlayer.play();
         } catch (Exception ex) {
             logger.error("Audio '" + path + "' not found");
@@ -241,8 +243,8 @@ public class Controller {
     }
 
     public void stopAudio() {
-        if (mediaPlayer != null) {
-            mediaPlayer.stop();
+        while (!mediaPlayers.isEmpty()){
+            mediaPlayers.pop().stop();
         }
     }
 
