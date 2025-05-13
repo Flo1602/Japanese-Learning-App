@@ -1,6 +1,7 @@
 package at.primetshofer.view.learning.menu;
 
 import at.primetshofer.model.AudioRecorder;
+import at.primetshofer.model.util.DiscordActivityUtil;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.services.LoadLearningDataService;
 import at.primetshofer.view.MainMenuView;
@@ -174,6 +175,8 @@ public class LearningMenuView extends View {
         super.display(origin);
 
         AudioRecorder.stopRecordingThread();
+
+        DiscordActivityUtil.setActivityDetails("Preparing to learn");
 
         if(origin instanceof MainMenuView){
             if (loadLearningDataService.getState() == Worker.State.RUNNING) {

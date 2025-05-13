@@ -2,6 +2,7 @@ package at.primetshofer.view.learning.menu;
 
 import at.primetshofer.model.StatsManager;
 import at.primetshofer.model.entities.LearnTimeStats;
+import at.primetshofer.model.util.DiscordActivityUtil;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.ViewUtils;
 import at.primetshofer.view.catalog.View;
@@ -185,6 +186,8 @@ public class StatsView extends View {
 
         hb.getChildren().addAll(desc, spacer, amount);
 
+        DiscordActivityUtil.setActivityDetails("Checking Stats: " + today.getExercisesCount() + " Exercises Today");
+
         return hb;
     }
 
@@ -259,6 +262,11 @@ public class StatsView extends View {
         hb.getChildren().addAll(desc, spacer, amount);
 
         return hb;
+    }
+
+    @Override
+    public void display(View origin) {
+        super.display(origin);
     }
 
     private static String formatDuration(Duration duration) {

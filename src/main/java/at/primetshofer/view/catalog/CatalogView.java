@@ -1,5 +1,6 @@
 package at.primetshofer.view.catalog;
 
+import at.primetshofer.model.util.DiscordActivityUtil;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.ViewUtils;
 import javafx.geometry.Pos;
@@ -68,5 +69,12 @@ public class CatalogView extends View {
         hb.widthProperty().addListener((observableValue, oldValue, newValue) -> spacer.setPrefWidth(newValue.doubleValue()));
 
         bp.setRight(spacer);
+    }
+
+    @Override
+    public void display(View origin) {
+        super.display(origin);
+
+        DiscordActivityUtil.setActivityDetails("Editing Catalog");
     }
 }

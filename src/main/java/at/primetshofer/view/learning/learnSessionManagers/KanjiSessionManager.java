@@ -16,6 +16,7 @@ import at.primetshofer.model.Polygon;
 import at.primetshofer.model.entities.Kanji;
 import at.primetshofer.model.entities.KanjiProgress;
 import at.primetshofer.model.entities.Word;
+import at.primetshofer.model.util.DiscordActivityUtil;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.ViewUtils;
 import at.primetshofer.view.learning.learnViews.KanjiTracerLearnView;
@@ -23,6 +24,7 @@ import at.primetshofer.view.learning.learnViews.WordKanjiSelectLearnView;
 import at.primetshofer.view.learning.learnViews.matchLearnViews.JapaneseToKanaMatch;
 import at.primetshofer.view.learning.learnViews.matchLearnViews.VocabAudioToJapaneseMatch;
 import at.primetshofer.view.learning.learnViews.sentenceLearnViews.WordBuilderView;
+import de.jcm.discordgamesdk.activity.Activity;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.paint.Color;
@@ -46,6 +48,8 @@ public class KanjiSessionManager extends LearnSessionManager {
     private final Random random;
     private int builderChanceIncrease;
     private boolean specificKanji;
+
+    private Activity activity;
 
     public KanjiSessionManager(Scene scene) {
         super(scene);
@@ -196,8 +200,21 @@ public class KanjiSessionManager extends LearnSessionManager {
         nextLearningView();
     }
 
+    private void updateDiscordState(){
+        if(activity == null){
+            activity = new Activity();
+        }
+
+        String state = "Learning Kanji: " + kanji.getSymbol() + " " + currentCounter + "/" + getMaxViews() + " Mistakes: " + getWrongCounter();
+
+        activity.setDetails(state);
+
+        DiscordActivityUtil.updateActivity(activity);
+    }
+
     @Override
     protected void nextLearningView() {
+        updateDiscordState();
         if (difficulty < EASY_CAP) {
             lowDifficulty();
         } else if (difficulty < MID_CAP) {

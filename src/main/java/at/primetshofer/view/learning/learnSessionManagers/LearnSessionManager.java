@@ -59,6 +59,7 @@ public abstract class LearnSessionManager {
     private Queue<LearnView> wrongList;
     private int maxViews;
     private int correctCounter;
+    private int wrongCounter;
     private boolean correctMistakesMode;
 
     public LearnSessionManager(Scene scene) {
@@ -209,6 +210,7 @@ public abstract class LearnSessionManager {
             infoLabel.getStyleClass().add("correctText");
             infoLabel.setText(LangController.getText("CorrectText"));
         } else {
+            wrongCounter++;
             if (currentLearnView instanceof KanjiTracerLearnView || currentLearnView instanceof WordDefense) {
                 correctCounter++;
                 setProgress((double) correctCounter / maxViews);
@@ -315,5 +317,13 @@ public abstract class LearnSessionManager {
 
     public void setMaxViews(int maxViews) {
         this.maxViews = maxViews;
+    }
+
+    protected int getMaxViews(){
+        return maxViews;
+    }
+
+    protected int getWrongCounter() {
+        return wrongCounter;
     }
 }

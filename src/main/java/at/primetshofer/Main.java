@@ -4,6 +4,7 @@ import at.primetshofer.model.AudioRecorder;
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.TTS;
 import at.primetshofer.model.util.DatabaseBackupManager;
+import at.primetshofer.model.util.DiscordActivityUtil;
 import at.primetshofer.model.util.HibernateUtil;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.MainMenuView;
@@ -39,6 +40,8 @@ public class Main extends Application {
             protected Void call() {
                 updateProgress(-1, 0);
                 updateMessage(LangController.getText("SplashScreenMessage"));
+
+                DiscordActivityUtil.startDiscordConnection();
 
                 initializeHibernate();
 
@@ -103,6 +106,7 @@ public class Main extends Application {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             AudioRecorder.stopRecording(null);
             HibernateUtil.shutdown();
+            DiscordActivityUtil.stopDiscordConnection();
             logger.info("Shutdown Successful");
         }));
 

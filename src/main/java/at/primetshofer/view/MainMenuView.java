@@ -2,6 +2,7 @@ package at.primetshofer.view;
 
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.entities.Word;
+import at.primetshofer.model.util.DiscordActivityUtil;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.catalog.*;
 import at.primetshofer.view.learning.menu.LearningMenuView;
@@ -115,6 +116,8 @@ public class MainMenuView extends View {
     @Override
     public void display(View origin) {
         super.display(origin);
+
+        DiscordActivityUtil.setActivityDetails("Main Menu");
 
         Controller controller = Controller.getInstance();
         List<Word> wordsWithoutSentences = controller.getWordsWithoutSentences();

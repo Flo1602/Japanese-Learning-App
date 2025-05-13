@@ -2,6 +2,7 @@ package at.primetshofer.view.learning.learnSessionManagers;
 
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.entities.Word;
+import at.primetshofer.model.util.DiscordActivityUtil;
 import at.primetshofer.view.learning.learnViews.matchLearnViews.MatchLearnView;
 import at.primetshofer.view.learning.learnViews.matchLearnViews.VocabAudioToEnglishMatch;
 import at.primetshofer.view.learning.learnViews.matchLearnViews.VocabEnglishToJapaneseMatch;
@@ -51,6 +52,7 @@ public class WordSessionManager extends LearnSessionManager {
 
     @Override
     protected void startLearning() {
+        DiscordActivityUtil.setActivityDetails("Learning Vocabulary");
         nextLearningView();
     }
 
