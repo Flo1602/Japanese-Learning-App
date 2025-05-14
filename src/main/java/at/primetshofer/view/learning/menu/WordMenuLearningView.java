@@ -3,7 +3,6 @@ package at.primetshofer.view.learning.menu;
 import at.primetshofer.model.Controller;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.view.ViewUtils;
-import at.primetshofer.view.catalog.CreateEditWordWindow;
 import at.primetshofer.view.catalog.View;
 import at.primetshofer.view.learning.learnSessionManagers.WordDefenseSessionManager;
 import at.primetshofer.view.learning.learnSessionManagers.WordSessionManager;
@@ -148,6 +147,8 @@ public class WordMenuLearningView extends View {
         setProgress(controller.getWordsProgress());
 
         addWordToDue.setVisible(controller.getDueWordCount() != controller.getDueTotalWordsCount());
+
+        controller.setDiscordWordProgress();
     }
 
     public void setProgress(double progress) {

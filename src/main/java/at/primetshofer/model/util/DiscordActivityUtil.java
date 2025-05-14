@@ -1,6 +1,8 @@
 package at.primetshofer.model.util;
 
 import at.primetshofer.Main;
+import at.primetshofer.model.StatsManager;
+import at.primetshofer.model.entities.LearnTimeStats;
 import de.jcm.discordgamesdk.Core;
 import de.jcm.discordgamesdk.CreateParams;
 import de.jcm.discordgamesdk.activity.Activity;
@@ -15,6 +17,7 @@ public class DiscordActivityUtil {
     private static Core core;
     private static boolean stop = false;
     private static Instant startTime;
+    private static LearnTimeStats todayStats;
 
     public static void startDiscordConnection(){
         stop = false;
@@ -64,17 +67,40 @@ public class DiscordActivityUtil {
 
     public static void updateActivity(Activity activity){
         if(core.isOpen()){
-            activity.assets().setLargeImage("icon");
-            Thread updateActivityThread = new Thread(() -> core.activityManager().updateActivity(activity));
+            setTodaysExercisesInActivity(activity);
+            Thread updateActivityThread = new Thread(() -> {
+                if(activity.assets().getLargeImage() == null){
+                    activity.assets().setLargeImage("icon");
+                    activity.timestamps().setStart(startTime);
+                }
+                core.activityManager().updateActivity(activity);
+            });
 
             updateActivityThread.setDaemon(true);
             Thread.startVirtualThread(updateActivityThread);
         }
     }
 
+    private static void setTodaysExercisesInActivity(Activity activity){
+        if(todayStats == null){
+            todayStats = StatsManager.getTodayStats();
+        }
+
+        int exerciseCount = 0;
+        if(todayStats != null){
+            exerciseCount = todayStats.getExercisesCount();
+        }
+
+        if(exerciseCount != 1){
+            activity.setState(exerciseCount + " Exercises Today");
+        } else {
+            activity.setState(exerciseCount + " Exercise Today");
+        }
+
+    }
+
     public static void setActivityDetails(String details){
         Activity activity = new Activity();
-        activity.timestamps().setStart(startTime);
         activity.setDetails(details);
 
         DiscordActivityUtil.updateActivity(activity);

@@ -168,6 +168,8 @@ public class KanjiMenuLearningView extends View {
         setProgress(controller.getKanjiProgress());
 
         addKanjiToDue.setVisible(controller.getDueKanjiCount() != controller.getDueTotalKanjiCount());
+
+        controller.setDiscordKanjiProgress();
     }
 
     public void setProgress(double progress) {

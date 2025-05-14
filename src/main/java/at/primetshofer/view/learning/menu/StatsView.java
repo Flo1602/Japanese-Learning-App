@@ -169,6 +169,8 @@ public class StatsView extends View {
 
         hb.getChildren().addAll(desc, spacer, amount);
 
+        DiscordActivityUtil.setActivityDetails("Checking Stats: " + totalExercises + " Total Exercises");
+
         return hb;
     }
 
@@ -185,8 +187,6 @@ public class StatsView extends View {
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         hb.getChildren().addAll(desc, spacer, amount);
-
-        DiscordActivityUtil.setActivityDetails("Checking Stats: " + today.getExercisesCount() + " Exercises Today");
 
         return hb;
     }

@@ -1,5 +1,6 @@
 package at.primetshofer.view.learning.menu;
 
+import at.primetshofer.model.util.DiscordActivityUtil;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.services.NetworkLearningService;
 import at.primetshofer.view.catalog.View;
@@ -67,6 +68,7 @@ public class NetworkLearningView extends View {
     @Override
     public void display(View origin) {
         super.display(origin);
+        DiscordActivityUtil.setActivityDetails("Learning Kanji on Mobile");
         startNetworkLearning();
     }
 

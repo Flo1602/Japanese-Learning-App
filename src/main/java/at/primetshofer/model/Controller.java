@@ -3,6 +3,7 @@ package at.primetshofer.model;
 import at.primetshofer.model.Trainer.KanjiTrainer;
 import at.primetshofer.model.Trainer.VocabTrainer;
 import at.primetshofer.model.entities.*;
+import at.primetshofer.model.util.DiscordActivityUtil;
 import at.primetshofer.model.util.HibernateUtil;
 import at.primetshofer.model.util.LangController;
 import at.primetshofer.model.util.Stylesheet;
@@ -232,6 +233,12 @@ public class Controller {
             Media media = new Media(new File(path).toURI().toString());
             MediaPlayer mediaPlayer = new MediaPlayer(media);
             mediaPlayer.setVolume(200);
+
+            mediaPlayer.setOnEndOfMedia(() ->{
+                mediaPlayers.remove(mediaPlayer);
+                mediaPlayer.dispose();
+            });
+
             this.mediaPlayers.push(mediaPlayer);
             mediaPlayer.play();
         } catch (Exception ex) {
@@ -244,7 +251,9 @@ public class Controller {
 
     public void stopAudio() {
         while (!mediaPlayers.isEmpty()){
-            mediaPlayers.pop().stop();
+            MediaPlayer pop = mediaPlayers.pop();
+            pop.stop();
+            pop.dispose();
         }
     }
 
@@ -307,6 +316,18 @@ public class Controller {
             return 100;
         }
         return (double) (100 * (max - kanjiTrainer.getTodayDueCurrent())) / max / 100;
+    }
+
+    public void setDiscordKanjiProgress(){
+        int max = kanjiTrainer.getTodayDueMax();
+        int finished = max - kanjiTrainer.getTodayDueCurrent();
+        DiscordActivityUtil.setActivityDetails("Kanji Progress: " + finished + "/" + max);
+    }
+
+    public void setDiscordWordProgress(){
+        int max = vocabTrainer.getTodayDueMax();
+        int finished = max - vocabTrainer.getTodayDueCurrent();
+        DiscordActivityUtil.setActivityDetails("Vocabulary Progress: " + finished + "/" + max);
     }
 
     public double getWordsProgress() {
